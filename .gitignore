@@ -1,0 +1,9 @@
+# 构建产物与验证输出（体积大，不入库）
+output/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store

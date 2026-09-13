@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "title": "采购协同方案",
+  "footer_label": "采购协同 · 方案示例",
+  "slides": [
+    {
+      "id": "p01",
+      "layout": "cover",
+      "chapter": "采购业务协同",
+      "title_prefix": "采购协同",
+      "title": "让协作有据可循",
+      "subtitle": "连接需求、审批与履约的一条完整路径",
+      "promise": "从业务需求，走到履约证据",
+      "benefits": [
+        "对象清楚",
+        "流程可见",
+        "证据完整"
+      ],
+      "notes": "此页为结构示例。实际功能和效果应来自用户大纲。",
+      "image": {
+        "src": "images/01.png",
+        "alt": "采购、业务和仓储团队围绕同一订单协作",
+        "ratio": "1:1",
+        "brief": {
+          "subject": "A small procurement office building cut open like a dollhouse on one rounded base: a request desk on the left floor, an order-checking desk in the middle floor, a receiving dock with shelving and pallets on the right; about eight tiny figures at work.",
+          "action": "Business staff hand a plain white request folder to the purchasing team, who compare it with an order sheet; warehouse staff count boxes against the same sheet.",
+          "structure": "One continuous pale blue channel recessed into the base runs from the request desk through the order desk to the receiving dock, so the three teams visibly share one path of evidence.",
+          "details": "Three distinct zones on one base; shelves with boxes, a delivery cart, filing trays, one blue folder at the receiving dock; leave clean surfaces on the right for HTML labels.",
+          "composition": "Square 1:1, isometric from the right front, building fills about 75% of the frame, all figures and the base complete."
+        }
+      },
+      "visual": {
+        "role": "cover",
+        "treatment": "none",
+        "rationale": "用封面价值与完整协作场景引入",
+        "requirements": []
+      }
+    },
+    {
+      "id": "p02",
+      "layout": "scene",
+      "chapter": "协作机制",
+      "title": "每一次交接，都保留业务上下文",
+      "subtitle": "让任务、责任人与证据沿流程一起流转",
+      "left": [
+        {
+          "title": "统一任务",
+          "text": "需求与订单围绕同一个业务对象",
+          "icon": "Blocks",
+          "presentation": "open"
+        },
+        {
+          "title": "明确责任",
+          "text": "每一步交接都能找到责任团队",
+          "icon": "UserRoundCheck",
+          "presentation": "open"
+        }
+      ],
+      "right": [
+        {
+          "title": "核对材料",
+          "text": "在执行前确认必需的业务证据",
+          "icon": "ClipboardCheck",
+          "presentation": "panel"
+        },
+        {
+          "title": "跟进异常",
+          "text": "有差异时返回对应环节处理",
+          "icon": "ShieldCheck",
+          "presentation": "open"
+        }
+      ],
+      "bottom": {
+        "type": "text",
+        "text": "把分散的动作连接成可追溯的协作过程"
+      },
+      "notes": "说明业务关系；不把示意场景表述成真实产品截图。",
+      "image": {
+        "src": "images/02.png",
+        "alt": "团队围绕订单、交付物和核对材料开展协作",
+        "ratio": "4:3",
+        "brief": {
+          "subject": "A shared handover worktable in the centre of a compact office diorama, with a purchasing clerk, a warehouse worker and a business owner around it, and a smaller side desk to the right.",
+          "action": "The three people check one delivered crate against a document together; a fourth person at the side desk returns a flagged folder to the purchasing clerk.",
+          "structure": "Every handover passes across the same central table, and the only pale blue object is the folder travelling back to the person responsible, showing that context and responsibility move together.",
+          "details": "Crate, clipboard, two trays of folders, a small return tray on the side desk, chairs, a plant; no screens with content.",
+          "composition": "4:3, slightly elevated three-quarter view, table group centred, side desk fully visible, base complete."
+        }
+      },
+      "visual": {
+        "role": "controls",
+        "treatment": "mixed",
+        "rationale": "普通任务和责任说明用图标横线，核对材料强调为浅底控制块",
+        "requirements": []
+      }
+    },
+    {
+      "id": "p03",
+      "layout": "closing",
+      "chapter": "期待交流与合作",
+      "title": "感谢聆听",
+      "subtitle": "共同建立清晰、顺畅的采购协作",
+      "message": "让任务顺畅流转\n让每一步都有据可循",
+      "image": {
+        "src": "images/03.png",
+        "alt": "三个团队共同完成共享业务模型",
+        "ratio": "4:3",
+        "brief": {
+          "subject": "Three team members from business, purchasing and warehousing standing at one long worktable, assembling a small three-part model of a procurement facility.",
+          "action": "Each person slots one white building section into the shared base while the other two steady it, a cooperative finishing gesture.",
+          "structure": "Three separate sections join into a single completed model on one base; the last joint being fitted is pale blue.",
+          "details": "Model sections with tiny interior desks, a few blank binders on the table, one plant; no confetti or celebration props.",
+          "composition": "4:3 wide low scene, people and table complete, slight elevation, calm and collaborative."
+        }
+      },
+      "visual": {
+        "role": "closing",
+        "treatment": "none",
+        "rationale": "简洁致谢配合作场景，不重复装饰标题",
+        "requirements": []
+      }
+    }
+  ]
+}

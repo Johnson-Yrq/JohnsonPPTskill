@@ -1,0 +1,4 @@
+interface:
+  display_name: "场景化 HTML 演示稿"
+  short_description: "从PPT大纲制作带场景配图的可编辑HTML演示稿，沿用普爱智医主题"
+  default_prompt: "使用 $scene-html-slides，根据我的PPT大纲制作场景化HTML演示稿，沿用默认Logo、主题与版式，并完成逐页检查。"
