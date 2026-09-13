@@ -13,7 +13,35 @@
 
 ## 快速开始
 
-### 安装
+### 使用 npx 安装（推荐）
+
+电脑已安装 Node.js/npm 后，可以通过 [Skills CLI](https://github.com/vercel-labs/skills#options) 直接从本 GitHub 仓库安装，无需手动克隆或单独发布 npm 包。
+
+**安装到 Codex：**
+
+```bash
+npx skills@latest add Johnson-Yrq/JohnsonPPTskill --skill '*' -g -a codex
+```
+
+**安装到 Claude Code：**
+
+```bash
+npx skills@latest add Johnson-Yrq/JohnsonPPTskill --skill '*' -g -a claude-code
+```
+
+- `--skill '*'`：安装仓库中的全部 Skill，目前包含 `ppt-workbench`、`scene-html-slides` 和 `saas-3d-slides`，确保统一入口、共享套件和风格包一起安装。保留星号两侧的引号。
+- `-g`：全局安装，跨项目使用；去掉该参数则安装到当前项目。
+- `-a`：选择目标 Agent。
+
+只查看仓库提供的 Skill，不执行安装：
+
+```bash
+npx skills@latest add Johnson-Yrq/JohnsonPPTskill --list
+```
+
+安装完成后，按下方「开始制作」调用 `$ppt-workbench` 即可。
+
+### 手动安装
 
 克隆仓库并进入目录：
 
