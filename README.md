@@ -11,6 +11,24 @@
 
 当前共享套件版本为 **3.1.0**。构建器输出 `.html`；明确需要 `.pptx` 时，应使用相应的 PowerPoint 制作流程，本套件不提供 HTML 转 PPTX 导出。
 
+## 成稿示例
+
+以下为海蓝玻璃风格的实际页面截图，展示演讲型与四种阅读型布局。点击图片可查看 1920 × 1080 原图；图表中的数字均为排版示例数据。
+
+| 演讲型 · 封面 | 演讲型 · 产品能力与轻量强调 |
+|:---:|:---:|
+| <a href="docs/images/examples/speech-cover.png"><img src="docs/images/examples/speech-cover.png" alt="演讲型封面：左侧价值主张，右侧三维产品展陈" width="440"></a> | <a href="docs/images/examples/speech-product.png"><img src="docs/images/examples/speech-product.png" alt="演讲型产品能力页：三项说明与大幅配图，重点标题和图标轻量放大" width="440"></a> |
+
+| 阅读型 · 1/2 左右 | 阅读型 · 1/2 上下 |
+|:---:|:---:|
+| <a href="docs/images/examples/reading-half-lr.png"><img src="docs/images/examples/reading-half-lr.png" alt="阅读型左右各半：左侧产品场景，右侧条形图与工作说明" width="440"></a> | <a href="docs/images/examples/reading-half-tb.png"><img src="docs/images/examples/reading-half-tb.png" alt="阅读型上下各半：上方双场景，下方处理流程与趋势折线图" width="440"></a> |
+
+| 阅读型 · 1/2 对角双图 | 阅读型 · 1/4 配图 |
+|:---:|:---:|
+| <a href="docs/images/examples/reading-half-diagonal.png"><img src="docs/images/examples/reading-half-diagonal.png" alt="阅读型对角双图：左上和右下配图，其余区域展示能力矩阵与环形图" width="440"></a> | <a href="docs/images/examples/reading-quarter.png"><img src="docs/images/examples/reading-quarter.png" alt="阅读型四分之一配图：其余三区展示数量比较、交付核对表和使用边界" width="440"></a> |
+
+阅读型比例按主体版面分区计算，不含页头、页脚及全宽摘要。具体组织方式见下方「阅读型的四种图文分区」。
+
 ## 快速开始
 
 ### 使用 npx 安装（推荐）
