@@ -1,238 +1,292 @@
 # JohnsonPPTskill
 
-把 PPT 大纲变成**单文件、文字可编辑、可离线打开**的场景化 HTML 演示稿。
+根据 PPT 大纲制作**可编辑、可离线播放的单文件 HTML 演示稿**。先选择视觉风格和演讲型／阅读型，再按内容安排配图、流程、图表与文字。
 
-以 [`ppt-workbench`](skills/ppt-workbench/SKILL.md) 为统一选择入口，目前提供两套独立风格 Skill，共用 **v3.1.0 制作套件**，支持继续添加风格包。交付物是**一个 `.html` 文件**：CSS、JS、Logo、图标和配图全部内嵌，双击即可全屏演示，不联网、不依赖 PowerPoint。
+通过 [`ppt-workbench`](skills/ppt-workbench/SKILL.md) 统一开始制作。不同风格独立维护主题、配图提示词和参考图，共用排版、构建、编辑与检查套件；后续可以持续添加新风格。
 
-| 风格入口 | 适用与视觉 |
-|---|---|
-| [`scene-html-slides`](skills/scene-html-slides/SKILL.md) | 原有暖白蓝色页面、素白蓝调的白色模型场景 |
-| [`saas-3d-slides`](skills/saas-3d-slides/SKILL.md) | 海蓝玻璃：暖白纸底、海军蓝文字与重点面、灰青与少量香槟金、玻璃及精细微缩展陈配图 |
+- **整稿风格一致**：封面、页头、正文组件、配图与尾页遵循所选风格。
+- **信息密度可选**：演讲型服务现场讲解，阅读型保留独立理解所需的解释与依据。
+- **阅读型可视化**：支持四种图文分区，以及流程、矩阵、表格和离线 ECharts。
+- **单文件交付**：CSS、JS、Logo、图标和配图全部内嵌，支持文字编辑、另存、全屏与打印。
 
-每种风格有各自的页面主题、配图基底、参考图与验收规范；原有 12 种版式及新增阅读型复合版式、数据结构、构建器、播放器、文字编辑和检查脚本共用。原有项目不自动换风格。
+当前共享套件版本为 **3.1.0**。构建器输出 `.html`；明确需要 `.pptx` 时，应使用相应的 PowerPoint 制作流程，本套件不提供 HTML 转 PPTX 导出。
 
-```
-PPT 大纲(.md) ──► deck.json ──► 配图提示词 ──► 场景配图 ──► 演示稿.html
-                    │                                          │
-              --check-plan 设计检查                     audit_deck 渲染审查
-```
+## 快速开始
 
-## 特性
+### 安装
 
-- **风格与类型独立选择** — 动工前只询问尚未明确的风格和演讲型／阅读型类型；所有风格均支持两种类型，已有选择直接沿用。阅读型增加可编辑流程、矩阵、分层与边界对照，关键解释留在页面。
-
-- **单文件交付** — 1920×1080，图片默认转 WebP 内嵌；换台电脑、发微信、离线投屏都能直接打开。
-- **文字可编辑** — 播放器自带「编辑文字」模式，改完「另存 HTML」导出新的独立文件，不用回到源码。
-- **13 种内置版式** — 封面、大场景、左右说明、三段控制、阶段路径、分层架构、流程、多领域、公式、表格、实体关系、收束尾页及阅读型复合信息页。
-- **风格持续扩展** — 新增同级风格目录和有效 `assets/style.json` 即自动发现，不修改选项列表或复制制作脚本。
-- **独立配图风格** — 素白蓝调的白色模型场景或海蓝玻璃；按每页内容决定对象和关系，页面标题与业务标注留在 HTML 中。
-- **整页主题切换** — 海蓝玻璃风格同时应用于封面、页头、正文、图标、面板、页码与尾页；选择风格不会关闭自动检查。
-- **设计契约可校验** — 生图前用 `--check-plan` 核对每页结构与设计决策；成稿后用 Playwright 逐页审查品牌不变量、图文比例、图标与标注是否真实可见。
-- **品牌开箱即用** — 内置普爱智医 Logo、暖白蓝色主题与页头页脚规范，不需要用户再提供模板参数。
-
-## 安装
-
-将 `ppt-workbench`、`scene-html-slides` 与需要的风格包同级放进 Agent 的 skills 目录。`scene-html-slides` 包含共享制作套件，其他风格不复制脚本；更新已有安装前先备份相关目录。仅使用原风格时仍可只安装 `scene-html-slides`。
+克隆仓库并进入目录：
 
 ```bash
 git clone https://github.com/Johnson-Yrq/JohnsonPPTskill.git
+cd JohnsonPPTskill
 ```
+
+**Codex：**
 
 ```bash
-# Claude Code
-cp -R JohnsonPPTskill/skills/ppt-workbench JohnsonPPTskill/skills/scene-html-slides JohnsonPPTskill/skills/saas-3d-slides ~/.claude/skills/
+mkdir -p ~/.codex/skills
+cp -R skills/ppt-workbench skills/scene-html-slides skills/saas-3d-slides ~/.codex/skills/
 ```
+
+**Claude Code：**
 
 ```bash
-# Codex
-cp -R JohnsonPPTskill/skills/ppt-workbench JohnsonPPTskill/skills/scene-html-slides JohnsonPPTskill/skills/saas-3d-slides ~/.codex/skills/
+mkdir -p ~/.claude/skills
+cp -R skills/ppt-workbench skills/scene-html-slides skills/saas-3d-slides ~/.claude/skills/
 ```
 
-## 用法
+三个目录须同级放置。`scene-html-slides` 同时包含共享制作套件，其他风格依赖它；`ppt-workbench` 负责统一选择。更新已有安装时，先备份相关技能目录，再同步新版本。仅使用素白蓝调时，也可单独安装 `scene-html-slides`。
 
-装好后使用统一入口，Agent 会列出实际可用风格，并合并询问尚未明确的风格与类型：
+### 开始制作
 
-> 用 ppt-workbench，根据这份大纲制作演示稿，先让我选择风格和演讲型／阅读型。
+尚未确定风格或类型时：
 
-也可以一次指定两个维度，直接开始：
+> 用 $ppt-workbench，根据这份大纲制作演示稿，先让我选择风格和演讲型／阅读型。
 
-> 用 ppt-workbench，选择海蓝玻璃风格，做成阅读型，按内容安排配图、图表、矩阵和说明。
+已经明确两个选择时：
 
-已确定风格时仍可直接调用原有入口：
+> 用 $ppt-workbench，选择海蓝玻璃风格，做成阅读型。按内容安排配图、流程、矩阵和图表，完成逐页检查。
 
-> 用 scene-html-slides，根据这份大纲做场景化 HTML 演示稿，沿用默认 Logo、主题与版式，并完成逐页检查。
+也可以直接指定风格入口：
 
-选择海蓝玻璃风格时：
+> 用 $scene-html-slides，把这份大纲做成素白蓝调风格的演讲型演示稿。
 
-> 用 saas-3d-slides，根据这份产品大纲制作海军蓝与玻璃三维风格的 HTML 演示稿，复用现有排版和制作套件，完成逐页检查。
+> 用 $saas-3d-slides，把这份方案做成海蓝玻璃风格的阅读型演示稿。
 
-选择海蓝玻璃风格时，`deck.json` 根对象写 `"style": "saas-3d"`；选择素白蓝调风格写 `"scene-white"`。其他风格使用自动清单返回的 ID。旧稿省略 style 时仍兼容原风格；新稿不能用此默认代替用户选择。同一稿只选一种，不在各页混搭。命名风格无需 `--allow-restyle`。新风格示例见 [`assets/deck.example.json`](skills/saas-3d-slides/assets/deck.example.json)，已确认配图及目标图保存在它的 `assets/reference-design/` 中。
+Agent 只询问缺少的选择；当前任务已经确认的风格和类型直接沿用。用户明确授权由 Agent 选择时，会按目标选择并说明。模板默认值不代表用户选择，续做项目也不会因主题变化自动换风格。
 
-用途用根字段 `presentation_mode: "speech" / "reading"` 记录，与风格分开。未说明时先询问，已有确认不重复询问；旧稿省略字段仍兼容演讲型。查看 [模式规则](skills/scene-html-slides/references/presentation-modes.md) 与 [阅读型完整示例](skills/saas-3d-slides/assets/deck.reading.example.json)。
+## 选择视觉风格
 
-阅读型按主体版面分区选择 1/2 左右、1/2 上下、1/2 对角双图或 1/4 配图；主体版面不含页头页脚及全宽摘要。先确定配图分区，再用图表、图标、矩阵和文字组织其余内容。有可靠数量数据时可使用 ECharts；不得缩小字号、重复插图或补造指标，放不下则拆页。 共享 `reading` 版式支持四类分区与 1–3 张配图，含可编辑图注及离线 ECharts 图表。
-
-**两条运行路径**，skill 会按当前环境自动选择：
-
-- **环境有内置生图工具**（如 Codex 的 `image_gen`）：逐页生成场景图 → 直接出成稿。
-- **环境没有生图工具**（Claude Code 等）：先交付逐页完整的生图提示词和文件名清单，你生成图片回传后继续排版。
-
-**制作流程**（skill 内部按此推进）：识别并确认缺少的风格和演讲型／阅读型选择 → 理解大纲并规划每页 → 选版式与设计元素 → 写 `deck.json` 并 `--check-plan` → 准备场景图 → 构建并按实际渲染迭代 → 逐页验证后交付。
-
-## 随附脚本
-
-Python 脚本用 `python3 <skill>/scripts/…` 调用，Node 脚本用 `node <skill>/scripts/…`；路径参数相对本次工作目录。
-
-| 命令 | 作用 |
-|---|---|
-| `style_packs.py --list` | 自动列出同级可用风格及入口；`--include-drafts` 用于检查开发中的包 |
-| `build_deck.py deck.json --check-plan --out design-plan.json` | 生图前核对设计决策与每页结构（项数、字段类型、坐标范围），**不需要图片已存在** |
-| `prepare_images.py deck.json --out image-handoff` | 导出逐页生图提示词与供图清单，不调用模型、不联网 |
-| `match_paper.py images/*.png` | 把配图背景贴平到纸色 `#F7F6F2`，消除图框四边淡矩形；原图备份到 `images/original/` |
-| `build_deck.py deck.json --out 演示稿.html` | 构建唯一交付文件 |
-| `audit_deck.cjs 演示稿.html --out qa --browser chrome` | Playwright 渲染审查：品牌不变量、图文比例、DOM 可见性，输出截图与报告 |
-| `selftest.py` | 改动 skill 脚本或资源后自测，**不需要浏览器** |
-
-所有风格均调用 `scene-html-slides/scripts`。提示词导出按根 style 读取独立配图基底；海蓝玻璃供图目录附带 `style-reference.png`，清单记录 style 与各页 `ui_text`。海蓝玻璃默认 demo，保留已确认示例的指定短屏幕标签；纯无字需求可设 none。原风格仍为 none，原配图基底不变。
-
-常用参数：`--draft` 允许缺图的内部预排（正式交付禁用）、`--embed-format keep` 保留原图格式、`--embed-quality 85` 调压缩质量、`--builder` 加载项目自定义版式、`--allow-restyle` 仅在用户明确要求超出所选风格自定义封面页头页脚时使用。
-
-## deck.json
-
-```json
-{
-  "version": 1,
-  "title": "采购协同方案",
-  "style": "scene-white",
-  "presentation_mode": "speech",
-  "footer_label": "采购协同 · 方案示例",
-  "slides": [
-    {
-      "id": "p02",
-      "layout": "scene",
-      "chapter": "协作机制",
-      "title": "每一次交接，都保留业务上下文",
-      "subtitle": "让任务、责任人与证据沿流程一起流转",
-      "left":  [{ "title": "统一任务", "text": "需求与订单围绕同一个业务对象", "icon": "Blocks", "presentation": "open" }],
-      "right": [{ "title": "核对材料", "text": "在执行前确认必需的业务证据", "icon": "ClipboardCheck", "presentation": "panel" }],
-      "bottom": { "type": "text", "text": "把分散的动作连接成可追溯的协作过程" },
-      "notes": "本页口播、原始大纲与事实状态",
-      "image": { "src": "images/02.png", "alt": "团队围绕订单与核对材料开展协作", "ratio": "4:3", "brief": { "subject": "…", "action": "…" } },
-      "visual": { "role": "…", "reason": "…" }
-    }
-  ]
-}
-```
-
-需要配图的页面，`image.brief` 必须**本页独有**（对象清单带数量、人物动作、表达关系的物理机制、层级细节、构图）；`prepare_images.py` 会拒绝模板句和跨页复制的简报。完整字段说明见 [`references/deck-format.md`](skills/scene-html-slides/references/deck-format.md)，可运行示例见 [`assets/deck.example.json`](skills/scene-html-slides/assets/deck.example.json)。
-
-### 内置版式
-
-| 版式 | 用途 | 版式 | 用途 |
+| 风格 | `style` | 独立入口 | 视觉特点 |
 |---|---|---|---|
-| `cover` | 封面：价值与层级场景 | `architecture` | 与模型对齐的直接标注 |
-| `scene` | 大场景与两侧说明 | `flow` | 步骤与控制点 |
-| `split` / `triad` | 左右说明 / 三段控制 | `domains` | 多领域清单 |
-| `journey` | 横向比较、阶段或路径 | `formula` | 公式与平台解释 |
-| `table` | 指标与边界 | `relations` | 实体、字段与关系 |
-| `closing` | 有配图的收束尾页 | `reading` | 四类图文分区的阅读型复合信息页 |
+| **素白蓝调** | `scene-white` | [`scene-html-slides`](skills/scene-html-slides/SKILL.md) | 暖白纸底、明亮主蓝、白色哑光模型场景与微缩人物 |
+| **海蓝玻璃** | `saas-3d` | [`saas-3d-slides`](skills/saas-3d-slides/SKILL.md) | 暖白纸底、海军蓝文字与重点面、灰青及少量香槟金、玻璃与精细微缩展陈 |
 
-## 演示稿播放器
+两种风格都支持演讲型与阅读型，可用于不同主题的大纲。配图中的对象、动作与关系由业务内容决定；风格负责视觉表达。同一份演示稿选择一种风格，整稿保持一致。
 
-工具栏：总览 · 全屏 · 讲稿 · 编辑文字 · 另存 HTML · 打印。
+<details>
+<summary>查看包内视觉参考</summary>
 
-| 按键 | 作用 | 按键 | 作用 |
-|---|---|---|---|
-| `→` `PageDown` `空格` | 下一页 | `O` | 总览 |
-| `←` `PageUp` | 上一页 | `F` | 全屏 |
-| `Home` / `End` | 首页 / 末页 | `N` | 讲稿面板 |
-| `Esc` | 退出总览／编辑／讲稿 | `#3` | URL hash 直达第 3 页 |
+**素白蓝调 · 页面参考**
 
-## 原风格默认设计
+![素白蓝调的页面与场景参考](skills/scene-html-slides/assets/reference-design/approved-overview.jpg)
 
-| 令牌 | 值 | 用途 |
-|---|---|---|
-| `--paper` | `#F7F6F2` | 暖白底 |
-| `--blue` | `#3B7BC8` | 主蓝 |
-| `--ink` | `#2B3140` | 正文 |
-| `--muted` | `#5A6373` | 副标题与说明 |
-| `--panel` | `#E7EEF6` | 信息块浅底 |
-| `--radius` | `8px` | 圆角，不胶囊化 |
+**海蓝玻璃 · 配图参考**
 
-原风格的封面、尾页、页头（浅底章节标签 / 46px 主标题 / 25px 灰色副标题 / 右上 110px 页码）、页脚、暖白底与主蓝属于本套视觉规范：`custom_css` 触碰受保护区域会被构建器拒绝。海蓝玻璃风格按自身契约检查海军蓝标题、开放式章节标签与 40px 页码等；均逐页核对 `brandOK`。
+![海蓝玻璃的微缩展陈配图参考](skills/saas-3d-slides/assets/reference-design/approved-product-overview.png)
 
-海蓝玻璃整稿规范见 [`saas-3d-slides/references/design-system.md`](skills/saas-3d-slides/references/design-system.md)。其配图基底与参考独立维护，字体、色彩、面板、封面和尾页外观由主题层应用，共用布局组件。
+参考图用于说明材质、尺度与视觉层级，其中的业务内容不作为新项目事实。
 
-设计规则与参考图见 [`references/design-system.md`](skills/scene-html-slides/references/design-system.md)；配图流程见 [`references/image-workflow.md`](skills/scene-html-slides/references/image-workflow.md)；验收标准见 [`references/quality-check.md`](skills/scene-html-slides/references/quality-check.md)。三维场景化配图的完整生成提示词规范见 [`ppt_illustration_prompt.md`](ppt_illustration_prompt.md)。
+</details>
 
-## 依赖
-
-| 用途 | 依赖 |
-|---|---|
-| 构建 HTML | Python 3 标准库即可 |
-| 配图压缩为 WebP（可选） | Pillow |
-| `match_paper.py` 背景校准 | numpy + Pillow |
-| `audit_deck.cjs` 渲染审查（可选） | Node.js + Playwright + Chrome/Chromium |
-
-构建器不联网。没有 Playwright 时用可用浏览器逐页人工检查，并在交付说明里写明检查范围。
-
-## 目录结构
-
-```
-skills/ppt-workbench/
-├── SKILL.md                  # 统一确认风格与类型，按清单进入所选风格
-└── agents/openai.yaml
-
-skills/scene-html-slides/
-├── SKILL.md                  # 技能说明与工作流
-├── agents/openai.yaml        # Codex 界面配置
-├── references/               # 设计系统、deck 格式、配图流程、验收标准
-├── scripts/
-│   ├── build_deck.py         # 构建器 + --check-plan 设计检查
-│   ├── prepare_images.py     # 导出生图提示词与供图清单
-│   ├── match_paper.py        # 配图背景贴平到纸色
-│   ├── design_contract.py    # 设计契约校验
-│   ├── style_packs.py        # 自动发现同级风格、校验资源与检查契约
-│   ├── test_styles.py        # 跨风格与独立安装回归
-│   ├── test_style_discovery.py # 新包自动发现、两种类型与错误处理
-│   ├── common.py  selftest.py
-│   ├── add_icons.cjs         # 按名字向 icons.json 追加 Lucide 图标
-│   └── audit_deck.cjs        # Playwright 渲染审查
-└── assets/
-    ├── theme.css  player.js  template.html
-    ├── icons.json            # 120 个 Lucide 蓝色线性图标
-    ├── brand.json  logo.png  image-style.txt
-    ├── deck.example.json     # 可运行示例（cover / scene / closing）
-    └── reference-design/     # 6 张风格参考图（只作质量参照）
-
-skills/saas-3d-slides/
-├── SKILL.md                  # 新风格独立入口，调用上面的共享工具
-├── agents/openai.yaml
-├── references/               # 本风格设计、配图与验收规范
-└── assets/
-    ├── style.json            # 风格资源及自动检查契约
-    ├── theme.css             # 整页主题，复用共享布局
-    ├── image-style.txt       # 独立配图基底
-    ├── deck.example.json     # 本风格示例
-    └── reference-design/     # 已确认配图及目标参考
-```
-
-## 新增风格
-
-按 [新增独立风格包](skills/scene-html-slides/references/adding-styles.md) 新建同级目录，声明 `schema: "html-slide-style/v1"`、唯一 ID、主题、配图提示词与验收契约。新方向确认并验证后设为 `ready`；工作台、构建器和提示词导出器自动识别。每个新风格继续支持演讲型／阅读型及四类阅读版式。
+查看当前可用风格：
 
 ```bash
 python3 skills/scene-html-slides/scripts/style_packs.py --list
 ```
 
-## 开发
+清单自动发现同级有效的风格包，返回名称、ID、说明和 Skill 入口。新包接入后会出现在清单中，无需手动修改工作台选项。
+
+## 选择演讲型或阅读型
+
+| 维度 | 演讲型 `speech` | 阅读型 `reading` |
+|---|---|---|
+| 使用方式 | 现场讲解、投屏演示 | 发给读者独立阅读 |
+| 信息组织 | 一个结论和少量支撑，细节可放讲稿 | 页面保留机制、依据、条件与边界 |
+| 可视化 | 主场景、关键步骤、少量标注 | 配图配合流程、矩阵、表格、图标和图表 |
+| 配图分工 | 可作为页面的主要视觉 | 先安排主体版面的 1/2 或 1/4 配图分区 |
+| 内容超量时 | 分页逐步讲解 | 拆成关联页面，保持可读字号和配图面积 |
+
+阅读型的信息密度来自更多有意义的关系和证据，不靠缩小字号或堆满段落。没有可靠数值时，用流程、职责、比较和分层关系表达；不为了丰富页面而编造指标。
+
+整稿选择记录在 `deck.json` 根对象。以下仅展示两个选择字段，完整项目另需标题与页面内容：
+
+```json
+{
+  "style": "saas-3d",
+  "presentation_mode": "reading"
+}
+```
+
+旧稿省略字段时，仍兼容素白蓝调与演讲型。新稿应根据用户选择显式记录两个字段。详细规则见 [用途与信息密度](skills/scene-html-slides/references/presentation-modes.md)。
+
+### 阅读型的四种图文分区
+
+比例按**主体版面分区**计算，不含页头、页脚及全宽摘要。图表、图标和 Logo 属于内容元素，不计为配图。
+
+| 布局 | `composition` | 配图安排 | 其余内容的组织示例 |
+|---|---|---|---|
+| **1/2 左右** | `half_lr` | 左半区放一张主图 | 右半区放图表＋解释，或流程＋责任矩阵 |
+| **1/2 上下** | `half_tb` | 上半区放 1–3 张图 | 下半区安排两组互补内容，如流程＋趋势 |
+| **1/2 对角** | `half_diagonal` | 左上、右下各一张图 | 右上、左下各一个内容模块，共两图两模块 |
+| **1/4 配图** | `quarter` | 左上四分之一区域放一张图 | 其余三区放图表、表格、图标与文字，共一图三模块 |
+
+先确定图区，再组织其余内容。多张配图各自解释不同对象、阶段或视角；主体完整，色彩与材质一致。标题和内容按分区对齐，重点项可用字号、图标与字重轻量强调。具体字段与完整页面见 [阅读型示例](skills/saas-3d-slides/assets/deck.reading.example.json)。
+
+### ECharts 与可编辑数据
+
+阅读型复合页支持**横向条形图、折线图和环形图**，用于类别比较、时间趋势和整体构成。图表需提供单位与来源，并在相邻文字解释判断和边界；示例数字必须标明示例性质。
+
+播放器进入「编辑文字」后，可展开图表右下的「编辑图表数据」，修改类别、系列名和数值。图表同步刷新，「另存 HTML」后重新打开仍可继续编辑；修改数值后需核对文字结论是否仍成立。
+
+图表库、数据与 SVG 图表均随 HTML 离线工作，无需 CDN。当前模板支持 2–8 个类别、1–3 组有限非负数；环形图仅一组且合计大于零。详细约束、字段与示例见 [图表使用说明](skills/scene-html-slides/references/charts.md)。
+
+## 制作流程与配图
+
+```text
+确认风格与类型 → 理解大纲 → 选择版式 → 建立 deck.json
+                                            ↓
+                                      检查内容计划
+                                            ↓
+                                      准备对应配图
+                                            ↓
+                              构建 HTML → 逐页检查 → 交付
+```
+
+- **已有图片**：先查看并复用，按页面内容核对图片与文字的对应关系。
+- **有可直接调用的内置生图工具**：按逐页简报生成、查看和调整，再构建成稿。
+- **没有内置生图工具**：先导出逐页完整提示词和供图清单，收到图片后继续制作；可以分批提供。
+
+每张缺图都需要本页独有的 `image.brief`，描述对象与数量、动作或系统处理、关系机制、层级细节与构图。导出器会检查缺项和跨页重复的简报。页面标题、真实数据、业务说明和架构标注留在可编辑内容中。
+
+素白蓝调配图默认无字；海蓝玻璃默认为 `ui_text: "demo"`，只允许软件屏幕内的 Overview、Analytics、Activity、Demo 四个示意标签，也可选择 `none`。配图内的示意图表不充当真实业务数据。
+
+最终交付物为一个独立 `.html` 文件；`deck.json`、提示词、图片清单和 QA 截图用于制作与续改。缺图的 `--draft` 版本仅用于内部预排。
+
+## 项目与运行命令
+
+以下命令在仓库根目录执行，`project/` 表示本次演示稿的工作目录。
+
+```text
+project/
+├── 大纲.md
+├── deck.json
+├── images/                  # 本项目配图
+├── 演示稿.html              # 最终交付
+└── qa/                      # 截图与检查报告
+```
+
+可从完整示例建立项目并替换为自己的内容：
+
+| 示例 | 内容 |
+|---|---|
+| [素白蓝调示例](skills/scene-html-slides/assets/deck.example.json) | 封面、场景信息页和尾页 |
+| [海蓝玻璃演讲型示例](skills/saas-3d-slides/assets/deck.example.json) | 低密度产品介绍与轻量强调 |
+| [海蓝玻璃阅读型示例](skills/saas-3d-slides/assets/deck.reading.example.json) | 四类图文分区、流程、矩阵与图表 |
+
+示例附带配图简报；正式构建前，需要按清单准备对应图片。项目图片路径相对 `deck.json` 所在目录，完整数据格式见 [内容数据与构建](skills/scene-html-slides/references/deck-format.md)。
+
+```bash
+# 1. 检查设计决策和页面结构，不要求图片已经存在
+python3 skills/scene-html-slides/scripts/build_deck.py project/deck.json \
+  --check-plan --out project/design-plan.json
+
+# 2. 导出提示词与供图清单，不调用模型或网络
+python3 skills/scene-html-slides/scripts/prepare_images.py project/deck.json \
+  --out project/image-handoff
+
+# 3. 图片齐全后，构建单文件 HTML
+python3 skills/scene-html-slides/scripts/build_deck.py project/deck.json \
+  --out project/演示稿.html
+
+# 4. 渲染审查并保存逐页截图
+node skills/scene-html-slides/scripts/audit_deck.cjs project/演示稿.html \
+  --out project/qa --browser chrome
+```
+
+| 可选工具或参数 | 用途 |
+|---|---|
+| `match_paper.py project/images/*.png --paper '#F7F6F2'` | 校准配图底色并备份原图；纸色取自所选主题 |
+| `--embed-format keep` | 保留原始图片格式；默认优先转 WebP 内嵌 |
+| `--embed-quality 85` | 设置图片压缩质量 |
+| `--builder` | 加载项目新增版式；复用共享组件 |
+| `--allow-restyle` | 用户明确要求超出所选主题，自定义封面或页头页脚时使用 |
+
+选择现有命名风格无需 `--allow-restyle`。自动检查覆盖结构、图文分区、可见组件和播放器功能；逐页视觉检查还需核对配图主体、图文对应和独立阅读时的完整性。
+
+### 13 种共享版式
+
+| 版式 | 用途 | 版式 | 用途 |
+|---|---|---|---|
+| `cover` | 封面 | `architecture` | 分层架构与直接标注 |
+| `scene` | 大场景与两侧说明 | `flow` | 步骤与控制点 |
+| `split` / `triad` | 左右说明／三段控制 | `domains` | 多领域清单 |
+| `journey` | 阶段、比较或路径 | `formula` | 公式与因素关系 |
+| `table` | 表格与边界对照 | `relations` | 实体与关联 |
+| `closing` | 有配图的收束尾页 | `reading` | 四类阅读型复合信息页 |
+
+## 播放、编辑与保存
+
+工具栏提供：**总览 · 全屏 · 讲稿 · 编辑文字 · 另存 HTML · 打印**。默认画布为 1920 × 1080，并按窗口等比适配。文字编辑后需「另存 HTML」保留修改，浏览器内的修改不会自动回写 `deck.json`。
+
+| 按键 | 作用 | 按键 | 作用 |
+|---|---|---|---|
+| `→` / `PageDown` / `空格` | 下一页 | `O` | 总览 |
+| `←` / `PageUp` | 上一页 | `F` | 全屏 |
+| `Home` / `End` | 首页／末页 | `N` | 讲稿面板 |
+| `Esc` | 退出总览、编辑或讲稿 | URL `#3` | 直接打开第 3 页 |
+
+## 持续添加新风格
+
+每个风格包维护独立的页面主题、配图基底、参考素材和验收规范。共享脚本负责布局与功能，不随风格复制。
+
+```text
+skills/
+├── ppt-workbench/           # 统一选择入口
+├── scene-html-slides/       # 素白蓝调 + 共享制作套件
+│   ├── scripts/            # 构建、配图清单、自动发现与检查
+│   ├── assets/             # 基础组件、播放器、阅读布局与图表
+│   └── references/         # 数据、类型、图表与接入规范
+├── saas-3d-slides/          # 海蓝玻璃独立风格包
+└── new-style-slides/        # 未来新增的同级包
+    ├── SKILL.md
+    ├── agents/openai.yaml
+    ├── assets/
+    │   ├── style.json
+    │   ├── theme.css
+    │   ├── image-style.txt
+    │   └── reference-design/
+    └── references/
+        ├── design-system.md
+        ├── image-workflow.md
+        └── quality-check.md
+```
+
+新增包在 `assets/style.json` 声明 `schema: "html-slide-style/v1"`、唯一 ID、风格资源和检查契约。新方向完成样例确认与验证后设为 `ready`，再同级安装；工作台、构建器和配图导出器自动识别。所有新风格继续复用演讲型／阅读型和四种阅读布局。
+
+```bash
+# 开发时连同 draft 包一起检查；不会使草稿变成可用风格
+python3 skills/scene-html-slides/scripts/style_packs.py --list --include-drafts
+```
+
+完整字段、接入步骤和验证要求见 [新增独立风格包](skills/scene-html-slides/references/adding-styles.md)。
+
+## 依赖与开发检查
+
+| 用途 | 依赖 |
+|---|---|
+| 构建 HTML、导出提示词、列出风格 | Python 3.9+ 标准库 |
+| 可选 WebP 压缩 | Pillow；缺少时保留原图格式 |
+| 配图底色校准 | NumPy + Pillow |
+| 自动浏览器审查 | Node.js + Playwright + Chrome/Chromium |
+| 可选总览拼图 | Sharp |
+
+ECharts 5.6.0 已随套件内置，无需额外安装或访问 CDN。生图能力由当前 Agent 环境提供，安装 Skill 不等于安装生图工具。无法运行自动审查时，使用可用浏览器逐页检查并说明验证范围。
+
+修改脚本或资源后运行自测：
 
 ```bash
 python3 skills/scene-html-slides/scripts/selftest.py
 ```
 
-改动脚本或资源后先跑自测（无需浏览器；两目录同级时自动运行风格回归），再用真实配图走一遍 `--check-plan`、构建与逐页浏览器检查。
+自测覆盖共享组件、两种类型、风格独立性、动态新增风格、图表输入与缺图恢复。主题或版式发生变化时，再使用真实配图构建并逐页检查；自测不替代视觉验收。
 
-## 许可证
+## 许可证与素材
 
-[MIT](LICENSE)。内置图标来自 [Lucide](https://lucide.dev)（MIT，见 [`assets/lucide-LICENSE.txt`](skills/scene-html-slides/assets/lucide-LICENSE.txt)）。`assets/logo.png` 与页脚为普爱智医品牌资源，请替换为你自己的品牌后再对外使用。
+项目代码采用 [MIT](LICENSE)。第三方组件保留各自许可证：
+
+- Lucide 图标：[MIT 许可证](skills/scene-html-slides/assets/lucide-LICENSE.txt)。
+- Apache ECharts：[Apache 2.0 许可证](skills/scene-html-slides/assets/vendor/ECHARTS-LICENSE.txt) 与 [NOTICE](skills/scene-html-slides/assets/vendor/ECHARTS-NOTICE.txt)，同时内嵌于含图表的成稿。
+
+内置 Logo 与默认页脚为普爱智医品牌资源；用于其他品牌项目时，应替换为对应资源。包内参考图用于说明视觉风格，示例业务内容与数字不构成实际产品能力或效果声明。
