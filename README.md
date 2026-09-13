@@ -102,18 +102,6 @@ cp -R skills/ppt-workbench skills/white-blue-slides skills/navy-glass-slides ski
 
 四个目录须同级放置。`white-blue-slides` 同时包含共享制作套件，其他风格依赖它；`ppt-workbench` 负责统一选择。更新已有安装时，先备份相关技能目录，再同步新版本。仅使用素白蓝调时，也可单独安装 `white-blue-slides`。
 
-### 从旧目录名称升级
-
-风格包统一使用直观的英文风格名称，Skill 调用名称与文件夹一致：
-
-| 风格 | 旧目录／调用名 | 新目录／调用名 |
-|---|---|---|
-| 素白蓝调 | `scene-html-slides` | `white-blue-slides` |
-| 海蓝玻璃 | `saas-3d-slides` | `navy-glass-slides` |
-| 写实微缩 | `real-miniature-slides` | `realistic-miniature-slides` |
-
-已安装旧版时，先将旧的三个风格目录备份到 Skill 扫描目录之外，再安装新版，并一并更新 `ppt-workbench`。不要同时保留新旧两套风格包，否则重复的风格 ID 会阻止选择。既有 `deck.json` 的 `style` 值保持不变，现有 HTML 成稿无需修改；自定义构建命令中的脚本路径需改用 `white-blue-slides/scripts/`。
-
 ### 开始制作
 
 尚未确定风格或类型时：
