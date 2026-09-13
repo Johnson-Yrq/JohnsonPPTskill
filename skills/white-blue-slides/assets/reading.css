@@ -5,7 +5,7 @@ body[data-presentation-mode="reading"] .split-layout{grid-template-columns:1000p
 body[data-presentation-mode="reading"] .split-layout.image-right{grid-template-columns:minmax(0,1fr) 1000px}
 body[data-presentation-mode="reading"] .split-points{gap:24px}
 body[data-presentation-mode="reading"] .split-points:has(.point:nth-child(4)){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:center;gap:30px}
-body[data-presentation-mode="reading"] .table-layout{grid-template-columns:minmax(0,1fr) 1000px;gap:32px}
+body[data-presentation-mode="reading"] .table-layout{grid-template-columns:minmax(0,1fr) 864px;gap:32px}
 body[data-presentation-mode="reading"] .table-wrap th,body[data-presentation-mode="reading"] .table-wrap td{padding:11px 15px}
 body[data-presentation-mode="reading"] .flow-bottom{grid-template-columns:1000px minmax(0,1fr);gap:36px}
 body[data-presentation-mode="reading"] .control-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:center;gap:22px}

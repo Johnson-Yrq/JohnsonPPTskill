@@ -30,9 +30,9 @@
 
 ## 检查器
 
-先运行 `build_deck.py --check-plan`：检查每页设计理由、图标选择、明确视觉要求和架构标注，并对每页做一次不落盘的结构干跑（项数范围、字段类型、坐标是否在画板内、Logo 是否存在），报告里以“结构：”开头。它不需要图片，不根据 HTML 倒推预期。
+先运行 `build_deck.py --check-plan`：检查每页设计理由、图标选择、明确视觉要求和架构标注，并对每页做一次不落盘的结构干跑（项数范围、字段类型、坐标是否在画板内、Logo 是否存在），报告里以“结构：”开头；表格页另按列宽与折行估算高度，明显放不下即报错，阅读页按 composition 核对模块数量。它不需要图片，不根据 HTML 倒推预期。
 
-`audit_deck.cjs` 使用独立本地无头浏览器，不读取用户浏览器会话；`brandOK` 按主题变量逐页核对纸底、标题层级、章节标签底、页码、页脚 Logo 与封面左文右图，`warnings` 里的 `image-area-small` 与 `cover-without-labels` 不阻断但要处理或说明；没有 Playwright 自带的 Chromium 时加 `--browser chrome` 用本机 Chrome，`--no-pdf` 跳过打印验证（但要用其它方式确认打印）。输出逐页截图、可选联系表、报告和内部打印 PDF。`technicalOK` 检查文字越界/重叠、缺图、外部依赖与功能；`designContractOK` 独立核对计划与实际可见的 SVG、底板、标签、状态、架构标注、步骤与关系，并检查上图下文面积。隐藏图标、透明底板、缺失契约或遗漏明确文本均返回非零。`ok` 仅表示这两类自动检查通过；仍需实际视觉审阅，不能声称审美与图文对位已由程序验证。 阅读型页面另核对 `reading-composition-mismatch`（分区比例与位置）、`reading-image-underfilled`（图区内配图过小）、`reading-heading-not-top`（模块标题贴分区上沿）与 `reading-region-not-centered`（标题下内容、配图与说明在分区内上下留白相等），以及 `chart-label-clipped`（图表标签出界）。
+`audit_deck.cjs` 使用独立本地无头浏览器，不读取用户浏览器会话；`brandOK` 按主题变量逐页核对纸底、标题层级、章节标签底、页码、页脚 Logo 与封面左文右图，`warnings` 里的 `image-area-small` 与 `cover-without-labels` 不阻断但要处理或说明；没有 Playwright 自带的 Chromium 时加 `--browser chrome` 用本机 Chrome，`--no-pdf` 跳过打印验证（但要用其它方式确认打印）。输出逐页截图、可选联系表、报告和内部打印 PDF。`technicalOK` 检查文字越界/重叠、缺图、外部依赖与功能；`designContractOK` 独立核对计划与实际可见的 SVG、底板、标签、状态、架构标注、步骤与关系，并以 `image-area-too-small` 检查上图下文的图框高度、占比、配图填充与说明行高。隐藏图标、透明底板、缺失契约或遗漏明确文本均返回非零。`ok` 仅表示这两类自动检查通过；仍需实际视觉审阅，不能声称审美与图文对位已由程序验证。 阅读型页面另核对 `reading-composition-mismatch`（分区比例与位置）、`reading-image-underfilled`（配图相对图区过小）、`reading-block-overflow`（模块内容超出分区高度）、`reading-heading-not-top`（模块标题贴分区上沿）与 `reading-region-not-centered`（标题下内容、配图与说明在分区内上下留白相等），以及 `chart-label-clipped`（图表标签出界）。
 
 架构图文叠放正常，检查器不把所有图文相交都判错。图中对象遮挡、语义和对位必须实际看图。首次失败先辨别依赖、权限或真实布局错误，不反复跑同一失败命令；改用当前环境允许的等价验证。部分检查就如实说范围，不称全部通过。
 

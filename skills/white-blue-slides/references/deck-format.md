@@ -129,7 +129,7 @@ class Builder(Base):
 
 可自动核对的 `feature`：`icons/panels/tags/states/architecture_labels/steps/relations/visual_blocks/tables/layers`。每项 `min` 默认 1，可附 `texts` 数组，检查指定短词确实出现在对应组件里；`source` 保留原句或用户确认要求。深浅分组、场景与对象对应、基线等用 `manual + text + source`，并逐页看图核对。计划检查独立于渲染器，运行时继续检查真实可见的元素，缺图标、透明底板或遗漏状态均不能以功能通过代替。
 
-`journey` 自动启用上图下文面积检查；自定义相同结构时写 `visual.image_position: "above"`，并把文字行标记为 `data-captions`。阈值只定义在 `design_contract.py` 的 `IMAGE_BALANCE`（当前：图框高 ≥460px、占 main 高度 ≥60%、显示出来的图片元素宽度 ≥图框 72%、下方文字行高 ≤220px），`--check-plan` 报告与审查器读取同一组数字，其他文档不另抄。图片元素宽度不是主体宽度，仍须看图确认本体约占八成且没有被裁掉。
+`journey` 自动启用上图下文面积检查；自定义相同结构时写 `visual.image_position: "above"`，并把文字行标记为 `data-captions`。阈值只定义在 `design_contract.py` 的 `IMAGE_BALANCE`（当前：图框高 ≥460px、占 main 高度 ≥60%、配图贴满图框的宽或高 ≥95%、下方文字行高 ≤220px），`--check-plan` 报告与审查器读取同一组数字，其他文档不另抄。图框约 2.7:1，16:9 的图按高度贴满后两侧留白是正常的；主体是否横向占到图框八成无法自动判断，仍须看图确认，不用裁掉主体换取铺满。
 
 ## 版式与容量
 
@@ -182,7 +182,7 @@ class Builder(Base):
 
 ### table：指标与边界
 
-`columns` 为 2–5 个表头字符串；`rows` 演讲型为 1–7 行、阅读型为 1–10 行字符串数组，每行数量等于表头数。某行确需图标时可用 `{"cells":["指标","口径","来源"],"icon":"ChartNoAxesCombined"}`，键名以图标库为准。表格左侧、相关图片右侧；表头浅蓝、行间横线，默认不在每格塞图标。表格内容过密需重排列宽或简化正文，保留口径与来源。
+`columns` 为 2–5 个表头字符串；`rows` 演讲型为 1–7 行、阅读型为 1–10 行字符串数组，每行数量等于表头数。某行确需图标时可用 `{"cells":["指标","口径","来源"],"icon":"ChartNoAxesCombined"}`，键名以图标库为准。表格左侧、相关图片右侧；表头浅蓝、行间横线，默认不在每格塞图标。表格内容过密需重排列宽或简化正文，保留口径与来源。`--check-plan` 按列宽、字号与折行估算表格高度，明显超出内容区即报错、接近上限给出警告；阅读型表格与配图各占一半宽，5 列时每格一行只容 6 字左右，列多则控制行数与字数。
 
 ### relations：实体、字段与关系
 
@@ -216,7 +216,7 @@ class Builder(Base):
 
 根 `presentation_mode` 必须为 `reading`。`summary` 必填，用一两句话说明本页结论。`composition` 取 `half_lr / half_tb / half_diagonal / quarter`，比例及内容组合见 [四类图文分区](presentation-modes.md)。它只影响主体版面，保持所选风格和播放器。
 
-`blocks` 为 1–4 个可编辑模块；通常左右、上下用 1–2 个互补模块，对角固定 2 个，四分之一固定 3 个。每块必填 `type/title`，标题配 `icon` 或具体的 `icon_omit_reason`；可选 `note` 记录说明或来源。上下布局可用 `span: 2` 让流程占整行；对角和四分之一每块各占一格，不设置 span: 2。数组上限不是任意文字长度的容纳保证。
+`blocks` 为 1–4 个可编辑模块，上限随 `composition` 变化并由 `--check-plan` 核对：左右最多 3 个（在右半区纵向堆叠，span 无效）；上下只有一行，即 2 个并排模块或 1 个 `span: 2` 的整行模块；对角固定 2 个；四分之一固定 3 个。每块必填 `type/title`，标题配 `icon` 或具体的 `icon_omit_reason`；可选 `note` 记录说明或来源。上下布局可用 `span: 2` 让流程占整行；对角和四分之一每块各占一格，不设置 span: 2。数组上限不是任意文字长度的容纳保证。
 
 | `type` | 数据字段与容量 | 视觉表达 |
 |---|---|---|

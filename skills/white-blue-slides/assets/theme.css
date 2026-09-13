@@ -166,7 +166,7 @@ footer{position:absolute;left:80px;right:80px;bottom:30px;border-top:2px solid v
 .formula-body .point p{font-size:24px}
 
 /* ---- table ---- */
-.table-layout{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:45px;flex:1;min-height:0;align-items:center}
+.table-layout{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:45px;flex:1;min-height:0;align-items:center;align-items:safe center}
 .table-wrap{border:1px solid #CFDCEB;border-radius:8px;overflow:hidden}
 .table-wrap table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:23px;line-height:1.55}
 .table-wrap th,.table-wrap td{padding:20px 18px;text-align:left;vertical-align:middle;overflow-wrap:anywhere}

@@ -4,6 +4,7 @@ This contract records what should be visible. The browser audit counts what
 actually rendered, including when a project supplies its own layout methods.
 """
 import json
+import math
 from common import ASSETS, presentation_mode, reading_composition
 
 ROLES = {'cover', 'closing', 'explanation', 'capabilities', 'comparison', 'process',
@@ -18,7 +19,21 @@ DEFAULT_TREATMENTS = {'cover': 'none', 'closing': 'none', 'architecture': 'label
                       'controls': 'mixed', 'entities': 'labels', 'formula': 'panels', 'briefing': 'open'}
 FEATURES = {'icons', 'panels', 'tags', 'states', 'architecture_labels', 'steps', 'relations', 'visual_blocks', 'tables', 'layers', 'charts'}
 # Journey / image_position: above. The audit reads the same numbers from the page contract.
-IMAGE_BALANCE = {'min_height': 460, 'min_main_ratio': 0.60, 'min_width_ratio': 0.72, 'max_caption_height': 220}
+# min_fill_ratio: the visible image spans at least this share of the frame's width OR height, i.e. it is as large as
+# the frame allows at its own aspect ratio (a 16:9 image in the ~2.7:1 frame fills the height and leaves side space).
+# Whether the subject itself spans ~80% of the frame width is not measurable here and stays a manual check.
+IMAGE_BALANCE = {'min_height': 460, 'min_main_ratio': 0.60, 'min_fill_ratio': 0.95, 'max_caption_height': 220}
+# Reading compositions: each illustration reaches at least this share of its region's width OR height. The region is the
+# media cell; the image frame inside it is 580px tall in half_lr and shrinks under captions elsewhere, so realistic values
+# run 0.75–1.0 and the floor only catches zoom < 1 or a collapsed frame, never a legitimate aspect ratio.
+READING_IMAGE = {'min_fill_ratio': 0.60}
+# Reading compositions: how many blocks the module area holds. half_lr stacks blocks in one column beside the image;
+# half_tb keeps them in one row of the lower half; diagonal / quarter counts are fixed by reading_composition().
+COMPOSITION_BLOCKS = {'half_lr': {'max_blocks': 3}, 'half_tb': {'max_rows': 1}}
+# Table page geometry mirrored from theme.css / reading.css (.table-layout, .table-wrap); selftest cross-checks the widths.
+TABLE_GEOMETRY = {'speech': {'image_column': 420, 'gap': 45, 'cell_padding_x': 18, 'cell_padding_y': 20},
+                  'reading': {'image_column': 864, 'gap': 32, 'cell_padding_x': 15, 'cell_padding_y': 11}}
+CONTENT_WIDTH, CELL_FONT, HEAD_FONT, TABLE_LINE_HEIGHT = 1760, 23, 25, 1.55
 
 
 def dicts(value):
@@ -189,8 +204,59 @@ def reading_errors(slide):
                 else:
                     required_text(v.get('text'), f'{kind} 条目说明')
                     if 'output' in v: required_text(v['output'], '步骤 output')
-    if rows > 2: errors.append('阅读页模块超过两行；调整 span 或拆页，保留足够的阅读空间')
+    try:
+        composition = reading_composition(slide)
+    except ValueError as e:
+        return errors + [str(e)]
+    if composition == 'half_lr' and len(blocks) > COMPOSITION_BLOCKS['half_lr']['max_blocks']:
+        errors.append(f'half_lr 的模块在右半区纵向堆叠，最多 {COMPOSITION_BLOCKS["half_lr"]["max_blocks"]} 个；更多内容拆页，或改用 half_tb 并把整行模块设为 span: 2')
+    elif composition == 'half_tb' and rows > COMPOSITION_BLOCKS['half_tb']['max_rows']:
+        errors.append('half_tb 的模块区只有下半页高度，只能放一行：2 个并排模块，或 1 个 span: 2 的整行模块；更多内容拆页')
+    elif rows > 2: errors.append('阅读页模块超过两行；调整 span 或拆页，保留足够的阅读空间')
     return errors
+
+
+def em_width(text):
+    """Approximate text width in em: CJK and other full-width glyphs count 1, ASCII about 0.55."""
+    return sum(0.55 if ord(c) < 0x2E80 else 1 for c in text)
+
+
+def text_lines(text, width_px, font_px):
+    """Lines a text needs at a fixed width; explicit line breaks count separately."""
+    per_line = max(1, int(width_px / font_px))
+    return sum(max(1, math.ceil(em_width(part) / per_line)) for part in str(text).split('\n'))
+
+
+def content_height(slide):
+    """Height of <main> on the 1080px page: padding, header block and the optional bottom row, per theme.css."""
+    title = slide.get('title') if isinstance(slide.get('title'), str) else ''
+    head = 14 + text_lines(title, 1570, 46) * 46 * 1.25
+    if slide.get('chapter'): head += 33
+    if isinstance(slide.get('subtitle'), str) and slide['subtitle'].strip(): head += 12 + text_lines(slide['subtitle'], 1570, 25) * 37.5
+    main = 1080 - 48 - 104 - max(head, 110) - 32
+    if slide.get('bottom'): main -= 100
+    if slide.get('footnote'): main -= 50
+    return round(main)
+
+
+def table_capacity(slide, mode):
+    """Rough rendered height of a table page versus the content area it has, from the CSS table geometry.
+
+    Returns (estimate, available) or None when the shape is invalid (the dry run reports that). The browser audit
+    stays the ground truth; this only stops clearly overflowing tables before any image is generated.
+    """
+    columns, rows = strings(slide.get('columns')), slide.get('rows')
+    if not columns or not isinstance(rows, list): return None
+    geometry = TABLE_GEOMETRY[mode]
+    text_width = (CONTENT_WIDTH - geometry['gap'] - geometry['image_column'] - 2) / len(columns) - 2 * geometry['cell_padding_x']
+    def row_height(cells, font):
+        return max(text_lines(c, text_width, font) for c in cells) * font * TABLE_LINE_HEIGHT + 2 * geometry['cell_padding_y'] + 1
+    height = 2 + row_height(columns, HEAD_FONT)
+    for row in rows:
+        cells = row.get('cells') if isinstance(row, dict) else row
+        if not isinstance(cells, list) or len(cells) != len(columns) or any(not isinstance(c, str) for c in cells): return None
+        height += row_height(cells, CELL_FONT)
+    return round(height), content_height(slide)
 
 
 def planned_features(slide):
@@ -271,6 +337,13 @@ def analyze_deck(deck):
     for n, slide in enumerate(deck['slides'], 1):
         prefix = f'第 {n} 页（{slide["title"]}）'
         errors, warnings = shape_errors(slide), []
+        if slide.get('layout') == 'table':
+            capacity = table_capacity(slide, mode)
+            if capacity:
+                estimate, available = capacity
+                message = f'表格估算高度约 {estimate}px，内容区约 {available}px（按{"阅读型" if mode == "reading" else "演讲型"}列宽、{CELL_FONT}px 字号与折行估算）：减少行数或列数、精简单元格文字，或拆页'
+                if estimate > available * 1.08: errors.append(message)
+                elif estimate > available: warnings.append('可能放不下：' + message)
         if slide.get('layout') == 'reading':
             errors.extend(reading_errors(slide))
             if mode != 'reading': errors.append('reading 版式需要 presentation_mode: reading')
@@ -343,9 +416,13 @@ def analyze_deck(deck):
                 'omissions': omissions, 'planned': counts, 'errors': errors, 'warnings': warnings}
         if mode == 'reading':
             if slide.get('layout') == 'reading':
-                composition = reading_composition(slide)
-                page['composition'] = composition
-                page['illustration_region_ratio'] = .25 if composition == 'quarter' else .5
+                try:
+                    composition = reading_composition(slide)
+                    page['composition'] = composition
+                    page['illustration_region_ratio'] = .25 if composition == 'quarter' else .5
+                    page['illustration_fill'] = dict(READING_IMAGE)
+                except ValueError:
+                    pass  # already reported by reading_errors
             manual.append({'feature': 'manual', 'source': '阅读型主体版面分区', 'text': '按主体版面分区核对 1/2 或 1/4 配图位置；逐图确认主体完整、尺度清晰，与相邻图表和文字有对应。图表不计作插画区。'})
         if slide.get('layout') == 'journey' or raw.get('image_position') == 'above':
             page['image_balance'] = dict(IMAGE_BALANCE)

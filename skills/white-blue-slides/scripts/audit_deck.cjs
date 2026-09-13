@@ -118,8 +118,10 @@ async function run() {
             if(!frame||!im)designIssues.push({type:'missing-upper-image'});
             else{
               const fr=frame.getBoundingClientRect(),ir=im.getBoundingClientRect();
-              imageBalance={height:fr.height/scale,mainRatio:fr.height/mainEl.getBoundingClientRect().height,widthRatio:Math.max(0,Math.min(ir.right,fr.right)-Math.max(ir.left,fr.left))/fr.width,captionHeight:captions?captions.getBoundingClientRect().height/scale:0};
-              if(imageBalance.height+1<target.min_height||imageBalance.mainRatio+.005<target.min_main_ratio||imageBalance.widthRatio+.005<target.min_width_ratio||imageBalance.captionHeight-1>target.max_caption_height)designIssues.push({type:'image-area-too-small',actual:imageBalance,expected:target});
+              // fillRatio: the visible image spans the frame's width or height, i.e. it is as large as the frame allows at its aspect ratio.
+              const widthRatio=Math.max(0,Math.min(ir.right,fr.right)-Math.max(ir.left,fr.left))/fr.width,heightRatio=Math.max(0,Math.min(ir.bottom,fr.bottom)-Math.max(ir.top,fr.top))/fr.height;
+              imageBalance={height:fr.height/scale,mainRatio:fr.height/mainEl.getBoundingClientRect().height,widthRatio,heightRatio,fillRatio:Math.max(widthRatio,heightRatio),captionHeight:captions?captions.getBoundingClientRect().height/scale:0};
+              if(imageBalance.height+1<target.min_height||imageBalance.mainRatio+.005<target.min_main_ratio||imageBalance.fillRatio+.005<target.min_fill_ratio||imageBalance.captionHeight-1>target.max_caption_height)designIssues.push({type:'image-area-too-small',actual:imageBalance,expected:target,hint:'图框高度、图框占 main 比例、配图贴满图框宽或高、下方文字行高四项须同时达标；主体是否横向铺开仍需看图。'});
             }
           }
         }
@@ -165,6 +167,15 @@ async function run() {
           const body=s.querySelector('.reading-body'),br=body.getBoundingClientRect(),media=[...body.querySelectorAll('.reading-media-item')],blocks=[...body.querySelectorAll('.reading-block')];
           const imageRegions=media.reduce((sum,el)=>{const r=el.getBoundingClientRect();return sum+r.width*r.height;},0);
           const expected=contract?.illustration_region_ratio,actual=imageRegions/(br.width*br.height),coverage=union/imageRegions;
+          // Per illustration: the visible image spans its region's width or height (as large as the region allows at its aspect ratio).
+          const fills=media.map(el=>{
+            const cs=getComputedStyle(el),r=el.getBoundingClientRect(),w=r.width-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),h=r.height-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),im=el.querySelector('.scene-image img');
+            if(!im||!visible(im)||w<=0||h<=0)return 0;
+            const b=im.getBoundingClientRect(),ir={left:b.left,right:b.right,top:b.top,bottom:b.bottom};
+            for(let p=im.parentElement;p&&p!==el;p=p.parentElement){const pc=getComputedStyle(p),clip=p.getBoundingClientRect();if(/hidden|clip|scroll|auto/.test(pc.overflowX)){ir.left=Math.max(ir.left,clip.left);ir.right=Math.min(ir.right,clip.right);}if(/hidden|clip|scroll|auto/.test(pc.overflowY)){ir.top=Math.max(ir.top,clip.top);ir.bottom=Math.min(ir.bottom,clip.bottom);}}
+            return Math.max(Math.max(0,ir.right-ir.left)/w,Math.max(0,ir.bottom-ir.top)/h);
+          });
+          const imageFill=fills.length?Math.min(...fills):0,minFill=contract?.illustration_fill?.min_fill_ratio;
           const composition=s.querySelector('[data-composition]')?.dataset.composition;
           const at=(el,x,y)=>{const r=el.getBoundingClientRect();return ((r.left+r.width/2-br.left)/br.width<.5?0:1)===x&&((r.top+r.height/2-br.top)/br.height<.5?0:1)===y;};
           let placement=true;
@@ -173,9 +184,9 @@ async function run() {
           else if(composition==='half_diagonal')placement=media.length===2&&blocks.length===2&&at(media[0],0,0)&&at(media[1],1,1)&&at(blocks[0],1,0)&&at(blocks[1],0,1);
           else if(composition==='quarter')placement=media.length===1&&blocks.length===3&&at(media[0],0,0)&&at(blocks[0],1,0)&&at(blocks[1],0,1)&&at(blocks[2],1,1);
           else placement=false;
-          compositionBalance={composition,expected,regionRatio:actual,imageCoverage:coverage,placement};
+          compositionBalance={composition,expected,regionRatio:actual,imageCoverage:coverage,imageFill,placement};
           if(!Number.isFinite(expected)||Math.abs(actual-expected)>.04||!placement)designIssues.push({type:'reading-composition-mismatch',...compositionBalance,hint:'按主体版面核对左右、上下、对角或四分之一分区，不以图片像素面积替代分区比例。'});
-          if(!Number.isFinite(coverage)||coverage<.45)designIssues.push({type:'reading-image-underfilled',imageCoverage:coverage,minimum:.45,hint:'检查配图在分区内的大小、完整性与画幅；不能用空图框凑比例。'});
+          if(!Number.isFinite(minFill)||imageFill+.005<minFill)designIssues.push({type:'reading-image-underfilled',imageFill,minimum:minFill,hint:`每张配图至少达到所在图区宽或高的 ${Math.round((minFill||0)*100)}%；按可见本体缩放，不用空图框或缩小的图片凑分区。`});
         }
         for(const host of s.querySelectorAll('.echart')){
           const hr=host.getBoundingClientRect(),svg=host.querySelector('svg');
@@ -194,7 +205,8 @@ async function run() {
             if(heading&&heading.getBoundingClientRect().top-contentTop>4)designIssues.push({type:'reading-heading-not-top',region,text:label(heading).slice(0,40),hint:'模块标题贴分区上沿，同一行的标题对齐。'});
             if(!body.length)continue;
             const top=Math.min(...body.map(el=>el.getBoundingClientRect().top))-(heading?heading.getBoundingClientRect().bottom+parseFloat(getComputedStyle(heading).marginBottom):contentTop),bottom=contentBottom-Math.max(...body.map(el=>el.getBoundingClientRect().bottom));
-            if(Math.abs(top-bottom)>12)designIssues.push({type:'reading-region-not-centered',region,text:label(cell).slice(0,40),above:Math.round(top),below:Math.round(bottom),hint:'标题下方的内容（或配图与说明）在分区剩余空间内垂直居中；不用顶对齐或底对齐填充空位。'});
+            if(bottom<-1)designIssues.push({type:'reading-block-overflow',region,text:label(cell).slice(0,40),overflow:Math.round(-bottom),hint:'模块内容超出分区高度；减少条目、让整行模块用 span: 2，或拆页，不靠缩小字号。'});
+            else if(Math.abs(top-bottom)>12)designIssues.push({type:'reading-region-not-centered',region,text:label(cell).slice(0,40),above:Math.round(top),below:Math.round(bottom),hint:'标题下方的内容（或配图与说明）在分区剩余空间内垂直居中；不用顶对齐或底对齐填充空位。'});
           }
         }
         let structuredArea=null;

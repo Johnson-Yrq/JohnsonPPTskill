@@ -202,6 +202,57 @@ def run():
                 check(f'{fmt.lower()} size parsed', mime2 == mime and image_size(mime2, data) == (37, 21))
             buf = io.BytesIO(); im.save(buf, 'WEBP', lossless=True)
             check('webp lossless size parsed', image_size('image/webp', buf.getvalue()) == (37, 21))
+
+        # 11. Layout constraints: contract keys, CSS geometry and audit issue names stay in sync; capacity rules hold.
+        import re as _re
+        from design_contract import IMAGE_BALANCE, READING_IMAGE, TABLE_GEOMETRY, content_height
+        audit_js = (HERE / 'audit_deck.cjs').read_text(encoding='utf-8')
+        quality_doc = (HERE.parent / 'references' / 'quality-check.md').read_text(encoding='utf-8')
+        theme_css = (ASSETS / 'theme.css').read_text(encoding='utf-8')
+        reading_css = (ASSETS / 'reading.css').read_text(encoding='utf-8')
+        check('audit reads every IMAGE_BALANCE key', all(f'target.{k}' in audit_js for k in IMAGE_BALANCE) and 'min_width_ratio' not in audit_js)
+        check('audit reads the reading fill threshold from the contract', 'illustration_fill' in audit_js and all(k in audit_js for k in READING_IMAGE))
+        table_rule = _re.search(r'\.table-layout\{[^}]*\}', theme_css).group(0)
+        speech_col = _re.search(r'minmax\(0,1fr\) (\d+)px', table_rule)
+        reading_col = _re.search(r'reading"\] \.table-layout\{grid-template-columns:minmax\(0,1fr\) (\d+)px', reading_css)
+        check('table geometry mirrors theme.css and reading.css', bool(speech_col and reading_col) and int(speech_col.group(1)) == TABLE_GEOMETRY['speech']['image_column'] and int(reading_col.group(1)) == TABLE_GEOMETRY['reading']['image_column'])
+        check('table overflow cannot spill above the header', 'align-items:safe center' in table_rule)
+        for name in ('image-area-too-small', 'reading-composition-mismatch', 'reading-image-underfilled', 'reading-block-overflow', 'reading-heading-not-top', 'reading-region-not-centered', 'chart-label-clipped'):
+            check(f'audit issue implemented and documented: {name}', name in audit_js and name in quality_doc)
+        check('content height follows the header block', content_height({'title': '指标与口径', 'subtitle': '一行副标题'}) == 775 and content_height({'title': '指标与口径', 'subtitle': '一行副标题', 'chapter': '章节'}) == 742)
+        wide = ['指标名称', '统计口径说明', '数据来源系统', '更新频率', '责任部门']
+        dense = [[f'指标{i}名称', '按业务对象逐条汇总统计', '业务系统与凭证库', '每日凌晨更新', '运营管理部'] for i in range(10)]
+        def table_slide(columns, rows):
+            return {'id': 'tbl', 'layout': 'table', 'title': '指标与口径', 'subtitle': '一行副标题', 'columns': columns, 'rows': rows,
+                    'image': {'src': 'images/t.png', 'alt': '表格页示意'}, 'visual': {'role': 'table', 'treatment': 'none', 'rationale': '容量测试', 'requirements': []}}
+        for name, mode, columns, rows, ok in [
+            ('reading 5x10 dense', 'reading', wide, dense, False),
+            ('speech 5x7 dense', 'speech', wide, dense[:7], False),
+            ('reading 2x10 short', 'reading', ['业务', '能力'], [['任务入口', '统一接收']] * 10, True),
+            ('reading 4x8 short', 'reading', wide[:4], [['指标名称', '逐条汇总统计', '业务系统', '每日更新']] * 8, True),
+        ]:
+            deck = {'version': 1, 'title': '表格容量', 'style': 'scene-white', 'presentation_mode': mode, 'slides': [table_slide(columns, rows)]}
+            data, root = load_deck(_write(work, 'table-cap.json', deck)); r = check_plan(data, root)
+            check(f'table capacity: {name}', r['ok'] == ok and (ok or any('表格估算高度' in e for e in r['errors'])), json.dumps(r['errors'], ensure_ascii=False))
+        facts = lambda n: {'type': 'facts', 'title': f'边界{n}', 'icon': 'ShieldCheck', 'rows': [{'label': '前提', 'text': '对象已明确'}, {'label': '边界', 'text': '只覆盖已接入系统'}]}
+        process = lambda span=1: {'type': 'process', 'title': '流程', 'icon': 'Workflow', 'span': span, 'steps': [{'title': f'步骤{i}', 'text': '核对材料'} for i in range(3)]}
+        picture = lambda n: {'src': f'images/r{n}.png', 'alt': f'阅读配图{n}'}
+        for name, composition, blocks, images, ok, expect in [
+            ('half_lr three blocks', 'half_lr', [process(), facts(1), facts(2)], [picture(1)], True, ''),
+            ('half_lr four blocks', 'half_lr', [process(), facts(1), facts(2), facts(3)], [picture(1)], False, '最多 3 个'),
+            ('half_tb two blocks', 'half_tb', [process(), facts(1)], [picture(1), picture(2)], True, ''),
+            ('half_tb one full-width block', 'half_tb', [process(2)], [picture(1)], True, ''),
+            ('half_tb three blocks', 'half_tb', [process(), facts(1), facts(2)], [picture(1), picture(2)], False, '只能放一行'),
+            ('half_tb span 2 plus one', 'half_tb', [process(2), facts(1)], [picture(1)], False, '只能放一行'),
+        ]:
+            slide = {'id': 'rd', 'layout': 'reading', 'title': '阅读页', 'composition': composition, 'summary': '本页用于核对模块容量。', 'blocks': blocks,
+                     'visual': {'role': 'briefing', 'treatment': 'open', 'rationale': '容量测试', 'requirements': []}}
+            single = composition in ('half_lr', 'quarter')
+            slide['image' if single else 'images'] = images[0] if single else images
+            deck = {'version': 1, 'title': '阅读容量', 'style': 'scene-white', 'presentation_mode': 'reading', 'slides': [slide]}
+            data, root = load_deck(_write(work, 'reading-cap.json', deck)); r = check_plan(data, root)
+            check(f'composition cap: {name}', r['ok'] == ok and (ok or any(expect in e for e in r['errors'])), json.dumps(r['errors'], ensure_ascii=False))
+            if ok: check(f'reading contract carries the fill threshold: {name}', r['pages'][0].get('illustration_fill') == READING_IMAGE)
     finally:
         shutil.rmtree(work, ignore_errors=True)
     from test_style_discovery import run as run_discovery_tests
