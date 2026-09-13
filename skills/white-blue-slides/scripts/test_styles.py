@@ -18,8 +18,8 @@ import unittest
 
 HERE = Path(__file__).resolve().parent
 SKILL = HERE.parent
-SAAS = SKILL.parent / 'saas-3d-slides'
-MINIATURE = SKILL.parent / 'real-miniature-slides'
+SAAS = SKILL.parent / 'navy-glass-slides'
+MINIATURE = SKILL.parent / 'realistic-miniature-slides'
 sys.path.insert(0, str(HERE))
 from build_deck import Builder, check_plan  # noqa: E402
 from common import slide_images, ASSETS, LAYOUTS, load_deck  # noqa: E402
@@ -104,7 +104,7 @@ def all_layouts_deck(style):
     return {'version': 1, 'style': style, 'presentation_mode': 'reading', 'title': '共享版式回归测试', 'slides': slides}
 
 
-@unittest.skipUnless((SAAS / 'assets/style.json').is_file(), 'optional sibling saas-3d-slides is not installed')
+@unittest.skipUnless((SAAS / 'assets/style.json').is_file(), 'optional sibling navy-glass-slides is not installed')
 class StyleRegressionTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='slide-styles-test-')
@@ -380,7 +380,7 @@ class StyleRegressionTests(unittest.TestCase):
 
     def test_invalid_styles_and_text_modes_fail_cleanly(self):
         cases = []
-        for value in ('unknown-style', '../scene-html-slides', None, ['saas-3d']):
+        for value in ('unknown-style', '../white-blue-slides', None, ['saas-3d']):
             cases.append(('style', lambda deck, value=value: deck.update(style=value)))
         for value in ('arbitrary', None, ['demo']):
             cases.append(('ui_text', lambda deck, value=value: deck['slides'][0]['image'].update(ui_text=value)))
@@ -464,7 +464,7 @@ class StyleRegressionTests(unittest.TestCase):
         self.assertEqual(doc.body['data-style'], 'saas-3d')
 
     def test_scene_only_install_works_and_missing_saas_errors_clearly(self):
-        installed = self.root / 'installed/scene-html-slides'
+        installed = self.root / 'installed/white-blue-slides'
         shutil.copytree(SKILL, installed, ignore=shutil.ignore_patterns('__pycache__', 'reference-design'))
         scripts = installed / 'scripts'
         self.legacy.pop('style', None)
@@ -485,11 +485,11 @@ class StyleRegressionTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertNotIn('Traceback', result.stderr)
                 self.assertIn('saas-3d', result.stderr)
-                self.assertIn('scene-html-slides', result.stderr)
+                self.assertIn('white-blue-slides', result.stderr)
                 self.assertIn('skills', result.stderr)
 
 
-@unittest.skipUnless((MINIATURE / 'assets/style.json').is_file(), 'optional sibling real-miniature-slides is not installed')
+@unittest.skipUnless((MINIATURE / 'assets/style.json').is_file(), 'optional sibling realistic-miniature-slides is not installed')
 class MiniatureStyleTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='miniature-style-test-')

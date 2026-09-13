@@ -1,4 +1,4 @@
-/* real-miniature-slides: independent palette and component treatment.
+/* realistic-miniature-slides: independent palette and component treatment.
    Shared geometry, reading compositions, editing and offline player are reused. */
 :root{--paper:#EEEDE8;--blue:#55748A;--ink:#26313A;--muted:#5F6666;--line:#CFD1C9;--panel:#E3E4DC;--radius:6px;--diagram-accent:#798469;--chart-tertiary:#B88A43;--chart-grid:#CFD1C9;--mini-sage:#798469;--mini-ochre:#B88A43;--mini-surface:#F4F3EE;--mini-soft-blue:#E0E5E6;--mini-deep-blue:#456174;--mini-soft-green:#E0E3D8;--mini-deep-green:#58634C}
 html,body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;color:var(--ink)}

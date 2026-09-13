@@ -1,0 +1,4 @@
+interface:
+  display_name: "素白蓝调演示稿"
+  short_description: "素白蓝调风格：暖白蓝色页面与白色模型配图，按演讲／阅读类型制作可编辑HTML演示稿"
+  default_prompt: "先确认演讲型或阅读型用途，再按对应信息密度执行：使用 $white-blue-slides，根据我的PPT大纲制作场景化HTML演示稿，沿用默认Logo、主题与版式，并完成逐页检查。"

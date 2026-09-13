@@ -115,7 +115,7 @@ def resolve_style(deck):
         raise ValueError(f'风格 id 重复，无法选择 {name}：' + '、'.join(str(p) for p, _ in candidates))
     if not candidates:
         available = ', '.join(s['id'] for s in discover_styles()['styles']) or '无'
-        raise ValueError(f'缺少或未知的 style：{name}；可用：{available}。将风格技能与 scene-html-slides 同级安装到 skills 目录；运行 style_packs.py --list 查看资源问题。' + ('\n' + '\n'.join(scan_errors) if scan_errors else ''))
+        raise ValueError(f'缺少或未知的 style：{name}；可用：{available}。将风格技能与 white-blue-slides 同级安装到 skills 目录；运行 style_packs.py --list 查看资源问题。' + ('\n' + '\n'.join(scan_errors) if scan_errors else ''))
     pack = _load(*candidates[0])
     from common import slide_images
     for i, slide in enumerate(deck.get('slides', []), 1):

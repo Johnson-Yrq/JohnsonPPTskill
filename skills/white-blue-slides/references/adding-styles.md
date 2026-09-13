@@ -1,6 +1,6 @@
 # 新增独立风格包
 
-用于用户持续添加视觉方向时。风格包维护自己的视觉资产；数据结构、13 种版式、演讲／阅读密度、图表、编辑、保存、离线与打印共用 `scene-html-slides` 制作套件。
+用于用户持续添加视觉方向时。风格包维护自己的视觉资产；数据结构、13 种版式、演讲／阅读密度、图表、编辑、保存、离线与打印共用 `white-blue-slides` 制作套件。
 
 ## 目录与自动发现
 
@@ -22,6 +22,8 @@ new-style-slides/
 ```
 
 构建器只发现同级 `*/assets/style.json` 中声明 `schema: "html-slide-style/v1"` 的包；无需改 Python 注册表、工作台菜单或已有风格。文件夹名用 Skill 名；`id` 是整稿选择值，两者可不同但必须稳定。`id` 在同级包中唯一，只用小写字母、数字和短横线，最长 64 字符。重名时拒绝选择，不按目录顺序覆盖。
+
+文件夹按视觉特点使用直观的英文名称，格式为 `<visual-style>-slides`，例如 `white-blue-slides`、`navy-glass-slides`、`realistic-miniature-slides`。目录名、SKILL frontmatter 的 `name` 与默认调用提示保持一致；中文风格名留在显示名称中。仅调整目录名称时保留已发布的 `style` ID，更新同级引用与安装位置，并将旧包备份到 Skill 扫描目录之外，避免新旧包重复注册。
 
 ## 最小清单示例
 

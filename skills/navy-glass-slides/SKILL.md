@@ -1,5 +1,5 @@
 ---
-name: saas-3d-slides
+name: navy-glass-slides
 description: 在用户选择海蓝玻璃风格或续做该风格项目时，根据任意主题的 PPT 大纲制作可编辑、离线 HTML 演示稿，采用暖白纸底、海军蓝文字与重点面、灰青与少量香槟金、玻璃及精细微缩展陈配图。与其他风格独立，共用制作套件；未选择风格的通用请求先经 ppt-workbench 确认。明确要求 PPTX 时不能用 HTML 替代。
 metadata:
   version: "1.4.0"
@@ -11,12 +11,12 @@ metadata:
 
 ## 风格与共享套件
 
-**动工前先确认演讲型或阅读型。** 阅读 [用途确认与信息密度](../scene-html-slides/references/presentation-modes.md)。用户未明确用途时，在拆页、排版和生图前问清并等待反馈；已选择、已在当前项目记录或已授权自行选择的模式直接采用。根字段 `presentation_mode` 记录 `speech / reading`，与 `style` 分开选择。
+**动工前先确认演讲型或阅读型。** 阅读 [用途确认与信息密度](../white-blue-slides/references/presentation-modes.md)。用户未明确用途时，在拆页、排版和生图前问清并等待反馈；已选择、已在当前项目记录或已授权自行选择的模式直接采用。根字段 `presentation_mode` 记录 `speech / reading`，与 `style` 分开选择。
 
 - 风格选择顺序：用户明确选择 > 当前项目已记录的 `style` > 询问缺少的选择。直接调用本 Skill 即选择海蓝玻璃风格；软件主题本身不代表已选择。通用请求先按 [PPT 制作工作台](../ppt-workbench/SKILL.md) 一次确认缺少的风格与类型；明确选择其他风格时通过 `<shared>/scripts/style_packs.py --list` 读取对应入口。续做旧稿保留其风格；要换风格时遵循用户指定的范围。
 - 本 Skill 的 `deck.json` 根字段写 `"style": "saas-3d"`。共享构建器中，未写 `style` 的旧项目仍采用原风格。此命名风格已包含独立主题，不需要 `--allow-restyle`。
-- `saas-3d-slides` 与 `scene-html-slides` 两个目录须同级安装。`<style>` 指本目录；`<shared>` 指同级 `scene-html-slides`；`<project>` 指当前制作目录。共享脚本、版式、播放器和默认公司／Logo 资源，不复制一套脚本。用户指定的品牌优先。
-- 使用本 Skill 时读取本目录的设计、配图与验收规范；不加载另一套 Skill 的 `SKILL.md` 或素白蓝调视觉规范。共享的 [数据结构与构建方法](../scene-html-slides/references/deck-format.md) 只提供技术契约；视觉外观由本风格决定。
+- `navy-glass-slides` 与 `white-blue-slides` 两个目录须同级安装。`<style>` 指本目录；`<shared>` 指同级 `white-blue-slides`；`<project>` 指当前制作目录。共享脚本、版式、播放器和默认公司／Logo 资源，不复制一套脚本。用户指定的品牌优先。
+- 使用本 Skill 时读取本目录的设计、配图与验收规范；不加载另一套 Skill 的 `SKILL.md` 或素白蓝调视觉规范。共享的 [数据结构与构建方法](../white-blue-slides/references/deck-format.md) 只提供技术契约；视觉外观由本风格决定。
 
 首次制作时阅读 [设计系统](references/design-system.md)，查看 `assets/reference-design/approved-product-overview.png`（已确认示例）与 `assets/reference-design/target-style.png`（目标参考）。参考图限定材质、尺度、层级和渲染气质，其中品牌、金额、图表与对象数量不构成事实或模板要求。该设计方向已确认，正常制作与检查不需要重新选择风格。
 
@@ -31,9 +31,9 @@ metadata:
 5. **构建与排版。** 调用共享构建器，自动加载本目录主题与配图基底。页面标题、正文、流程、矩阵、架构标注和真实指标始终可编辑。阅读型按主体版面分区选择 1/2 左右、1/2 上下、1/2 对角双图或 1/4 配图；主体版面不含页头页脚及全宽摘要。先确定配图分区，再用图表、图标、矩阵和文字组织其余内容。有可靠数量数据时可使用 ECharts；不得缩小字号、重复插图或补造指标，放不下则拆页。需要展示的场景主体完整，按实际可见本体调整 `zoom` 与偏移；架构文字直接对齐模块，不能用面板遮错。`custom_css` 只微调内容区，确需新关系时按共享契约新增一两种版式，不覆盖公共组件。
 6. **验证并交付。** 按 [质量检查](references/quality-check.md) 完成自动检查及逐页视觉检查，修复图文对应、层次、溢出、缺图和离线功能问题。最终必需交付是独立 `.html`；提示词、JSON、截图、QA 报告是过程文件。用户明确要求的其他导出仍须完成，不能拿 HTML 替代 PPTX。
 
-数量比较、趋势或构成适合图表时，使用 [ECharts 图表契约](../scene-html-slides/references/charts.md)，保留数据来源与相邻解释。图表、数据和播放器一起内嵌，支持离线编辑与保存。
+数量比较、趋势或构成适合图表时，使用 [ECharts 图表契约](../white-blue-slides/references/charts.md)，保留数据来源与相邻解释。图表、数据和播放器一起内嵌，支持离线编辑与保存。
 
-未来增加其他视觉方向时按 [新增独立风格包](../scene-html-slides/references/adding-styles.md) 创建同级包；本包只维护海蓝玻璃的主题、提示词、参考与验收规范。
+未来增加其他视觉方向时按 [新增独立风格包](../white-blue-slides/references/adding-styles.md) 创建同级包；本包只维护海蓝玻璃的主题、提示词、参考与验收规范。
 
 ## 运行命令
 

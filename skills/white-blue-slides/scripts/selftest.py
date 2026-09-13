@@ -38,7 +38,7 @@ def solid_png(width, height, rgb=(247, 246, 242)):
 
 
 def run():
-    work = Path(tempfile.mkdtemp(prefix='scene-html-slides-selftest-'))
+    work = Path(tempfile.mkdtemp(prefix='white-blue-slides-selftest-'))
     try:
         example = json.loads((ASSETS / 'deck.example.json').read_text(encoding='utf-8'))
         deck_path = work / 'deck.json'

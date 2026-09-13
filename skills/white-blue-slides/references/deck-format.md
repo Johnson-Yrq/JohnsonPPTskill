@@ -102,7 +102,7 @@ class Builder(Base):
 
 `Activity ArrowRightLeft Award BadgeCheck BadgeDollarSign BarChart3 Bell BellRing Binoculars Blocks BookOpen Bot Boxes Brain BriefcaseBusiness Building Building2 Calculator CalendarDays ChartNoAxesCombined CircleAlert CircleCheck CircleHelp ClipboardCheck ClipboardList Clock Cloud Cog Coins Compass Cpu Database DatabaseZap Eye Factory FileCheck2 FileClock FileCog FileSignature FileText Filter Fingerprint Flag Folder Gauge GitBranch Globe2 GraduationCap Grid2x2 Hammer Handshake Heart HeartPulse History Hospital Info KeyRound Landmark Layers Layers3 LayoutDashboard Library Lightbulb Link ListChecks Lock Mail Map MapPin Merge MessageCircle MessageSquare Microscope Milestone Monitor Network Package Phone PieChart Pill Presentation Printer Puzzle Receipt RefreshCw Repeat Rocket Route Scale ScanSearch ScrollText Search Send Server Settings Shield ShieldCheck ShoppingCart SlidersHorizontal Smartphone Sparkles Split Star Stethoscope Store Table Target Timer TrendingUp TriangleAlert Truck Unplug UserRound UserRoundCheck Users Wallet Warehouse Workflow Wrench Zap`
 
-需要别的图标时运行 `node <shared>/scripts/add_icons.cjs 名称…`，其中 `<shared>` 为 `scene-html-slides` 目录（需要本地 lucide 包，可用 `--lucide` 指定目录；`--list` 列出现有）。`presentation` 仅 `open` 或 `panel`；未指定时由本页 `visual.treatment` 决定（panels→panel，其它→open）；mixed 时每项必须明确选择。
+需要别的图标时运行 `node <shared>/scripts/add_icons.cjs 名称…`，其中 `<shared>` 为 `white-blue-slides` 目录（需要本地 lucide 包，可用 `--lucide` 指定目录；`--list` 列出现有）。`presentation` 仅 `open` 或 `panel`；未指定时由本页 `visual.treatment` 决定（panels→panel，其它→open）；mixed 时每项必须明确选择。
 
 ### 配图风格与界面文字
 
@@ -192,7 +192,7 @@ class Builder(Base):
 
 坐标依据 `board`，与浏览器缩放无关；整个画板自动等比适配内容区。图像在板内的矩形可带负偏移以去除空白。标签不继承卡片风格，全部无背景、无边框。
 
-复杂结构先查看所选风格的参考图：`scene-white` 使用 `scene-html-slides/assets/reference-design/approved-architecture.jpg`；其他风格使用自身的设计与配图规范以及已确认参考，不继承旧图材质。用完整分层模型承载全图，逐个映射模块、层板、数据来源和治理通道，再添加 HTML 文字；不可简化成图片旁边三段介绍。先定实际图像缩放，再定 label 坐标；调整 board.image 后重新核对全部标签。不要在本来无对象的位置加模块名，或拿底板遮住图中的错误层级。
+复杂结构先查看所选风格的参考图：`scene-white` 使用 `white-blue-slides/assets/reference-design/approved-architecture.jpg`；其他风格使用自身的设计与配图规范以及已确认参考，不继承旧图材质。用完整分层模型承载全图，逐个映射模块、层板、数据来源和治理通道，再添加 HTML 文字；不可简化成图片旁边三段介绍。先定实际图像缩放，再定 label 坐标；调整 board.image 后重新核对全部标签。不要在本来无对象的位置加模块名，或拿底板遮住图中的错误层级。
 
 ```json
 "board": {"width":1760,"height":740,"image":{"x":0,"y":0,"w":1760,"h":740}},
