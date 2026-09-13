@@ -1,0 +1,125 @@
+/* saas-3d-slides · independent visual theme
+   Load after the shared scene-html-slides stylesheet and before project CSS.
+   Layout geometry, image handling, editing, printing and player behavior remain
+   owned by the shared engine. This file supplies the complete visual treatment. */
+
+/* ---- palette & typography ---- */
+:root{--paper:#F7F6F2;--blue:#234356;--ink:#1D3446;--muted:#59686E;--line:#C9D6D2;--panel:#E8EFEB;--radius:6px;--saas-navy:var(--ink);--diagram-accent:var(--saas-teal);--saas-teal:#477F80;--saas-gold:#BC9B59;--saas-glass:rgba(255,255,253,.76);--saas-border:#D3DEDA;--saas-shadow:0 8px 24px rgba(29,52,70,.045),inset 0 1px 0 rgba(255,255,255,.92)}
+html,body{font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;color:var(--ink)}
+body{background:#E5E7E4}
+h1{color:var(--saas-navy);font-weight:750;letter-spacing:-.8px}
+h1 em{color:var(--saas-navy)}
+h3{font-weight:650}
+.subtitle{color:var(--muted)}
+
+/* ---- chapter, folio & brand frame ---- */
+.chapter{position:relative;color:var(--saas-teal);font-size:22px;font-weight:650;line-height:29px;letter-spacing:2.5px;padding:2px 0;background:none;border-radius:0}
+.chapter:before{content:'';display:inline-block;width:22px;height:2px;margin:0 12px 7px 0;background:var(--saas-gold)}
+.page-number{font-size:40px;line-height:1;color:var(--saas-navy);font-weight:500;letter-spacing:-1px;border-bottom:2px solid var(--saas-gold);padding:1px 0 12px;min-width:50px;text-align:right}
+footer{border-top:1px solid var(--saas-border);padding-top:15px;color:#63716F;font-size:22px;letter-spacing:.5px}
+.brand i{background:var(--saas-border)}
+.footer-label{color:#67736F}
+
+/* ---- content components: open explanations and selective glass panels ---- */
+.semantic-icon{color:var(--saas-teal);stroke-width:1.7}
+.point h3{color:var(--saas-navy);border-bottom:1px solid var(--line);padding-bottom:11px}
+.point p{color:var(--muted)}
+.point.panel{background:var(--saas-glass);border:1px solid var(--saas-border);border-radius:var(--radius);box-shadow:var(--saas-shadow)}
+.point.panel h3{color:var(--saas-navy)}
+.takeaway{color:var(--saas-navy);border-top:1px solid var(--line);padding-top:21px;font-weight:650}
+.takeaway.panel{background:var(--panel);border:1px solid var(--saas-border);border-radius:var(--radius);box-shadow:inset 0 1px 0 #FFFFFFB3;padding:13px 21px}
+.tag-tray>b,.factor-row>b{color:var(--saas-navy)}
+.tag-tray span{background:#E9EFEB;color:#396564;border-radius:var(--radius)}
+.factor-row span{background:#E9EFEB;color:var(--saas-navy);border-radius:var(--radius)}
+.factor-row i{color:var(--saas-teal)}
+
+/* ---- image-over-copy journey and connected process rows ---- */
+.journey-item{border-top:1px solid var(--line);padding-top:13px}
+.journey-item h3{color:var(--saas-navy)}
+.journey-item.panel{background:var(--saas-glass);border:1px solid var(--saas-border);border-radius:var(--radius);box-shadow:var(--saas-shadow)}
+.journey-item.panel h3{background:#E6EEEA;color:var(--saas-navy);border-radius:5px 5px 0 0}
+.journey-item.panel.strong h3{background:var(--saas-navy);color:#FCFCF8}
+.journey-item.panel.strong h3 .semantic-icon{color:#B7D5CE}
+.journey-item .deliverable{color:#396D6D}
+.journey-labels.connected .journey-item:not(:last-child):before{top:-1px;border-top:1px solid var(--line)}
+.journey-labels.connected .journey-item:not(:last-child):after{color:var(--saas-teal)}
+.state-tag{background:#E4EDE6;color:#37635E;border:1px solid #C7D8CE;border-radius:var(--radius)}
+
+/* ---- cover: fine typography alongside the dominant software diorama ---- */
+.layout-cover.no-cover-labels .hero-scene{right:40px;width:1000px}
+.layout-cover h1{font-size:var(--title-size,80px);font-weight:750;line-height:1.24;letter-spacing:-1.5px}
+.cover-prefix{font-size:44px;line-height:1.6;color:var(--saas-teal);font-weight:550;letter-spacing:.5px}
+.layout-cover h1 em{color:var(--saas-navy)}
+.layout-cover .subtitle{color:var(--muted);font-size:28px;margin-top:25px}
+.cover-promise{font-size:34px;line-height:1.5;color:var(--saas-navy);font-weight:550;margin-top:40px}
+.cover-description{color:var(--muted)}
+.cover-benefits span{background:#E7EEEA;color:#3B6868;border:1px solid #D7E1DA;border-radius:var(--radius);font-size:25px;padding:11px 12px;box-shadow:inset 0 1px 0 #FFFFFFBF}
+.cover-benefits span:nth-child(n+4){background:none;border-color:transparent;color:#5F716F;box-shadow:none}
+.cover-platforms span{background:var(--saas-navy);color:#FCFCF8;border:1px solid var(--saas-navy);border-bottom:2px solid var(--saas-gold);border-radius:var(--radius);padding:15px 18px 14px}
+.cover-platforms i{color:var(--saas-teal)}
+.cover-date{color:#687571;font-size:23px;letter-spacing:1px}
+.cover-labels h3{color:var(--saas-navy);font-weight:650}
+.cover-labels p{color:var(--muted)}
+.cover-labels>div:before{background:var(--saas-gold)}
+
+/* ---- closing: the same exhibition palette with a quiet typographic finish ---- */
+.layout-closing h1{color:var(--saas-navy);font-size:var(--title-size,96px);font-weight:700;letter-spacing:0}
+.layout-closing .chapter{color:var(--saas-teal);font-size:24px;font-weight:600;letter-spacing:2px}
+.layout-closing .subtitle{color:var(--saas-navy);font-weight:500}
+.ending-message{color:var(--muted)}
+.ending-product{color:var(--saas-teal);border-top:1px solid var(--saas-gold);padding-top:16px;width:fit-content}
+
+/* ---- architecture labels, split and triad use the shared placement logic ---- */
+.architecture-label{color:#385E65;text-shadow:0 1px 0 #FFFFFFC7}
+.architecture-label[data-kind="layer"]{color:var(--saas-navy);font-weight:750}
+.split-points .point h3{color:var(--saas-navy)}
+.point.emphasis:not(.panel) h3{position:relative;color:var(--saas-teal);font-weight:750}
+.point.emphasis:not(.panel) .heading-label{font-size:1.1em}
+.point.emphasis:not(.panel) .semantic-icon{transform:scale(1.1);transform-origin:left center}
+.point.emphasis:not(.panel) h3:after{content:'';position:absolute;left:0;bottom:-1px;width:64px;height:2px;background:var(--saas-teal)}
+
+/* ---- equation, comparison table and object relations ---- */
+.formula-result{color:var(--saas-navy)}
+.formula-equation>i{color:var(--saas-teal)}
+.formula-term{color:var(--saas-navy)}
+.formula-term.panel{background:var(--saas-glass);border:1px solid var(--saas-border);border-radius:var(--radius);box-shadow:var(--saas-shadow)}
+.table-wrap{border:1px solid var(--saas-border);border-radius:var(--radius);background:var(--saas-glass);box-shadow:var(--saas-shadow)}
+.table-wrap th{background:var(--saas-navy);color:#FCFCF8;border-bottom:2px solid var(--saas-gold);font-weight:600}
+.table-wrap td{border-top:1px solid #DCE4DE;color:var(--muted)}
+.table-wrap tr:nth-child(even) td{background:#EDF1ED80}
+.table-wrap td:first-child{color:var(--saas-navy)}
+.relation-node{background:#E7EEEA;color:var(--saas-navy);border:1px solid #D3DFD8;border-radius:var(--radius)}
+.relation-link{color:var(--saas-teal)}
+
+/* ---- numbered workflow controls and open domain lists ---- */
+.flow-number{background:var(--saas-navy);color:#FCFCF8;border-bottom:2px solid var(--saas-gold);border-radius:var(--radius);font-weight:600}
+.flow-step h3{color:var(--saas-navy)}
+.control-group{border-top:1px solid var(--line);padding-top:16px}
+.control-group.panel{background:var(--saas-glass);border:1px solid var(--saas-border);border-radius:var(--radius);box-shadow:var(--saas-shadow);padding:16px 21px}
+.control-group h3{color:var(--saas-navy)}
+.control-group dt{color:#38505B}
+.domain-side .point{border-top-color:var(--line)}
+.domain-side h3{color:var(--saas-navy)}
+
+/* ---- reading-mode blocks: glass stages, gold-ruled matrix header, quiet outputs ---- */
+.reading-block>h3{color:var(--saas-navy)}
+.reading-block>h3 .semantic-icon{background:#E6EEEA;color:var(--saas-teal);box-shadow:inset 0 1px 0 #FFFFFFBF}
+.reading-stage{background:var(--saas-glass);border:1px solid var(--saas-border);box-shadow:var(--saas-shadow)}
+.reading-stage .reading-output{color:#396D6D}
+.reading-matrix th{background:var(--saas-navy);color:#FCFCF8;border-bottom:2px solid var(--saas-gold)}
+.reading-matrix tr:nth-child(even) td{background:#EDF1ED80}
+.reading-matrix td:first-child,.reading-facts dt{color:var(--saas-navy)}
+.reading-modules span{background:#E9EFEB;color:var(--saas-navy)}
+
+/* ---- shared player controls receive only a palette treatment ---- */
+.toolbar{background:#FAFAF7F5;border-color:var(--saas-border);box-shadow:0 4px 20px #1D34460D}
+.toolbar button{color:#3D555D}
+.toolbar button:hover,.toolbar button[aria-pressed="true"]{background:#E4ECE7;color:var(--saas-navy)}
+.toolbar input{border-color:#C7D3CD;color:var(--saas-navy);background:#FEFEFA}
+.toolbar-divider{background:#D6DFD9}
+#notes-panel{background:#FAFAF6;border-color:#C4D1C9}
+#notes-panel pre{color:#4B605F}
+#close-notes{background:#E3ECE5;color:var(--saas-navy)}
+#status{background:var(--saas-navy)}
+.editing [data-edit]{outline-color:var(--saas-teal)}
+.overview-mode .slide:hover{outline-color:#89ADA7}

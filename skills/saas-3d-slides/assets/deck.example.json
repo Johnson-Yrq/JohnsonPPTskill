@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "style": "saas-3d",
+  "title": "软件产品方案",
+  "footer_label": "软件产品 · 方案示例",
+  "slides": [
+    {
+      "id": "p01",
+      "layout": "cover",
+      "chapter": "软件产品与解决方案",
+      "title_prefix": "软件产品方案",
+      "title": "让业务协同有序",
+      "subtitle": "连接业务对象、工作过程与产品能力",
+      "promise": "把产品能力放进实际工作场景",
+      "benefits": [
+        "统一入口",
+        "过程清晰",
+        "协作有序"
+      ],
+      "notes": "风格示例。业务能力与成效需按实际产品资料替换；图中界面为示意。",
+      "image": {
+        "src": "images/01.png",
+        "alt": "深蓝产品主屏与三组微缩工作站组成的软件展陈场景",
+        "ratio": "16:9",
+        "ui_text": "demo",
+        "brief": {
+          "subject": "One dominant deep navy software dashboard inside a clear glass outer panel; three slim miniature laptop stations and two tiny white scale figures on a thin stepped square base.",
+          "action": "The two operators inspect the shared software workspace from their small laptops, while the large screen brings the related application areas together.",
+          "structure": "The main screen is the common product focus; the subordinate workstations sit on connected terraces around its base, expressing a single shared work environment rather than a timed process.",
+          "details": "Three slender rear architectural volumes, four small glass interface cards, fine gold trim, a few small white planters, and two translucent muted-teal blocks; leave the front stair and glass perimeter complete.",
+          "composition": "16:9 landscape, moderate near-isometric camera; central screen about half the image width, laptops one fifth of its width; preserve clear off-white margins, especially below the frontmost base corner."
+        }
+      },
+      "visual": {
+        "role": "cover",
+        "treatment": "none",
+        "rationale": "以大幅产品展陈引入，封面文字负责价值与范围，图中不再重复说明标签。",
+        "requirements": []
+      }
+    },
+    {
+      "id": "p02",
+      "layout": "split",
+      "chapter": "产品能力",
+      "title": "围绕业务对象组织产品能力",
+      "subtitle": "从用户操作出发，让功能与流程形成对应",
+      "image_side": "right",
+      "items": [
+        {
+          "title": "连接业务入口",
+          "text": "明确谁在何处发起和处理任务。",
+          "icon": "LayoutDashboard",
+          "presentation": "open"
+        },
+        {
+          "title": "支撑工作过程",
+          "text": "将处理动作与业务对象关联。",
+          "icon": "Workflow",
+          "presentation": "open",
+          "emphasis": true
+        },
+        {
+          "title": "呈现处理结果",
+          "text": "让完成状态与下一步行动清楚可见。",
+          "icon": "CircleCheck",
+          "presentation": "open"
+        }
+      ],
+      "notes": "此页是文案与版式示例；不是对某款产品功能的证明。",
+      "image": {
+        "src": "images/02.png",
+        "alt": "同一软件业务对象从入口到处理再到结果的三组工作区",
+        "ratio": "4:3",
+        "brief": {
+          "subject": "A compact software work environment with three connected zones: a thin laptop receiving a teal data tile, a taller navy review screen, and a low output workstation.",
+          "action": "A tiny operator brings the shared tile into the workspace; the central processing station organizes it, and the output tray holds the completed tile.",
+          "structure": "One identifiable square data tile is repeated at entry, processing and output positions along a short integrated platform, so the zones belong to the same business object's handling sequence.",
+          "details": "Use slender screens, small trays, low terraces and a narrow muted-teal inlay; the review area is the main focus, with simple screen-plane interface marks and no giant physical chart bars.",
+          "composition": "4:3, restrained three-quarter view; fit the complete thin base and all three stations with clear margins, keeping the scene readable beside the left text column."
+        }
+      },
+      "visual": {
+        "role": "capabilities",
+        "treatment": "open",
+        "rationale": "三项能力是同层级的连续说明，统一无框、左对齐和正文大小；过程支撑将标题与图标放大约 10%，搭配字重、灰青色和短细线轻量强调。",
+        "requirements": [
+          {
+            "feature": "icons",
+            "min": 3,
+            "source": "三项能力各用一个语义图标"
+          }
+        ]
+      }
+    },
+    {
+      "id": "p03",
+      "layout": "closing",
+      "chapter": "期待交流",
+      "title": "让产品融入工作",
+      "subtitle": "从具体场景出发，形成清晰可用的方案",
+      "message": "共同明确业务对象\n共同设计协作方式",
+      "notes": "简洁收束，不虚构客户、业绩或联系信息。",
+      "image": {
+        "src": "images/03.png",
+        "alt": "两组微缩团队把软件模块接入同一完整产品平台",
+        "ratio": "4:3",
+        "brief": {
+          "subject": "Two small white scale figures at a compact navy-and-white product platform, with two thin software modules and a modest glass display wall behind them.",
+          "action": "One figure seats a final teal-edged module into the shared platform while the other checks the connection at a slim nearby laptop.",
+          "structure": "Two modules join one continuous thin base; the fitted joint makes the completed product assembly visible without adding a new workflow or hierarchy.",
+          "details": "Fine glass perimeter, small navy interface panels, a single gold connector and one tiny planter; clear scale separation between the platform, operators and laptop.",
+          "composition": "4:3, low balanced three-quarter view, complete miniature assembly and soft shadow inside generous margins for use beside the closing copy."
+        }
+      },
+      "visual": {
+        "role": "closing",
+        "treatment": "none",
+        "rationale": "以一次完整装配动作收束，保持场景主导及少量可编辑文字。",
+        "requirements": []
+      }
+    }
+  ],
+  "presentation_mode": "speech"
+}

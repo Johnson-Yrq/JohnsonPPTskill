@@ -1,5 +1,7 @@
 {
   "version": 1,
+  "style": "scene-white",
+  "presentation_mode": "speech",
   "title": "采购协同方案",
   "footer_label": "采购协同 · 方案示例",
   "slides": [
@@ -120,5 +122,6 @@
         "requirements": []
       }
     }
-  ]
+  ],
+  "presentation_mode": "speech"
 }

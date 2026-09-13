@@ -32,6 +32,8 @@ async function run() {
     const count = await page.locator('.slide').count();
     if (!count) throw new Error('没有找到演示页面');
     report.count = count;
+    report.style = await page.evaluate(() => document.body.dataset.style || 'scene-white');
+    report.presentation_mode = await page.evaluate(() => document.body.dataset.presentationMode || 'speech');
     report.selfContained = await page.evaluate(() => ({
       externalElements: [...document.querySelectorAll('img[src],script[src],link[href],iframe[src],audio[src],video[src],source[src],image[href]')]
         .filter(el => !/^(data:|#)/.test(el.getAttribute('src') || el.getAttribute('href') || '')).map(el => el.tagName),
@@ -45,13 +47,24 @@ async function run() {
       const checks = await page.evaluate(() => {
         const s = document.querySelector('.slide.active'), sr = s.getBoundingClientRect(), footer = s.querySelector('footer').getBoundingClientRect();
         const issues = [], rect = el => {const r = el.getBoundingClientRect(); return {x:r.x-sr.x,y:r.y-sr.y,w:r.width,h:r.height,right:r.right-sr.x,bottom:r.bottom-sr.y};};
+        const styleDefaults={max_radius:8,page_number_min:100,cover_labels_expected:true};
+        let styleContract=styleDefaults;
+        if(document.body.dataset.styleContract){
+          try{
+            const parsed=JSON.parse(document.body.dataset.styleContract);
+            if(!parsed||!Number.isFinite(parsed.max_radius)||parsed.max_radius<0||!Number.isFinite(parsed.page_number_min)||parsed.page_number_min<1||typeof parsed.cover_labels_expected!=='boolean')throw new Error('invalid values');
+            styleContract=parsed;
+          }catch{issues.push({type:'invalid-style-contract'});}
+        }else if(document.body.dataset.style&&document.body.dataset.style!=='scene-white')issues.push({type:'missing-style-contract'});
         const textEls = [...s.querySelectorAll('[data-edit],.page-number')].filter(el => el.textContent.trim() && el.getBoundingClientRect().width > 0);
+        const readingMode = document.body.dataset.presentationMode === 'reading';
         const label = el => el.textContent.trim().slice(0,70);
         for (const el of textEls) {
           const r = rect(el);
           if (r.x < -1 || r.y < -1 || r.right > sr.width+1 || r.bottom > sr.height+1) issues.push({type:'out-of-bounds',text:label(el),rect:r});
           if (el.closest('main') && r.bottom > footer.top-sr.top-8) issues.push({type:'footer-collision',text:label(el),bottom:r.bottom});
           const cs=getComputedStyle(el), clippedY=['hidden','clip','auto','scroll'].includes(cs.overflowY);
+          if(readingMode&&el.closest('main')&&parseFloat(cs.fontSize)<21)issues.push({type:'reading-text-too-small',text:label(el),size:parseFloat(cs.fontSize),minimum:21});
           // Visible font ascenders can exceed a line box without clipping. Only
           // flag vertical scroll metrics when the element actually clips them.
           if (el.clientWidth && (el.scrollWidth > el.clientWidth+2 || (clippedY && el.scrollHeight > el.clientHeight+2))) issues.push({type:'text-overflow',text:label(el)});
@@ -64,10 +77,10 @@ async function run() {
         const brokenImages=[...s.querySelectorAll('img')].filter(im => !im.complete || !im.naturalWidth).map(im => im.alt);
         for (const el of s.querySelectorAll('*')) {
           const cs=getComputedStyle(el);
-          if (Math.max(...['borderTopLeftRadius','borderTopRightRadius','borderBottomLeftRadius','borderBottomRightRadius'].map(k=>parseFloat(cs[k])||0))>8.01) issues.push({type:'radius-over-8',element:el.className.baseVal??el.className});
+          if (Math.max(...['borderTopLeftRadius','borderTopRightRadius','borderBottomLeftRadius','borderBottomRightRadius'].map(k=>parseFloat(cs[k])||0))>styleContract.max_radius+.01) issues.push({type:'radius-over-style-limit',limit:styleContract.max_radius,element:el.className.baseVal??el.className});
           if (el.classList.contains('architecture-label') && (cs.backgroundColor!=='rgba(0, 0, 0, 0)' || parseFloat(cs.borderTopWidth)>0)) issues.push({type:'architecture-label-box',text:label(el)});
         }
-        const designIssues=[], counts={}, texts={}, featureNames={icons:'icon',panels:'panel',tags:'tag',states:'state',architecture_labels:'architecture-label',relations:'relation'};
+        const designIssues=[], counts={}, texts={}, featureNames={icons:'icon',panels:'panel',tags:'tag',states:'state',architecture_labels:'architecture-label',relations:'relation',visual_blocks:'visual-block',tables:'table',layers:'layer',charts:'chart'};
         const transparent=c=>c==='transparent'||c==='rgba(0, 0, 0, 0)'||/rgba\([^)]*,\s*0\s*\)/.test(c);
         const visible=el=>{
           const r=el.getBoundingClientRect();
@@ -82,10 +95,14 @@ async function run() {
             if(feature==='icons')return el.tagName.toLowerCase()==='svg'&&!!el.querySelector('path,circle,rect,line,polyline,polygon,ellipse')&&!transparent(getComputedStyle(el).color);
             if(['panels','tags','states'].includes(feature))return grouped(el);
             if(feature==='relations')return el.querySelectorAll('[data-component="tag"]').length>=2&&!!el.querySelector('.relation-link,[data-connection]');
+            if(feature==='tables')return el.tagName.toLowerCase()==='table'&&el.rows.length>=2&&el.rows[0].cells.length>=2;
+            if(feature==='charts')return el.dataset.chartReady==='true'&&!!el.querySelector('svg path');
+            if(feature==='layers')return !!el.querySelector('.reading-layer-name')&&el.querySelectorAll('[data-component="tag"]').length>=1;
+            if(feature==='visual_blocks')return !!el.querySelector('h3')&&((el.dataset.visualType==='process'&&el.querySelectorAll('[data-step]').length>=3)||(el.dataset.visualType==='matrix'&&el.querySelectorAll('table tr').length>=3)||(el.dataset.visualType==='layers'&&el.querySelectorAll('[data-component="layer"]').length>=2)||(el.dataset.visualType==='facts'&&el.querySelectorAll('dl>div').length>=2)||(el.dataset.visualType==='chart'&&!!el.querySelector('.echart[data-chart-ready="true"] svg path')));
             return true;
           });
           counts[feature]=found.length;
-          texts[feature]=found.map(el=>feature==='icons'?(el.closest('.icon-heading,.relation-node')||el.parentElement).textContent.trim():el.textContent.trim());
+          texts[feature]=found.map(el=>feature==='icons'?(el.closest('.icon-heading,.relation-node')||el.parentElement).textContent.trim():feature==='tables'?(el.closest('.reading-block')||el).textContent.trim():el.textContent.trim());
         }
         const steps=[...s.querySelectorAll('[data-step]')].filter(visible);counts.steps=steps.length;texts.steps=steps.map(el=>el.textContent.trim());
         let contract=null,imageBalance=null;
@@ -116,16 +133,73 @@ async function run() {
           if(h1){const hcs=getComputedStyle(h1),hs=parseFloat(hcs.fontSize);
             if(sub){const scs=getComputedStyle(sub),ss=parseFloat(scs.fontSize);if(ss*1.3>hs)brandIssues.push({type:'subtitle-competes-with-title',title:hs,subtitle:ss});if(parseInt(scs.fontWeight)>=600)brandIssues.push({type:'subtitle-bold'});if(!isCover&&!isClosing&&scs.color!==token('--muted'))brandIssues.push({type:'subtitle-color',actual:scs.color});}
             if(!isCover&&!isClosing){if(hcs.color!==token('--ink'))brandIssues.push({type:'title-color',actual:hcs.color});if(hs<36)brandIssues.push({type:'title-too-small',actual:hs});}
-            if(isClosing&&hcs.color!==token('--blue'))brandIssues.push({type:'closing-title-color',actual:hcs.color});}
-          if(ch&&!isClosing&&transparent(getComputedStyle(ch).backgroundColor))brandIssues.push({type:'chapter-without-panel'});
-          if(!pn||!visible(pn)||parseFloat(getComputedStyle(pn).fontSize)<100)brandIssues.push({type:'page-number-missing-or-small'});
+            if(isClosing&&hcs.color!==token(styleContract.closing_title_token||'--blue'))brandIssues.push({type:'closing-title-color',actual:hcs.color});}
+          if(ch&&!isClosing&&styleContract.chapter_panel!==false&&transparent(getComputedStyle(ch).backgroundColor))brandIssues.push({type:'chapter-without-panel'});
+          if(!pn||!visible(pn)||parseFloat(getComputedStyle(pn).fontSize)<styleContract.page_number_min)brandIssues.push({type:'page-number-missing-or-small',minimum:styleContract.page_number_min});
           if(!ft||!visible(ft)||!logo||!visible(logo))brandIssues.push({type:'footer-or-logo-missing'});
-          if(isCover){const copy=s.querySelector('.cover-copy'),hero=s.querySelector('.hero-scene');if(!copy||rect(copy).x>120)brandIssues.push({type:'cover-copy-not-left'});if(!hero||rect(hero).x<sr.width*0.45)brandIssues.push({type:'cover-image-not-right'});if(!s.querySelector('.cover-labels>div'))warnings.push({type:'cover-without-labels'});}
+          if(isCover){const copy=s.querySelector('.cover-copy'),hero=s.querySelector('.hero-scene');if(!copy||rect(copy).x>120)brandIssues.push({type:'cover-copy-not-left'});if(!hero||rect(hero).x<sr.width*0.45)brandIssues.push({type:'cover-image-not-right'});if(styleContract.cover_labels_expected&&!s.querySelector('.cover-labels>div'))warnings.push({type:'cover-without-labels'});}
         }
-        // Image presence: how much of the content area the visible scene image occupies (informational; small values usually mean the scene is too small).
+        // Reading illustration area uses the WHOLE slide, not main or figure boxes.
+        // Intersect actual rendered image rectangles with clipping ancestors, then take their union.
+        const intersection=(a,b)=>({left:Math.max(a.left,b.left),right:Math.min(a.right,b.right),top:Math.max(a.top,b.top),bottom:Math.min(a.bottom,b.bottom)});
+        const imageRects=[...s.querySelectorAll('main .scene-image img')].filter(visible).map(img=>{
+          let r=intersection(img.getBoundingClientRect(),s.getBoundingClientRect());
+          for(let el=img.parentElement;el&&el!==s;el=el.parentElement){
+            const cs=getComputedStyle(el),clip=el.getBoundingClientRect();
+            if(/hidden|clip|scroll|auto/.test(cs.overflowX)){r.left=Math.max(r.left,clip.left);r.right=Math.min(r.right,clip.right);}
+            if(/hidden|clip|scroll|auto/.test(cs.overflowY)){r.top=Math.max(r.top,clip.top);r.bottom=Math.min(r.bottom,clip.bottom);}
+          }
+          return r;
+        }).filter(r=>r.right>r.left&&r.bottom>r.top);
+        const xs=[...new Set(imageRects.flatMap(r=>[r.left,r.right]))].sort((a,b)=>a-b);
+        let union=0;
+        for(let x=1;x<xs.length;x++){
+          const intervals=imageRects.filter(r=>r.left<xs[x]&&r.right>xs[x-1]).map(r=>[r.top,r.bottom]).sort((a,b)=>a[0]-b[0]);
+          let end=-Infinity,height=0;
+          for(const [lo,hi] of intervals){height+=Math.max(0,hi-Math.max(lo,end));end=Math.max(end,hi);}
+          union+=(xs[x]-xs[x-1])*height;
+        }
+        const illustrationRatio=union/(sr.width*sr.height),illustrationArea=Math.round(illustrationRatio*1000)/1000;
+        let compositionBalance=null;
+        if(readingMode&&s.classList.contains('layout-reading')){
+          const body=s.querySelector('.reading-body'),br=body.getBoundingClientRect(),media=[...body.querySelectorAll('.reading-media-item')],blocks=[...body.querySelectorAll('.reading-block')];
+          const imageRegions=media.reduce((sum,el)=>{const r=el.getBoundingClientRect();return sum+r.width*r.height;},0);
+          const expected=contract?.illustration_region_ratio,actual=imageRegions/(br.width*br.height),coverage=union/imageRegions;
+          const composition=s.querySelector('[data-composition]')?.dataset.composition;
+          const at=(el,x,y)=>{const r=el.getBoundingClientRect();return ((r.left+r.width/2-br.left)/br.width<.5?0:1)===x&&((r.top+r.height/2-br.top)/br.height<.5?0:1)===y;};
+          let placement=true;
+          if(composition==='half_lr')placement=media.length===1&&media.every(el=>at(el,0,0)||at(el,0,1))&&blocks.every(el=>at(el,1,0)||at(el,1,1));
+          else if(composition==='half_tb')placement=media.every(el=>at(el,0,0)||at(el,1,0))&&blocks.every(el=>at(el,0,1)||at(el,1,1));
+          else if(composition==='half_diagonal')placement=media.length===2&&blocks.length===2&&at(media[0],0,0)&&at(media[1],1,1)&&at(blocks[0],1,0)&&at(blocks[1],0,1);
+          else if(composition==='quarter')placement=media.length===1&&blocks.length===3&&at(media[0],0,0)&&at(blocks[0],1,0)&&at(blocks[1],0,1)&&at(blocks[2],1,1);
+          else placement=false;
+          compositionBalance={composition,expected,regionRatio:actual,imageCoverage:coverage,placement};
+          if(!Number.isFinite(expected)||Math.abs(actual-expected)>.04||!placement)designIssues.push({type:'reading-composition-mismatch',...compositionBalance,hint:'按主体版面核对左右、上下、对角或四分之一分区，不以图片像素面积替代分区比例。'});
+          if(!Number.isFinite(coverage)||coverage<.45)designIssues.push({type:'reading-image-underfilled',imageCoverage:coverage,minimum:.45,hint:'检查配图在分区内的大小、完整性与画幅；不能用空图框凑比例。'});
+        }
+        for(const host of s.querySelectorAll('.echart')){
+          const hr=host.getBoundingClientRect(),svg=host.querySelector('svg');
+          if(!svg||host.dataset.chartReady!=='true')designIssues.push({type:'chart-not-rendered'});
+          for(const label of host.querySelectorAll('svg text')){const lr=label.getBoundingClientRect();if(lr.width&&lr.height&&(lr.left<hr.left-3||lr.right>hr.right+3||lr.top<hr.top-3||lr.bottom>hr.bottom+3))issues.push({type:'chart-label-clipped',text:label.textContent});}
+        }
+        // Preserve speech-mode advisory checks against the content area.
         let imageArea=null;const heroImg=s.querySelector('main .scene-image img');
-        if(heroImg&&main&&!isCover&&!isClosing){const ir=heroImg.getBoundingClientRect(),mr=main.getBoundingClientRect();const w=Math.max(0,Math.min(ir.right,mr.right)-Math.max(ir.left,mr.left)),h=Math.max(0,Math.min(ir.bottom,mr.bottom)-Math.max(ir.top,mr.top));imageArea=Math.round((w*h)/(mr.width*mr.height)*1000)/1000;const floor=s.classList.contains('layout-table')?0.08:0.30;if(imageArea<floor)warnings.push({type:'image-area-small',imageArea,floor,hint:'放大场景本体、收窄文字或换左右排布；不要用小图配大段文字'});}
-        return {page:Number(document.querySelector('#page-input').value),id:s.id,title:s.querySelector('h1').textContent,issues,brokenImages,design:{ok:!designIssues.length,counts,issues:designIssues,imageBalance,manualReview:contract?.manual||[],rationale:contract?.rationale||'',omissions:contract?.omissions||[]},brand:{ok:!brandIssues.length,restyle,issues:brandIssues},imageArea,warnings};
+        if(heroImg&&main&&!isCover&&!isClosing){const ir=heroImg.getBoundingClientRect(),mr=main.getBoundingClientRect();const w=Math.max(0,Math.min(ir.right,mr.right)-Math.max(ir.left,mr.left)),h=Math.max(0,Math.min(ir.bottom,mr.bottom)-Math.max(ir.top,mr.top));imageArea=Math.round((w*h)/(mr.width*mr.height)*1000)/1000;const floor=s.classList.contains('layout-table')?.08:.30;if(!readingMode&&imageArea<floor)warnings.push({type:'image-area-small',imageArea,floor,hint:'放大场景本体、收窄文字或换左右排布；不要用小图配大段文字'});}
+        if(readingMode&&s.classList.contains('layout-reading')){
+          // Alignment rule: a block heading stays on the region's top edge (so headings align across a row); the body below it, or an image with its caption, is centred in the remaining space (equal free space above and below, 12px tolerance).
+          for(const cell of s.querySelectorAll('.reading-body .reading-block,.reading-body .reading-media-item')){
+            const cs=getComputedStyle(cell),cr=cell.getBoundingClientRect(),kids=[...cell.children].filter(el=>visible(el)&&el.getBoundingClientRect().height>0);if(!kids.length)continue;
+            const contentTop=cr.top+parseFloat(cs.borderTopWidth)+parseFloat(cs.paddingTop),contentBottom=cr.bottom-parseFloat(cs.borderBottomWidth)-parseFloat(cs.paddingBottom),region=cell.classList.contains('reading-block')?cell.dataset.visualType:'image';
+            const heading=kids[0].matches('h3')?kids[0]:null,body=heading?kids.slice(1):kids;
+            if(heading&&heading.getBoundingClientRect().top-contentTop>4)designIssues.push({type:'reading-heading-not-top',region,text:label(heading).slice(0,40),hint:'模块标题贴分区上沿，同一行的标题对齐。'});
+            if(!body.length)continue;
+            const top=Math.min(...body.map(el=>el.getBoundingClientRect().top))-(heading?heading.getBoundingClientRect().bottom+parseFloat(getComputedStyle(heading).marginBottom):contentTop),bottom=contentBottom-Math.max(...body.map(el=>el.getBoundingClientRect().bottom));
+            if(Math.abs(top-bottom)>12)designIssues.push({type:'reading-region-not-centered',region,text:label(cell).slice(0,40),above:Math.round(top),below:Math.round(bottom),hint:'标题下方的内容（或配图与说明）在分区剩余空间内垂直居中；不用顶对齐或底对齐填充空位。'});
+          }
+        }
+        let structuredArea=null;
+        if(s.classList.contains('layout-reading')){const mr=main.getBoundingClientRect();structuredArea=[...s.querySelectorAll('[data-component="visual-block"]')].reduce((sum,el)=>{const r=el.getBoundingClientRect();return sum+Math.max(0,Math.min(r.right,mr.right)-Math.max(r.left,mr.left))*Math.max(0,Math.min(r.bottom,mr.bottom)-Math.max(r.top,mr.top));},0)/(mr.width*mr.height);if(counts.visual_blocks<1)designIssues.push({type:'reading-visual-blocks-missing'});}
+        return {page:Number(document.querySelector('#page-input').value),id:s.id,title:s.querySelector('h1').textContent,issues,brokenImages,design:{ok:!designIssues.length,counts,issues:designIssues,imageBalance,structuredArea,compositionBalance,manualReview:contract?.manual||[],rationale:contract?.rationale||'',omissions:contract?.omissions||[]},brand:{ok:!brandIssues.length,restyle,issues:brandIssues},imageArea,illustrationArea,imageCount:imageRects.length,warnings};
       });
       report.pages.push(checks);
       const shot = path.join(out, `p${String(i+1).padStart(2,'0')}.png`);
@@ -153,11 +227,26 @@ async function run() {
     const marker = '保存验证 · 可编辑文字';
     await editTarget.fill(marker);
     f.edit = await editTarget.textContent()===marker;
+    const chartSlide = await page.evaluate(()=>[...document.querySelectorAll('.slide')].findIndex(s=>s.querySelector('.chart-data')));
+    if(chartSlide>=0){
+      await page.evaluate(index=>window.deckAPI.show(index),chartSlide);
+      await page.locator('.slide.active .chart-editor').first().evaluate(el=>el.open=true);
+      const cell=page.locator('.slide.active .chart-data tbody tr').first().locator('td').first();
+      await cell.fill('invalid');
+      const rejected=await page.locator('.slide.active .chart-shell[data-invalid]').count()===1;
+      await cell.fill('97');
+      f.chartDataEdit=rejected&&await page.evaluate(()=>{const shell=document.querySelector('.slide.active .chart-shell'),config=JSON.parse(shell.querySelector('.chart-config').textContent),series=echarts.getInstanceByDom(shell.querySelector('.echart')).getOption().series[0];return config.series[0].values[0]===97&&(series.data[0]?.value??series.data[0])===97&&!shell.hasAttribute('data-invalid');});
+      await page.locator('.slide.active .chart-editor').first().evaluate(el=>el.open=false);
+    }
     const downloadPromise = page.waitForEvent('download'); await page.locator('#save').click();
     const downloaded = await downloadPromise, savedPath = path.join(out,'save-test.html'); await downloaded.saveAs(savedPath);
     const saved = await context.newPage(); await saved.goto(pathToFileURL(savedPath).href);
     await saved.evaluate(async () => {await Promise.all([...document.images].map(im => im.decode().catch(() => {})));});
     f.saveReopen = await saved.evaluate(({marker,count}) => [...document.querySelectorAll('h1')].some(h => h.textContent.includes(marker)) && document.querySelectorAll('.slide').length===count && [...document.images].every(im => im.naturalWidth>0) && !document.body.classList.contains('editing'), {marker,count});
+    if(chartSlide>=0){
+      await saved.evaluate(index=>window.deckAPI.show(index),chartSlide);
+      f.chartSaveReopen=await saved.evaluate(()=>{const shell=document.querySelector('.slide.active .chart-shell'),config=JSON.parse(shell.querySelector('.chart-config').textContent),host=shell.querySelector('.echart'),series=echarts.getInstanceByDom(host).getOption().series[0];return config.series[0].values[0]===97&&(series.data[0]?.value??series.data[0])===97&&!!host.querySelector('svg path');});
+    }
     await saved.close();
     await page.goto(pathToFileURL(path.resolve(filename)).href);
     await page.setViewportSize({width:390,height:844});
@@ -189,7 +278,7 @@ async function run() {
     report.visualReview = 'required: actual scene size, semantics, background fusion and label-to-model alignment require inspecting every page';
     report.ok = report.technicalOK && report.designContractOK && report.brandOK;
     fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-    console.log(JSON.stringify({ok:report.ok,technicalOK:report.technicalOK,designContractOK:report.designContractOK,brandOK:report.brandOK,restyle:report.restyle,pages:count,layoutIssues:report.pages.reduce((sum,p)=>sum+p.issues.length,0),designIssues:report.pages.reduce((sum,p)=>sum+p.design.issues.length,0),brandIssues:report.pages.reduce((sum,p)=>sum+p.brand.issues.length,0),warnings:report.warnings.length,functions:f,report:path.join(out,'report.json')},null,2));
+    console.log(JSON.stringify({ok:report.ok,style:report.style,technicalOK:report.technicalOK,designContractOK:report.designContractOK,brandOK:report.brandOK,restyle:report.restyle,pages:count,layoutIssues:report.pages.reduce((sum,p)=>sum+p.issues.length,0),designIssues:report.pages.reduce((sum,p)=>sum+p.design.issues.length,0),brandIssues:report.pages.reduce((sum,p)=>sum+p.brand.issues.length,0),warnings:report.warnings.length,functions:f,report:path.join(out,'report.json')},null,2));
     if (!report.ok) process.exitCode=1;
   } finally {await browser.close();}
 }

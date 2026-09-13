@@ -1,0 +1,4 @@
+interface:
+  display_name: "PPT 制作工作台"
+  short_description: "按风格与演讲／阅读类型制作可编辑离线演示稿，支持持续扩展独立风格"
+  default_prompt: "使用 $ppt-workbench，根据我的大纲制作演示稿。先识别我已确认的风格和演讲型／阅读型用途，只询问缺少的选择，再按对应风格与信息密度制作并完成逐页检查。"

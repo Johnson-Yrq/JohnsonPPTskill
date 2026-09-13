@@ -1,0 +1,4 @@
+interface:
+  display_name: "海蓝玻璃演示稿"
+  short_description: "海蓝玻璃风格：暖白纸底、海军蓝与灰青、玻璃微缩展陈配图，复用排版套件制作可编辑离线HTML演示稿"
+  default_prompt: "使用 $saas-3d-slides，先确认我的演示稿用于演讲还是独立阅读，再根据我的大纲按对应信息密度制作整稿风格一致的可编辑 HTML 演示稿，并完成逐页检查。"

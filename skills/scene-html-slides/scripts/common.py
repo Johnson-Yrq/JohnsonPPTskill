@@ -7,7 +7,7 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parent.parent
 ASSETS = SKILL / 'assets'
 LAYOUTS = {'cover', 'scene', 'split', 'triad', 'journey', 'architecture', 'flow',
-           'domains', 'formula', 'table', 'relations', 'closing'}
+           'domains', 'formula', 'table', 'relations', 'closing', 'reading'}
 EMBED_FORMATS = ('webp', 'jpeg', 'keep')
 PAPER_RGB = (0xF7, 0xF6, 0xF2)
 
@@ -32,6 +32,54 @@ def number(value, default, low, high, label):
     return value
 
 
+def presentation_mode(deck):
+    mode = deck.get('presentation_mode', 'speech')
+    if not isinstance(mode, str) or mode not in {'speech', 'reading'}:
+        raise ValueError('presentation_mode 可选 speech（演讲型）/ reading（阅读型）')
+    return mode
+
+
+def slide_images(slide):
+    """Normalize single and multiple illustrations without accepting ignored fields."""
+    if 'images' in slide:
+        if 'image' in slide:
+            raise ValueError('image 与 images 只能选一个')
+        if slide.get('layout') != 'reading':
+            raise ValueError('多配图 images 使用 reading 版式')
+        images = slide['images']
+        if not isinstance(images, list) or not 1 <= len(images) <= 3:
+            raise ValueError('images 需要 1–3 张配图；更多场景请拆页')
+    else:
+        images = [slide.get('image')]
+    if any(not isinstance(im, dict) for im in images):
+        raise ValueError('每页需要 image 对象或 reading.images（含 src、alt）')
+    sources = [im.get('src') for im in images]
+    if any(isinstance(src, str) and sources.count(src) > 1 for src in sources):
+        raise ValueError('同页多配图须对应不同内容，不能重复同一 src 凑面积')
+    return images
+
+
+def reading_composition(slide):
+    images = slide_images(slide)
+    choice = slide.get('composition', 'half_lr' if len(images) == 1 else 'half_tb')
+    if not isinstance(choice, str) or choice not in {'half_lr', 'half_tb', 'half_diagonal', 'quarter'}:
+        raise ValueError('reading.composition 可选 half_lr / half_tb / half_diagonal / quarter')
+    if choice in {'half_lr', 'quarter'} and len(images) != 1:
+        raise ValueError(f'{choice} 需要一张配图')
+    if choice == 'half_diagonal' and len(images) != 2:
+        raise ValueError('half_diagonal 需要两张对角配图')
+    blocks = slide.get('blocks', [])
+    if not isinstance(blocks, list):
+        raise ValueError('reading.blocks 需要模块数组')
+    if choice == 'half_diagonal' and len(blocks) != 2:
+        raise ValueError('half_diagonal 需要两个内容模块，分别填入另外两个分区')
+    if choice == 'quarter' and len(blocks) != 3:
+        raise ValueError('quarter 需要三个内容模块，分别填入其余三个分区')
+    if choice in {'half_diagonal', 'quarter'} and any(b.get('span', 1) != 1 for b in blocks if isinstance(b, dict)):
+        raise ValueError('对角与四分之一版式的模块各占一格，不设置 span: 2')
+    return choice
+
+
 def load_deck(filename, layouts=LAYOUTS):
     """Validate the deck shell. `layouts=None` defers the layout whitelist to a Builder (see --builder)."""
     path = Path(filename).resolve()
@@ -41,6 +89,7 @@ def load_deck(filename, layouts=LAYOUTS):
     if not isinstance(data.get('title'), str) or not data['title'].strip():
         raise ValueError('需要非空 title')
     slides = data.get('slides')
+    mode = presentation_mode(data)
     if not isinstance(slides, list) or not slides:
         raise ValueError('需要非空 slides 数组')
     ids = set()
@@ -55,12 +104,22 @@ def load_deck(filename, layouts=LAYOUTS):
         if not isinstance(sid, str) or not sid or sid in ids or not all(c.isascii() and (c.isalnum() or c in '-_') for c in sid):
             raise ValueError(f'第 {i} 页 id 必须唯一，并仅用英文字母、数字、-、_')
         ids.add(sid)
-        im = s.get('image')
-        if not isinstance(im, dict):
-            raise ValueError(f'第 {i} 页需要 image 对象（含 src、alt）')
-        local_path(path.parent, im.get('src'))
-        if not isinstance(im.get('alt'), str) or not im['alt'].strip():
-            raise ValueError(f'第 {i} 页需要有含义的 image.alt')
+        if 'presentation_mode' in s:
+            raise ValueError(f'第 {i} 页不能单独设置 presentation_mode；使用根字段记录用户选择')
+        if 'composition' in s and s['layout'] != 'reading':
+            raise ValueError('composition 仅用于 reading 版式')
+        if s['layout'] == 'reading':
+            if mode != 'reading':
+                raise ValueError('reading 版式需要 presentation_mode: reading；制作前先确认阅读型用途')
+            reading_composition(s)
+        for im in slide_images(s):
+            local_path(path.parent, im.get('src'))
+            if not isinstance(im.get('alt'), str) or not im['alt'].strip():
+                raise ValueError(f'第 {i} 页需要有含义的 image.alt')
+            if 'caption' in im and (s['layout'] != 'reading' or not isinstance(im['caption'], str) or not im['caption'].strip()):
+                raise ValueError('caption 仅用于 reading 配图，须为非空字符串')
+    from style_packs import resolve_style
+    resolve_style(data)
     return data, path.parent
 
 

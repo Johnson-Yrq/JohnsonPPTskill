@@ -4,19 +4,19 @@ This contract records what should be visible. The browser audit counts what
 actually rendered, including when a project supplies its own layout methods.
 """
 import json
-from common import ASSETS
+from common import ASSETS, presentation_mode, reading_composition
 
 ROLES = {'cover', 'closing', 'explanation', 'capabilities', 'comparison', 'process',
-         'controls', 'architecture', 'entities', 'formula', 'table', 'domains'}
+         'controls', 'architecture', 'entities', 'formula', 'table', 'domains', 'briefing'}
 DEFAULT_ROLES = {'cover': 'cover', 'closing': 'closing', 'scene': 'explanation',
                  'split': 'explanation', 'triad': 'controls', 'journey': 'process',
                  'architecture': 'architecture', 'flow': 'process', 'domains': 'domains',
-                 'formula': 'formula', 'table': 'table', 'relations': 'entities'}
+                 'formula': 'formula', 'table': 'table', 'relations': 'entities', 'reading': 'briefing'}
 DEFAULT_TREATMENTS = {'cover': 'none', 'closing': 'none', 'architecture': 'labels',
                       'table': 'none', 'domains': 'open', 'explanation': 'open',
                       'capabilities': 'panels', 'comparison': 'panels', 'process': 'panels',
-                      'controls': 'mixed', 'entities': 'labels', 'formula': 'panels'}
-FEATURES = {'icons', 'panels', 'tags', 'states', 'architecture_labels', 'steps', 'relations'}
+                      'controls': 'mixed', 'entities': 'labels', 'formula': 'panels', 'briefing': 'open'}
+FEATURES = {'icons', 'panels', 'tags', 'states', 'architecture_labels', 'steps', 'relations', 'visual_blocks', 'tables', 'layers', 'charts'}
 # Journey / image_position: above. The audit reads the same numbers from the page contract.
 IMAGE_BALANCE = {'min_height': 460, 'min_main_ratio': 0.60, 'min_width_ratio': 0.72, 'max_caption_height': 220}
 
@@ -51,6 +51,8 @@ def heading_units(slide):
     units = []
     for key in ['left', 'right', 'items', 'groups']:
         units.extend(v for v in dicts(slide.get(key)) if 'title' in v)
+    if slide.get('layout') == 'reading':
+        units.extend(dicts(slide.get('blocks')))
     if slide.get('layout') == 'formula' and not units:
         formula = slide.get('formula')
         if isinstance(formula, dict):
@@ -135,6 +137,62 @@ def cover_rules(slide):
     return errors, warnings
 
 
+def reading_errors(slide):
+    """Validate the content semantics before the composite renderer runs."""
+    errors = []
+    if not isinstance(slide.get('summary'), str) or not slide['summary'].strip():
+        errors.append('阅读页需要可独立理解的 summary')
+    blocks = slide.get('blocks')
+    if not isinstance(blocks, list) or not 1 <= len(blocks) <= 4 or any(not isinstance(b, dict) for b in blocks):
+        return errors + ['阅读页 blocks 需要 1–4 个模块对象']
+    if not any(isinstance(b.get('type'), str) and b['type'] in {'process', 'matrix', 'layers', 'chart'} for b in blocks):
+        errors.append('阅读页至少需要一种流程、矩阵或层级关系，不能只把正文拆成多个框')
+    rows, filled = 1, 0
+    def required_text(value, label):
+        if not isinstance(value, str) or not value.strip(): errors.append(f'{label} 需要非空字符串')
+    for b in blocks:
+        kind, span = b.get('type'), b.get('span', 1)
+        if isinstance(span, bool) or span not in (1, 2):
+            errors.append('blocks[].span 可选 1 / 2'); span = 1
+        if filled + span > 2: rows, filled = rows + 1, 0
+        filled += span
+        required_text(b.get('title'), '阅读模块标题')
+        if 'note' in b: required_text(b['note'], '阅读模块 note')
+        if not isinstance(kind, str) or kind not in {'process', 'matrix', 'layers', 'facts', 'chart'}:
+            errors.append('blocks[].type 可选 process / matrix / layers / facts / chart'); continue
+        if kind == 'chart':
+            from chart_contract import chart_errors
+            errors.extend(chart_errors(b))
+            continue
+        key, low, high = {'process': ('steps', 3, 6), 'matrix': ('rows', 2, 6), 'layers': ('layers', 2, 4), 'facts': ('rows', 2, 5)}[kind]
+        values = b.get(key)
+        if not isinstance(values, list) or not low <= len(values) <= high:
+            errors.append(f'{kind}.{key} 需要 {low}–{high} 项'); continue
+        if kind == 'matrix':
+            cols = b.get('columns')
+            if not isinstance(cols, list) or not 2 <= len(cols) <= 5:
+                errors.append('matrix.columns 需要 2–5 个表头'); continue
+            for c in cols: required_text(c, '矩阵表头')
+            for row in values:
+                if not isinstance(row, list) or len(row) != len(cols):
+                    errors.append('阅读矩阵每行单元格数量须与 columns 相同'); continue
+                for cell in row: required_text(cell, '矩阵单元格')
+        else:
+            for v in values:
+                if not isinstance(v, dict): errors.append(f'{kind}.{key} 每项需要对象'); continue
+                required_text(v.get('label' if kind == 'facts' else 'title'), f'{kind} 条目标题')
+                if kind == 'layers':
+                    modules = v.get('items')
+                    if not isinstance(modules, list) or not 1 <= len(modules) <= 5:
+                        errors.append('layers[].items 需要 1–5 个模块'); continue
+                    for module in modules: required_text(module, '分层模块')
+                else:
+                    required_text(v.get('text'), f'{kind} 条目说明')
+                    if 'output' in v: required_text(v['output'], '步骤 output')
+    if rows > 2: errors.append('阅读页模块超过两行；调整 span 或拆页，保留足够的阅读空间')
+    return errors
+
+
 def planned_features(slide):
     counts = {k: 0 for k in FEATURES}
     texts = {k: [] for k in FEATURES}
@@ -142,10 +200,22 @@ def planned_features(slide):
         counts[feature] += count
         if isinstance(text, str) and text.strip(): texts[feature].append(text.strip())
     units = heading_units(slide)
+    if slide.get('layout') == 'table': add('tables', slide.get('title', ''))
     for item in units:
         if item.get('icon'): add('icons', item.get('title', ''))
-        if slide.get('layout') != 'domains' and presentation_for(item, slide) == 'panel':
+        if slide.get('layout') not in {'domains', 'reading'} and presentation_for(item, slide) == 'panel':
             add('panels', item.get('title', ''))
+    if slide.get('layout') == 'reading':
+        for block in dicts(slide.get('blocks')):
+            add('visual_blocks', block.get('title', ''))
+            if block.get('type') == 'process':
+                for stage in dicts(block.get('steps')): add('steps', stage.get('title', ''))
+            elif block.get('type') == 'matrix': add('tables', block.get('title', ''))
+            elif block.get('type') == 'chart': add('charts', block.get('title', ''))
+            elif block.get('type') == 'layers':
+                for layer in dicts(block.get('layers')):
+                    add('layers', layer.get('title', ''))
+                    for text in strings(layer.get('items')): add('tags', text)
     # Cover labels are direct inscriptions, not grouped information panels.
     for text in strings(slide.get('benefits'))[:3]: add('tags', text)
     for text in strings(slide.get('platforms')): add('panels', text)
@@ -193,11 +263,17 @@ def planned_features(slide):
 
 
 def analyze_deck(deck):
+    from style_packs import resolve_style
+    style = resolve_style(deck)
+    mode = presentation_mode(deck)
     icons = json.loads((ASSETS / 'icons.json').read_text(encoding='utf-8'))
-    result = {'version': 2, 'errors': [], 'warnings': [], 'pages': []}
+    result = {'version': 2, 'presentation_mode': mode, 'mode_recorded': 'presentation_mode' in deck, 'errors': [], 'warnings': [], 'pages': []}
     for n, slide in enumerate(deck['slides'], 1):
         prefix = f'第 {n} 页（{slide["title"]}）'
         errors, warnings = shape_errors(slide), []
+        if slide.get('layout') == 'reading':
+            errors.extend(reading_errors(slide))
+            if mode != 'reading': errors.append('reading 版式需要 presentation_mode: reading')
         raw = slide.get('visual')
         if not isinstance(raw, dict):
             errors.append('需要 visual 设计决策，包含 role、treatment、rationale、requirements；先按本页内容选择设计元素')
@@ -225,6 +301,8 @@ def analyze_deck(deck):
                 errors.append(f'「{title}」在 mixed 版式中需要显式选择 presentation: open/panel')
             if 'presentation' in item and item['presentation'] not in {'open', 'panel'}:
                 errors.append(f'「{title}」的 presentation 无效')
+            if 'emphasis' in item and not isinstance(item['emphasis'], bool):
+                errors.append(f'「{title}」的 emphasis 须为布尔值')
         counts, texts = planned_features(dict(slide, visual=visual))
         requirements, manual = [], []
         for req in raw.get('requirements', []) if isinstance(raw.get('requirements'), list) else []:
@@ -255,14 +333,20 @@ def analyze_deck(deck):
         if slide.get('layout') == 'cover':
             cover_errors, cover_warnings = cover_rules(slide)
             errors.extend(cover_errors); warnings.extend(cover_warnings)
-            if not slide.get('labels'):
+            if style['audit'].get('cover_labels_expected', True) and not slide.get('labels'):
                 warnings.append('封面没有右侧层级标注 labels；配图含可指的层级、站点或对象时应逐项标注（参照默认封面）')
         # Include planned components even when the outline did not prescribe a count.
         expected = [{'feature': k, 'min': v, 'source': '本页设计决策'} for k, v in counts.items() if v]
         expected.extend(requirements)
-        page = {'slide_id': slide['id'], 'page': n, 'role': visual['role'], 'treatment': visual['treatment'],
+        page = {'slide_id': slide['id'], 'page': n, 'presentation_mode': mode, 'role': visual['role'], 'treatment': visual['treatment'],
                 'rationale': raw.get('rationale', ''), 'expected': expected, 'manual': manual,
                 'omissions': omissions, 'planned': counts, 'errors': errors, 'warnings': warnings}
+        if mode == 'reading':
+            if slide.get('layout') == 'reading':
+                composition = reading_composition(slide)
+                page['composition'] = composition
+                page['illustration_region_ratio'] = .25 if composition == 'quarter' else .5
+            manual.append({'feature': 'manual', 'source': '阅读型主体版面分区', 'text': '按主体版面分区核对 1/2 或 1/4 配图位置；逐图确认主体完整、尺度清晰，与相邻图表和文字有对应。图表不计作插画区。'})
         if slide.get('layout') == 'journey' or raw.get('image_position') == 'above':
             page['image_balance'] = dict(IMAGE_BALANCE)
             manual.append({'feature': 'manual', 'source': '上图下文展示要求',
@@ -273,7 +357,7 @@ def analyze_deck(deck):
     rich = [p for p in result['pages'] if p['role'] not in {'cover', 'closing', 'table', 'architecture'}]
     if len(rich) >= 3 and not any(p['planned']['icons'] for p in rich):
         result['warnings'].append('整稿内容页没有语义图标；复核是否确为用户要求，避免默认为纯文字模板')
-    if len(rich) >= 3 and not any(sum(p['planned'][k] for k in ['panels', 'tags', 'states']) for p in rich):
+    if len(rich) >= 3 and not any(sum(p['planned'].get(k, 0) for k in ['panels', 'tags', 'states', 'tables', 'charts', 'visual_blocks']) for p in rich):
         result['warnings'].append('整稿内容页只有无框文字；按阶段、能力、实体、状态逐项复核是否需要信息块或标签，不按比例硬加')
     result['ok'] = not result['errors']
     return result

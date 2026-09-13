@@ -1,0 +1,525 @@
+{
+  "version": 1,
+  "style": "saas-3d",
+  "title": "阅读型版式预览",
+  "footer_label": "海蓝玻璃风格 · 阅读型版式示例",
+  "slides": [
+    {
+      "id": "p01",
+      "layout": "cover",
+      "chapter": "软件产品与解决方案",
+      "title_prefix": "软件产品方案",
+      "title": "让业务协同有序",
+      "subtitle": "四类图文比例 · 可编辑图表与阅读型内容",
+      "promise": "先组织视觉，再补足信息与依据",
+      "benefits": [
+        "统一入口",
+        "过程清晰",
+        "协作有序"
+      ],
+      "notes": "风格示例。业务能力与成效需按实际产品资料替换；图中界面为示意。",
+      "image": {
+        "src": "images/01.png",
+        "alt": "深蓝产品主屏与三组微缩工作站组成的软件展陈场景",
+        "ratio": "16:9",
+        "ui_text": "demo",
+        "brief": {
+          "subject": "One dominant deep navy software dashboard inside a clear glass outer panel; three slim miniature laptop stations and two tiny white scale figures on a thin stepped square base.",
+          "action": "The two operators inspect the shared software workspace from their small laptops, while the large screen brings the related application areas together.",
+          "structure": "The main screen is the common product focus; the subordinate workstations sit on connected terraces around its base, expressing a single shared work environment rather than a timed process.",
+          "details": "Three slender rear architectural volumes, four small glass interface cards, fine gold trim, a few small white planters, and two translucent muted-teal blocks; leave the front stair and glass perimeter complete.",
+          "composition": "16:9 landscape, moderate near-isometric camera; central screen about half the image width, laptops one fifth of its width; preserve clear off-white margins, especially below the frontmost base corner."
+        }
+      },
+      "visual": {
+        "role": "cover",
+        "treatment": "none",
+        "rationale": "以大幅产品展陈引入，封面文字负责价值与范围，图中不再重复说明标签。",
+        "requirements": []
+      }
+    },
+    {
+      "id": "p02",
+      "layout": "reading",
+      "composition": "half_lr",
+      "chapter": "01 / 左右各半",
+      "title": "看懂产品全局，再定位需要处理的工作",
+      "summary": "左侧建立产品印象；右侧结合状态分布与处理说明，让读者知道当前工作在哪里、下一步看什么。",
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "按已确认的主体版面比例分区，配图、图表与说明对应组织；数量数据均为示例。",
+        "requirements": []
+      },
+      "blocks": [
+        {
+          "type": "chart",
+          "title": "任务状态分布",
+          "icon": "ChartNoAxesCombined",
+          "chart_type": "bar",
+          "categories": [
+            "待受理",
+            "处理中",
+            "待确认",
+            "已归档"
+          ],
+          "series": [
+            {
+              "name": "任务量",
+              "values": [
+                18,
+                42,
+                16,
+                24
+              ]
+            }
+          ],
+          "unit": "项",
+          "source": "示例：100 项任务 · 单位：项 · 非产品实测"
+        },
+        {
+          "type": "facts",
+          "title": "从图表进入具体工作",
+          "icon": "FileCheck2",
+          "rows": [
+            {
+              "label": "处理中",
+              "text": "42 项任务在处理环节，可继续按责任人与时限查看。"
+            },
+            {
+              "label": "待确认",
+              "text": "16 项任务等待确认，需要核对结论与相关凭证。"
+            },
+            {
+              "label": "已归档",
+              "text": "24 项任务已归档，可查询记录、来源与操作轨迹。"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "src": "images/02-product.png",
+        "alt": "已确认的产品展陈示意，辅助表达统一软件工作空间",
+        "ratio": "16:9",
+        "ui_text": "demo",
+        "brief": {
+          "subject": "One compact deep navy software screen within a clear glass outline, resting on a thin warm-white platform with one small laptop beside it.",
+          "action": "The small workstation accesses the shared software workspace represented by the main display.",
+          "structure": "The single connected platform relates the subordinate terminal to the product screen; the detailed business process is shown in separate editable diagrams.",
+          "details": "Slender device edges, fine navy UI lines, one muted-teal glass insert and a tiny gold joint; keep architectural detail restrained and legible at thumbnail scale.",
+          "composition": "16:9 supporting illustration, near-isometric view, complete base and glass perimeter, clean warm-white margins."
+        },
+        "caption": "产品全景｜业务对象、任务与结果"
+      }
+    },
+    {
+      "id": "p03",
+      "layout": "reading",
+      "composition": "half_lr",
+      "chapter": "01 / 左右各半",
+      "title": "把协作过程转成清晰的动作与责任",
+      "summary": "用三段协作场景理解处理路径，再通过步骤和责任矩阵核对交接，避免把所有信息堆进一张表。",
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "按已确认的主体版面比例分区，配图、图表与说明对应组织；数量数据均为示例。",
+        "requirements": []
+      },
+      "blocks": [
+        {
+          "type": "process",
+          "title": "处理动作与交接物",
+          "icon": "Workflow",
+          "steps": [
+            {
+              "title": "校验",
+              "text": "检查材料与权限",
+              "output": "输出：校验结果"
+            },
+            {
+              "title": "处理",
+              "text": "按分工执行任务",
+              "output": "输出：过程记录"
+            },
+            {
+              "title": "确认",
+              "text": "核对结论与凭证",
+              "output": "输出：确认记录"
+            }
+          ]
+        },
+        {
+          "type": "matrix",
+          "title": "责任与交付对应",
+          "icon": "ClipboardCheck",
+          "columns": [
+            "参与角色",
+            "负责动作",
+            "交接材料"
+          ],
+          "rows": [
+            [
+              "提交人",
+              "补全对象与材料",
+              "任务单"
+            ],
+            [
+              "处理人",
+              "执行并记录处理",
+              "过程记录"
+            ],
+            [
+              "确认人",
+              "核对结果与凭证",
+              "确认记录"
+            ]
+          ]
+        }
+      ],
+      "image": {
+        "src": "images/03-workflow.png",
+        "alt": "任务材料经校验通道进入结果归档区的微缩协作场景",
+        "ratio": "16:9",
+        "caption": "协作场景｜提交、校验与归档",
+        "brief": {
+          "subject": "A complete miniature workflow built from three distinct workstations: a laptop intake desk, a central validation gate, and a records archive, all on one warm white platform.",
+          "action": "Small teal document tiles move from the intake laptop through the validation gate into organized archival stacks.",
+          "structure": "A physical muted teal channel links the three stations in sequence; the central gate separates unverified incoming documents from verified archive tiles.",
+          "details": "Use a thin navy laptop, clear architectural glass cards, restrained champagne metal edges, five visible document tiles and a small archival tray. Preserve the established refined device scale.",
+          "composition": "16:9 landscape, balanced three-quarter view. Show the complete platform and document route with modest safety margins, no large unused backdrop."
+        }
+      }
+    },
+    {
+      "id": "p04",
+      "layout": "reading",
+      "composition": "half_tb",
+      "chapter": "02 / 上下各半",
+      "title": "先看业务场景，再读流程与处理趋势",
+      "summary": "上半区并列呈现场景与工作台；下半区分别说明处理顺序和数量变化，每组内容回答一个明确问题。",
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "按已确认的主体版面比例分区，配图、图表与说明对应组织；数量数据均为示例。",
+        "requirements": []
+      },
+      "blocks": [
+        {
+          "type": "process",
+          "title": "流程｜四步完成一次处理",
+          "icon": "Workflow",
+          "steps": [
+            {
+              "title": "提交",
+              "text": "确认对象与材料",
+              "output": "形成：任务单"
+            },
+            {
+              "title": "校验",
+              "text": "核对权限与材料",
+              "output": "形成：校验结果"
+            },
+            {
+              "title": "处理",
+              "text": "分派并执行任务",
+              "output": "形成：处理记录"
+            },
+            {
+              "title": "归档",
+              "text": "关联结果与凭证",
+              "output": "形成：对象档案"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "title": "趋势｜每周完成任务",
+          "icon": "ChartNoAxesCombined",
+          "chart_type": "line",
+          "categories": [
+            "第1周",
+            "第2周",
+            "第3周",
+            "第4周",
+            "第5周",
+            "第6周"
+          ],
+          "series": [
+            {
+              "name": "任务量",
+              "values": [
+                32,
+                38,
+                36,
+                48,
+                54,
+                60
+              ]
+            }
+          ],
+          "unit": "项",
+          "source": "六周示例数据 · 单位：项 · 非产品实测"
+        }
+      ],
+      "images": [
+        {
+          "src": "images/04-workflow.png",
+          "alt": "任务材料经校验通道进入结果归档区的微缩协作场景",
+          "ratio": "16:9",
+          "caption": "场景视角｜材料进入处理流程",
+          "brief": {
+            "subject": "A software intake and processing scene with a document submission laptop, an open validation gateway and a separate archive rack on three connected navy platforms.",
+            "action": "Two small operators move a teal document from the laptop station toward the open validation gateway.",
+            "structure": "Three linked desks share one continuous teal channel, with document tiles arranged visibly before, within and beyond the validation gateway.",
+            "details": "Include a slender laptop with a navy interface, clear glass gateway walls, one desk plant, six small document tiles and a warm-white records rack with precise edge bevels.",
+            "composition": "16:9 landscape, balanced three-quarter view. Show the complete platform and document route with modest safety margins, no large unused backdrop."
+          }
+        },
+        {
+          "src": "images/04-workbench.png",
+          "alt": "已确认的产品展陈示意，辅助表达统一软件工作空间",
+          "ratio": "16:9",
+          "ui_text": "demo",
+          "brief": {
+            "subject": "A refined miniature task workbench with a single wide navy application display, a slender laptop and three shallow record trays showing incoming, active and archived work.",
+            "action": "A miniature operator reviews active tasks while completed record tiles are collected in the final archive tray.",
+            "structure": "The three trays sit in a left-to-right sequence under the application display, visually linking an incoming task to its active workspace and then to its saved result.",
+            "details": "Include slim glass screen edges, delicate activity rows and restrained chart lines, softly beveled warm white trays, muted teal tiles, and one small champagne status accent.",
+            "composition": "16:9 balanced three-quarter composition, equal visual scale to the companion workflow scene. Keep the display, trays and platform complete with small safe margins."
+          },
+          "caption": "产品视角｜状态汇总与结果查看"
+        }
+      ]
+    },
+    {
+      "id": "p05",
+      "layout": "reading",
+      "composition": "half_diagonal",
+      "chapter": "03 / 对角双图",
+      "title": "用对角场景串联能力分工与工作构成",
+      "summary": "左上读产品全景，右下看协作过程；其余两个分区补充能力对应与数量构成，形成连续的阅读路径。",
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "按已确认的主体版面比例分区，配图、图表与说明对应组织；数量数据均为示例。",
+        "requirements": []
+      },
+      "blocks": [
+        {
+          "type": "matrix",
+          "title": "能力对应｜入口、动作与结果",
+          "icon": "ClipboardCheck",
+          "columns": [
+            "能力",
+            "处理内容",
+            "可核对结果"
+          ],
+          "rows": [
+            [
+              "统一入口",
+              "接收任务与材料",
+              "任务清单"
+            ],
+            [
+              "协同处理",
+              "分派与执行动作",
+              "过程记录"
+            ],
+            [
+              "结果回溯",
+              "关联结论与凭证",
+              "对象档案"
+            ]
+          ]
+        },
+        {
+          "type": "chart",
+          "title": "工作构成｜三类任务占比",
+          "icon": "ChartNoAxesCombined",
+          "chart_type": "donut",
+          "categories": [
+            "接收校验",
+            "协同处理",
+            "结果确认"
+          ],
+          "series": [
+            {
+              "name": "任务量",
+              "values": [
+                25,
+                45,
+                30
+              ]
+            }
+          ],
+          "unit": "项",
+          "source": "示例：100 项任务的构成 · 非产品实测"
+        }
+      ],
+      "images": [
+        {
+          "src": "images/05-product.png",
+          "alt": "已确认的产品展陈示意，辅助表达统一软件工作空间",
+          "ratio": "16:9",
+          "ui_text": "demo",
+          "brief": {
+            "subject": "An integrated product platform miniature with one central navy dashboard and three lower workstations arranged around its shared base, illustrating distinct product capabilities.",
+            "action": "Miniature operators inspect incoming tasks and completed records at the workstations around the main display.",
+            "structure": "The central dashboard overlooks three clearly separated workstations on a common architectural platform, expressing shared product context without implying additional data links.",
+            "details": "Keep the navy software screen crisp, devices thin, figures very small, three work desks visibly separate, transparent perimeter glass and muted teal record cards with sparse gold trim.",
+            "composition": "16:9 supporting illustration, near-isometric view, complete base and glass perimeter, clean warm-white margins."
+          },
+          "caption": "产品全景｜能力与工作入口"
+        },
+        {
+          "src": "images/05-workflow.png",
+          "alt": "任务材料经校验通道进入结果归档区的微缩协作场景",
+          "ratio": "16:9",
+          "caption": "协作细节｜材料流转与结果汇总",
+          "brief": {
+            "subject": "A close view of a collaborative processing area containing one document preparation station, a validation gate and a result review desk on an elongated platform.",
+            "action": "An operator passes a prepared record through the gate while another checks the completed stack at the review desk.",
+            "structure": "A low shared connector joins the preparation station to the gate and then the review desk; piles before and after the gate make the handoff visible.",
+            "details": "Use clear glass review cards, two thin navy laptops, teal record stacks at different stages, a small white lamp and precisely bevelled platform edges with subtle champagne metal.",
+            "composition": "16:9 landscape, balanced three-quarter view. Show the complete platform and document route with modest safety margins, no large unused backdrop."
+          }
+        }
+      ]
+    },
+    {
+      "id": "p06",
+      "layout": "reading",
+      "composition": "quarter",
+      "chapter": "04 / 四分之一配图",
+      "title": "用四分之一配图，组织完整的方案核对页",
+      "summary": "一个分区建立场景，其余三个分区分别提供数量比较、交付矩阵和使用边界，让信息密度来自可核对的内容。",
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "按已确认的主体版面比例分区，配图、图表与说明对应组织；数量数据均为示例。",
+        "requirements": []
+      },
+      "blocks": [
+        {
+          "type": "chart",
+          "title": "任务分布｜按业务对象比较",
+          "icon": "ChartNoAxesCombined",
+          "chart_type": "bar",
+          "categories": [
+            "对象 A",
+            "对象 B",
+            "对象 C"
+          ],
+          "series": [
+            {
+              "name": "任务量",
+              "values": [
+                36,
+                28,
+                20
+              ]
+            }
+          ],
+          "unit": "项",
+          "source": "示例数据 · 单位：项 · 非产品实测"
+        },
+        {
+          "type": "matrix",
+          "title": "交付核对｜范围、材料与依据",
+          "icon": "ClipboardCheck",
+          "columns": [
+            "核对项",
+            "保留材料",
+            "确认依据"
+          ],
+          "rows": [
+            [
+              "业务范围",
+              "对象与流程清单",
+              "需求约定"
+            ],
+            [
+              "角色职责",
+              "岗位与权限表",
+              "责任映射"
+            ],
+            [
+              "系统接口",
+              "系统及字段清单",
+              "接口文档"
+            ],
+            [
+              "结果追溯",
+              "结论与操作记录",
+              "查询规则"
+            ]
+          ]
+        },
+        {
+          "type": "facts",
+          "title": "使用边界｜前提与例外",
+          "icon": "FileCheck2",
+          "rows": [
+            {
+              "label": "范围",
+              "text": "说明产品负责的动作与外部系统分工。"
+            },
+            {
+              "label": "来源",
+              "text": "真实数据需标明时间、口径与资料来源。"
+            },
+            {
+              "label": "异常",
+              "text": "写明校验失败或材料待补时如何接续。"
+            },
+            {
+              "label": "待确认",
+              "text": "缺失资料保留待确认，不补造功能或效果。"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "src": "images/06-delivery.png",
+        "alt": "两组微缩团队把软件模块接入同一完整产品平台",
+        "ratio": "4:3",
+        "brief": {
+          "subject": "A miniature software delivery review station with one navy display, three architectural service modules, a records tray and two small operators checking the assembled solution.",
+          "action": "The operators compare the delivered modules with a neat set of verification records at the review desk.",
+          "structure": "Three separate service blocks dock into matching bays on a common base. A clear glass divider distinguishes the delivered assembly from the incoming records used to verify it.",
+          "details": "Use a thin high-resolution navy display, a small laptop, five muted teal record tiles in a tray, precise warm white platform bevels and very restrained champagne metallic trims.",
+          "composition": "4:3 close three-quarter view, the entire delivery station fills the frame with modest margins. Keep all service blocks and the review records clearly visible."
+        },
+        "caption": "方案场景｜产品工作台与业务模块"
+      }
+    },
+    {
+      "id": "p07",
+      "layout": "closing",
+      "chapter": "期待交流",
+      "title": "让产品融入工作",
+      "subtitle": "从具体场景出发，形成清晰可用的方案",
+      "message": "共同明确业务对象\n共同设计协作方式",
+      "notes": "简洁收束，不虚构客户、业绩或联系信息。",
+      "image": {
+        "src": "images/03.png",
+        "alt": "两组微缩团队把软件模块接入同一完整产品平台",
+        "ratio": "4:3",
+        "brief": {
+          "subject": "Two small white scale figures at a compact navy-and-white product platform, with two thin software modules and a modest glass display wall behind them.",
+          "action": "One figure seats a final teal-edged module into the shared platform while the other checks the connection at a slim nearby laptop.",
+          "structure": "Two modules join one continuous thin base; the fitted joint makes the completed product assembly visible without adding a new workflow or hierarchy.",
+          "details": "Fine glass perimeter, small navy interface panels, a single gold connector and one tiny planter; clear scale separation between the platform, operators and laptop.",
+          "composition": "4:3, low balanced three-quarter view, complete miniature assembly and soft shadow inside generous margins for use beside the closing copy."
+        }
+      },
+      "visual": {
+        "role": "closing",
+        "treatment": "none",
+        "rationale": "以一次完整装配动作收束，保持场景主导及少量可编辑文字。",
+        "requirements": []
+      }
+    }
+  ],
+  "presentation_mode": "reading"
+}

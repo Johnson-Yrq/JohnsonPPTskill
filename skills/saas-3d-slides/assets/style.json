@@ -1,0 +1,30 @@
+{
+  "schema": "html-slide-style/v1",
+  "status": "ready",
+  "description": "暖白纸底、海军蓝文字与重点面、灰青与少量香槟金；配图为玻璃与精细微缩展陈。",
+  "id": "saas-3d",
+  "name": "海蓝玻璃",
+  "css": "theme.css",
+  "image_prompt": "image-style.txt",
+  "image_reference": "reference-design/approved-product-overview.png",
+  "ui_text_modes": [
+    "none",
+    "demo"
+  ],
+  "ui_text_prompts": {
+    "none": "UI text policy: Keep all image surfaces free of letters and numbers while retaining a convincing software-dashboard layout with aligned panels, fine chart marks, slender bars, compact rings, sparse separators and purposeful whitespace. Omit text regions cleanly without fake writing. Keep charts as screen-plane graphics, not physical chart sculptures. All titles, labels and explanations are added later as editable page content.",
+    "demo": "UI text policy: Only software screens may use the exact short labels \"Overview\", \"Analytics\", \"Activity\" and \"Demo\". Place labels purposefully and leave secondary text areas empty. Charts are conceptual and unnumbered. No invented brands, financial amounts, performance claims, pseudo-writing, external captions or architecture labels. All presentation titles, explanations and real product metrics are added later as editable page content."
+  },
+  "layout_hints": {
+    "above": "Display: image above, short editable captions below. Arrange the page-specific objects across one coherent broad platform with a shallow three-quarter view and clear miniature scale. Match object order to the captions and keep each stage legible; preserve complete silhouettes and shadow clearance, including below the foremost base corner.",
+    "architecture": "Display: one complete layered software architecture with the exact tiers, module counts and connections described below. Use thin terraces, precise modules and restrained glass conduits. Leave clear tier edges and adjacent space for editable labels. No architecture labels, callout plates or captions in the raster; any screen-internal labels follow the UI text policy."
+  },
+  "default_ui_text": "demo",
+  "audit": {
+    "max_radius": 8,
+    "page_number_min": 36,
+    "cover_labels_expected": false,
+    "chapter_panel": false,
+    "closing_title_token": "--ink"
+  }
+}

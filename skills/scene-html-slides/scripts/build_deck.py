@@ -8,14 +8,15 @@ import importlib.util
 import json
 from pathlib import Path
 import re
-from common import ASSETS, EMBED_FORMATS, LAYOUTS, convert_image, image_size, load_deck, local_path, number, read_raster
+from common import ASSETS, EMBED_FORMATS, LAYOUTS, convert_image, image_size, load_deck, local_path, number, read_raster, presentation_mode, slide_images, reading_composition
 from design_contract import analyze_deck, presentation_for, visual_for
+from style_packs import resolve_style
 
 
 # Header, footer, cover, closing and player chrome are the brand; custom_css may not touch them.
 PROTECTED_SELECTOR = re.compile(r'(?:^|[\s,>+~])(?:html|body|main|header|footer|h1|\.head-copy|\.chapter|\.subtitle|\.page-number|\.brand(?:-logo)?|\.footer-label|\.layout-cover|\.layout-closing|\.cover-[a-z-]+|\.ending-[a-z-]+|\.toolbar|\.slide|\.deck|\.viewport)(?![\w-])')
 # A project Builder may add layouts; it may not redefine shared components or built-in layouts.
-PROTECTED_METHODS = {'__init__', 'data_uri', 'icon', 'heading', 'image', 'point', 'bottom', 'footer', 'logo_defs', 'slide', 'structural_errors', 'render'} | set(LAYOUTS)
+PROTECTED_METHODS = {'__init__', 'data_uri', 'icon', 'heading', 'image', 'chart', 'point', 'bottom', 'footer', 'logo_defs', 'slide', 'structural_errors', 'render'} | set(LAYOUTS)
 
 
 def custom_css_errors(css):
@@ -73,6 +74,8 @@ class Builder:
 
     def __init__(self, deck, root, draft=False, dry_run=False, embed_format='webp', embed_quality=85, allow_restyle=False):
         self.deck, self.root, self.draft, self.dry_run, self.allow_restyle = deck, root, draft, dry_run, allow_restyle
+        self.mode = presentation_mode(deck)
+        self.style_pack = resolve_style(deck)
         for i, s in enumerate(deck['slides'], 1):
             if s['layout'] not in self.LAYOUTS:
                 raise ValueError(f'第 {i} 页 layout 无效；可选 {", ".join(sorted(self.LAYOUTS))}')
@@ -137,8 +140,12 @@ class Builder:
 
     def point(self, obj, allow_panel=True):
         mapping(obj, '说明')
+        if not isinstance(obj.get('emphasis', False), bool):
+            raise ValueError('说明项 emphasis 须为布尔值')
         presentation = presentation_for(obj, self.current_slide)
         cls = 'point panel' if allow_panel and presentation == 'panel' else 'point'
+        if obj.get('emphasis', False):
+            cls += ' emphasis'
         marker = ' data-component="panel"' if allow_panel and presentation == 'panel' else ''
         return f'<section class="{cls}"{marker}>' + self.heading(obj) + editable('p', obj.get('text', ''), required=True) + '</section>'
 
@@ -220,7 +227,7 @@ class Builder:
 
     def split(self, s):
         side = choice(s.get('image_side', 'left'), ['left', 'right'], 'image_side')
-        values = items(s, 'items', 1, 3)
+        values = items(s, 'items', 1, 6 if self.mode == 'reading' else 3)
         return f'<div class="split-layout image-{side}">' + self.image(s) + '<div class="split-points points">' + ''.join(self.point(v) for v in values) + '</div></div>' + self.bottom(s)
 
     def triad(self, s):
@@ -240,8 +247,8 @@ class Builder:
 
     def table(self, s):
         columns = items(s, 'columns', 2, 5)
-        content = '<div class="table-layout"><div class="table-wrap"><table><thead><tr>' + ''.join(editable('th', c, required=True) for c in columns) + '</tr></thead><tbody>'
-        for row in items(s, 'rows', 1, 7):
+        content = '<div class="table-layout"><div class="table-wrap"><table data-component="table"><thead><tr>' + ''.join(editable('th', c, required=True) for c in columns) + '</tr></thead><tbody>'
+        for row in items(s, 'rows', 1, 10 if self.mode == 'reading' else 7):
             cells = items(row, 'cells', len(columns), len(columns)) if isinstance(row, dict) else row
             if not isinstance(cells, list) or len(cells) != len(columns):
                 raise ValueError('表格每行单元格数量须与 columns 相同')
@@ -302,7 +309,7 @@ class Builder:
         return f'<div class="architecture-viewport"><div class="artboard" data-width="{w}" data-height="{h}" style="width:{w}px;height:{h}px">{content}</div></div>' + self.bottom(s)
 
     def flow(self, s):
-        steps = items(s, 'steps', 3, 5)
+        steps = items(s, 'steps', 3, 6 if self.mode == 'reading' else 5)
         content = f'<div class="flow-steps" style="--columns:{len(steps)}">'
         for i, v in enumerate(steps, 1):
             content += f'<section class="flow-step" data-step="true"><span class="flow-number">{i:02d}</span><div>' + self.heading(v)
@@ -310,11 +317,11 @@ class Builder:
                 content += editable('p', v['text'])
             content += '</div></section>'
         content += '</div><div class="flow-bottom">' + self.image(s) + '<div class="control-groups">'
-        for v in items(s, 'groups', 2, 3):
+        for v in items(s, 'groups', 2, 4 if self.mode == 'reading' else 3):
             mapping(v, '控制分组')
             panel = presentation_for(v, s) == 'panel'
             content += '<section class="control-group' + (' panel' if panel else '') + '"' + (' data-component="panel"' if panel else '') + '>' + self.heading(v) + '<dl>'
-            for row in items(v, 'rows', 1, 3):
+            for row in items(v, 'rows', 1, 4 if self.mode == 'reading' else 3):
                 mapping(row, '控制行')
                 content += '<div>' + editable('dt', row.get('label', ''), required=True) + editable('dd', row.get('text', ''), required=True) + '</div>'
             content += '</dl></section>'
@@ -332,6 +339,86 @@ class Builder:
         content = editable('p', s['message'], 'ending-message') if s.get('message') else ''
         content += editable('p', s.get('product', self.deck['title']), 'ending-product')
         return '<div class="ending-copy">' + content + '</div>' + self.image(s)
+
+    def reading(self, s):
+        if self.mode != 'reading':
+            raise ValueError('reading 版式需要 presentation_mode: reading')
+        blocks = items(s, 'blocks', 1, 4)
+        images = slide_images(s)
+        arrangement = reading_composition(s)
+        media = f'<div class="reading-media" style="--image-count:{len(images)}">'
+        for im in images:
+            media += '<div class="reading-media-item">' + self.image(dict(s, image=im), 'reading-illustration')
+            if im.get('caption'):
+                media += editable('p', im['caption'], 'reading-caption', True)
+            media += '</div>'
+        media += '</div>'
+        content = editable('p', s.get('summary', ''), 'reading-summary', True)
+        content += '<div class="reading-body">' + media + f'<div class="reading-grid" style="--block-count:{len(blocks)}">'
+        for block in blocks:
+            mapping(block, '阅读模块')
+            kind = choice(block.get('type'), ['process', 'matrix', 'layers', 'facts', 'chart'], 'blocks[].type')
+            span = block.get('span', 1)
+            if isinstance(span, bool) or span not in (1, 2):
+                raise ValueError('blocks[].span 可选 1 / 2')
+            content += f'<section class="reading-block span-{span} block-{kind}" data-component="visual-block" data-visual-type="{kind}">' + self.heading(block)
+            if kind == 'process':
+                stages = items(block, 'steps', 3, 6)
+                content += f'<div class="reading-process" style="--columns:{len(stages)}">'
+                for i, stage in enumerate(stages, 1):
+                    mapping(stage, '流程步骤')
+                    content += f'<section class="reading-stage" data-step="true"><div class="reading-stage-title"><span class="reading-index" aria-hidden="true">{i:02d}</span>'
+                    content += editable('strong', stage.get('title', ''), required=True) + '</div>'
+                    content += editable('p', stage.get('text', ''), required=True)
+                    if stage.get('output'):
+                        content += editable('p', stage['output'], 'reading-output')
+                    content += '</section>'
+                content += '</div>'
+            elif kind == 'matrix':
+                columns = items(block, 'columns', 2, 5)
+                content += '<div class="reading-matrix"><table data-component="table"><thead><tr>'
+                content += ''.join(editable('th', c, required=True) for c in columns) + '</tr></thead><tbody>'
+                for row in items(block, 'rows', 2, 6):
+                    if not isinstance(row, list) or len(row) != len(columns):
+                        raise ValueError('阅读矩阵每行单元格数量须与 columns 相同')
+                    content += '<tr>' + ''.join(editable('td', cell, required=True) for cell in row) + '</tr>'
+                content += '</tbody></table></div>'
+            elif kind == 'layers':
+                content += '<div class="reading-layers">'
+                for layer in items(block, 'layers', 2, 4):
+                    mapping(layer, '分层结构')
+                    content += '<div class="reading-layer" data-component="layer">' + editable('strong', layer.get('title', ''), 'reading-layer-name', True)
+                    content += '<div class="reading-modules">' + ''.join(editable('span', v, required=True, component='tag') for v in items(layer, 'items', 1, 5)) + '</div></div>'
+                content += '</div>'
+            elif kind == 'chart':
+                content += self.chart(block)
+            else:
+                content += '<dl class="reading-facts">'
+                for row in items(block, 'rows', 2, 5):
+                    mapping(row, '边界说明')
+                    content += '<div>' + editable('dt', row.get('label', ''), required=True) + editable('dd', row.get('text', ''), required=True) + '</div>'
+                content += '</dl>'
+            if block.get('note'):
+                content += editable('p', block['note'], 'reading-block-note')
+            content += '</section>'
+        return f'<div class="reading-layout composition-{arrangement}" data-composition="{arrangement}">' + content + '</div></div></div>' + self.bottom(s)
+
+    def chart(self, block):
+        from chart_contract import chart_errors
+        errors = chart_errors(block)
+        if errors:
+            raise ValueError('；'.join(errors))
+        chart = {key: block[key] for key in ('chart_type', 'categories', 'series', 'unit', 'source')}
+        chart['title'] = block['title']
+        payload = json.dumps(chart, ensure_ascii=False, allow_nan=False).replace('<', chr(92) + 'u003c')
+        # A data table is also available in edit mode; changes drive the chart and survive Save HTML.
+        table = '<table class="chart-data"><thead><tr>' + editable('th', '类别', required=True)
+        table += ''.join(editable('th', series['name'], required=True) for series in chart['series']) + '</tr></thead><tbody>'
+        for i, category in enumerate(chart['categories']):
+            table += '<tr>' + editable('th', category, required=True)
+            table += ''.join(editable('td', str(series['values'][i]), required=True) for series in chart['series']) + '</tr>'
+        table += '</tbody></table>'
+        return '<div class="chart-shell"><div class="echart" data-component="chart" role="img" aria-label="' + escape(block['title'], quote=True) + '"></div><script type="application/json" class="chart-config">' + payload + '</script><details class="chart-editor"><summary>编辑图表数据</summary>' + table + '</details></div>' + editable('p', block['source'], 'chart-source', True)
 
     def footer(self):
         w, h = self.logo['size']
@@ -387,6 +474,10 @@ class Builder:
             except (ValueError, OSError) as e:
                 raise ValueError(f'第 {n} 页（{s["title"]}）：{e}') from e
         css = (ASSETS / 'theme.css').read_text(encoding='utf-8')
+        if self.mode == 'reading':
+            css += '\n' + (ASSETS / 'reading.css').read_text(encoding='utf-8')
+        if self.style_pack.get('css'):
+            css += '\n' + self.style_pack['css'].read_text(encoding='utf-8')
         theme = mapping(self.deck.get('theme', {}), 'theme')
         overrides = ''.join(f'--{k}:{color(v)};' for k, v in theme.items() if k in ['paper', 'blue', 'ink', 'muted', 'line', 'panel'])
         css += '\n:root{' + overrides + '}\n'
@@ -401,9 +492,17 @@ class Builder:
         template = (ASSETS / 'template.html').read_text(encoding='utf-8')
         values = {'TITLE': escape(self.deck['title']), 'CSS': css,
                   'LICENSE': '<!--\n' + (ASSETS / 'lucide-LICENSE.txt').read_text(encoding='utf-8').replace('--', '—') + '\n-->',
-                  'BODY_ATTR': (' class="draft"' if self.draft else '') + (' data-restyle="true"' if self.allow_restyle else ''),
+                  'BODY_ATTR': (' class="draft"' if self.draft else '') + (' data-restyle="true"' if self.allow_restyle else '')
+                  + ' data-presentation-mode="' + self.mode + '" data-style="' + self.style_pack['id'] + '" data-style-contract="'
+                  + escape(json.dumps(self.style_pack['audit'], separators=(',', ':')), quote=True) + '"',
                   'LOGO_DEFS': self.logo_defs(), 'SLIDES': '\n'.join(slides),
                   'COUNT': str(len(slides)), 'JS': (ASSETS / 'player.js').read_text(encoding='utf-8')}
+        if any(block.get('type') == 'chart' for slide in self.deck['slides'] for block in slide.get('blocks', []) if isinstance(block, dict)):
+            for notice in ('ECHARTS-LICENSE.txt', 'ECHARTS-NOTICE.txt'):
+                values['LICENSE'] += '<!--\n' + (ASSETS / 'vendor' / notice).read_text(encoding='utf-8').replace('--', '—') + '\n-->'
+            vendor = (ASSETS / 'vendor/echarts.min.js').read_text(encoding='utf-8')
+            vendor = re.sub(r'(?i)</script', r'<\\/script', vendor)
+            values['JS'] = vendor + '\n;\n' + (ASSETS / 'charts.js').read_text(encoding='utf-8') + '\n' + values['JS']
         return re.sub(r'\{\{([A-Z_]+)\}\}', lambda m: values[m.group(1)], template)
 
 
@@ -430,6 +529,7 @@ def check_plan(data, root, builder_cls=None, allow_restyle=False):
     report = analyze_deck(data)
     try:
         builder = (builder_cls or Builder)(data, root, draft=True, dry_run=True, allow_restyle=allow_restyle)
+        report['style'] = builder.style_pack['id']
         structural = builder.structural_errors()
         if data.get('custom_css') and not allow_restyle:
             structural.extend(custom_css_errors(local_path(root, data['custom_css']).read_text(encoding='utf-8')))
@@ -478,7 +578,7 @@ def main():
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html, encoding='utf-8')
         print(json.dumps({'output': str(out), 'pages': len(data['slides']), 'bytes': out.stat().st_size,
-                          'draft': args.draft, 'restyle': args.allow_restyle, 'missing': builder.missing, 'embed': builder.embed}, ensure_ascii=False))
+                          'style': builder.style_pack['id'], 'presentation_mode': builder.mode, 'draft': args.draft, 'restyle': args.allow_restyle, 'missing': builder.missing, 'embed': builder.embed}, ensure_ascii=False))
     except (ValueError, OSError) as e:
         p.exit(1, f'构建失败：{e}\n')
 

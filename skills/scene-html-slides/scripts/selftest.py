@@ -204,6 +204,11 @@ def run():
             check('webp lossless size parsed', image_size('image/webp', buf.getvalue()) == (37, 21))
     finally:
         shutil.rmtree(work, ignore_errors=True)
+    from test_style_discovery import run as run_discovery_tests
+    check('automatic style discovery', run_discovery_tests() == 0)
+    if (HERE.parents[1] / 'saas-3d-slides' / 'assets' / 'style.json').is_file():
+        from test_styles import run as run_style_tests
+        check('independent style regressions', run_style_tests() == 0)
     print(f'\n{"FAILED" if FAILURES else "OK"}: {len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 

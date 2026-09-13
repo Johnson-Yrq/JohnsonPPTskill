@@ -1,0 +1,25 @@
+{
+  "schema": "html-slide-style/v1",
+  "status": "ready",
+  "description": "暖白纸底、明亮主蓝强调；配图为白色哑光模型场景与微缩人物。",
+  "id": "scene-white",
+  "name": "素白蓝调",
+  "css": null,
+  "image_prompt": "image-style.txt",
+  "ui_text_modes": [
+    "none"
+  ],
+  "ui_text_prompts": {
+    "none": ""
+  },
+  "layout_hints": {
+    "above": "Display: image above, short captions below. Lay the scene out horizontally on one long low base, near-frontal slightly elevated view, no strong diagonal depth; objects ordered as in the mechanism, evenly spaced to match the columns below. The subject spans about 80% of the width with little empty space above and below; every station, figure and platform complete. Do not squeeze a compact square scene into a wide frame.",
+    "architecture": "Display: one complete layered architecture model carries the whole structure; the number of tiers and modules must match the details. Leave clean surfaces on each tier front edge and beside each module for HTML labels added later; no text, label plates or frames inside the image."
+  },
+  "default_ui_text": "none",
+  "audit": {
+    "max_radius": 8,
+    "page_number_min": 100,
+    "cover_labels_expected": true
+  }
+}

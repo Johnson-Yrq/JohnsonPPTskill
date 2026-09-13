@@ -2,6 +2,12 @@
 
 构建器负责稳定排版和内嵌素材；大纲理解、事实核对、文字精简、场景设计与视觉取舍由制作方完成。不会自动把 Markdown 按行变成幻灯片。
 
+本文件是所有风格共用的数据与布局契约。页面色彩、字体、材质、页头页脚和配图规范，以当前所选 Skill 的设计文件为准；下文提到的“蓝色”“浅底”等外观描述为原风格示意，不要求其他风格沿用原色。布局的字段、可编辑标注、对象对应与检查要求共用。
+
+## 制作模式
+
+动工前按 [用途确认规则](presentation-modes.md) 获取用户反馈，在根对象记录 `presentation_mode: "speech"`（演讲型）或 `"reading"`（阅读型），不要按模板默认值代替确认。模式独立于 `style`，不在单页覆写。旧稿省略时按 `speech` 兼容；计划输出 `mode_recorded` 区分是否已记录，字段本身不证明对话中的确认。
+
 ## 项目结构
 
 ```text
@@ -23,6 +29,8 @@ Python 3.9+，标准库即可。安装了 Pillow 时构建器把配图转成 Web
 {
   "version": 1,
   "title": "本次演示稿名称",
+  "style": "scene-white",
+  "presentation_mode": "speech",
   "footer_label": "解决方案 · 简短名称",
   "slides": []
 }
@@ -30,7 +38,9 @@ Python 3.9+，标准库即可。安装了 Pillow 时构建器把配图转成 Web
 
 `version / title / slides` 是主要字段。`slides` 至少一页，顺序即页序。年份默认当前年，品牌默认内置值。可选覆盖：`year`、`company`、项目内 `logo` 路径、`theme`（仅 `paper/blue/ink/muted/line/panel` 六位十六进制颜色）、`custom_css`（项目内 CSS 路径）。只有用户要求换品牌时才使用覆盖。
 
-`custom_css` 只用于内容区布局，不接受 `@import`、`url()`、HTML 或 `!important`；选择器里出现 `header/footer/h1/.subtitle/.chapter/.page-number/.layout-cover/.layout-closing/.cover-*/.ending-*/.brand/.slide/body` 会被拒绝（用户明确要求换风格时加 `--allow-restyle`）。按稳定 `id` 微调，例如 `#p03 .hero-scene{width:1180px}`；按页需要调整，不把临时样式写回 Skill。
+根字段 `style` 选择整稿视觉规范，值为 `python3 <shared>/scripts/style_packs.py --list` 返回的可用风格 ID。当前提供 `"scene-white"`（素白蓝调）与 `"saas-3d"`（海蓝玻璃）；未来符合 [风格包契约](adding-styles.md) 的同级目录自动加入。需要安装共享套件与所选风格包。未知值、缺资源、重名 ID、draft 状态和逐页设置 style 会报错，不静默回退或混搭。选择命名风格无需 `--allow-restyle`，也不会关闭品牌检查。`--check-plan`、构建结果、配图清单及 HTML 均记录当前风格。旧稿省略 style 仍兼容素白蓝调；新稿须先按用户选择显式写入 style 和 presentation_mode，不能以示例值或兼容默认代替选择。
+
+`custom_css` 只用于内容区布局，不接受 `@import`、`url()`、HTML 或 `!important`；选择器里出现 `header/footer/h1/.subtitle/.chapter/.page-number/.layout-cover/.layout-closing/.cover-*/.ending-*/.brand/.slide/body` 会被拒绝（用户明确要求在所选主题之外自定义这些区域时加 `--allow-restyle`）。按稳定 `id` 微调，例如 `#p03 .hero-scene{width:1180px}`；按页需要调整，不把临时样式写回 Skill。
 
 新关系无法由现有版式清晰表达时，在项目内写 `builder.py` 并用 `--builder builder.py` 传给构建器和 `--check-plan`：
 
@@ -52,13 +62,15 @@ class Builder(Base):
 | 字段 | 说明 |
 |---|---|
 | `id` | 可选，默认 `p01` 等；唯一，只用英文、数字、短横线、下划线 |
-| `layout` | `cover / scene / split / triad / journey / architecture / flow / domains / formula / table / relations / closing`，或 `--builder` 登记的自定义版式 |
+| `layout` | `cover / scene / split / triad / journey / architecture / flow / domains / formula / table / relations / closing / reading`，或 `--builder` 登记的自定义版式 |
 | `title` | 必填，纯文字；用 `\n` 明确换行 |
 | `chapter / subtitle` | 可选，纯文字 |
 | `notes` | 原始大纲、本页口播、来源与事实状态；字符串，保留换行 |
 | `title_size` | 可选，36–110px；先精简或换行，不能只靠缩字解决密度 |
 | `body_size` | 可选，21–30px，仅用于 `scene` 的无框正文 |
-| `image` | 必填，见下表 |
+| `image` | 每页必填单图对象；`reading` 也可改用 `images`，不能同时设置 |
+| `images` | 仅 `reading`：1–3 个配图对象，各有 src/alt，可选 caption、brief 等单图字段 |
+| `composition` | 仅 `reading`：half_lr / half_tb / half_diagonal / quarter，按主体内容分区 |
 | `visual` | 必填；本页角色、分组处理、选择理由和大纲视觉要求，见下节 |
 | `bottom / footnote` | 内容页可选；封面和尾页不使用 |
 
@@ -82,7 +94,7 @@ class Builder(Base):
 }
 ```
 
-`src / alt` 必填。缺图时 `brief.subject/action/structure/details` 必填且每页各自成文（见 image-workflow 的字段表），用于输出完整提示词；模板句、跨页复制、subject 与 structure 相同都会被导出脚本拒绝。`ratio` 普通页默认 `4:3`，journey 或显式 image_position: above 默认 `16:9`；可选 `1:1 / 4:3 / 3:2 / 16:9 / 3:4`。`zoom` 0.5–2.5，偏移单位为画布像素；先查看配图再调整，裁去空白时保留主要对象。`edge_fade` 默认 0.04，可在 0–0.12 内微调，仅用于轻微边缘融合；不能用大幅淡出掩盖底色错误，不全局使用 multiply。
+`src / alt` 必填。缺图时 `brief.subject/action/structure/details` 必填且每页各自成文（见 image-workflow 的字段表），用于输出完整提示词；模板句、跨页复制、subject 与 structure 相同都会被导出脚本拒绝。`ratio` 普通页默认 `4:3`，reading、journey 或显式 image_position: above 默认 `16:9`；可选 `1:1 / 4:3 / 3:2 / 16:9 / 3:4`。`zoom` 0.5–2.5，偏移单位为画布像素；先查看配图再调整，裁去空白时保留主要对象。`edge_fade` 默认 0.04，可在 0–0.12 内微调，仅用于轻微边缘融合；不能用大幅淡出掩盖底色错误，不全局使用 multiply。
 
 说明项常用 `{ "title": "…", "text": "…", "icon": "ShieldCheck", "presentation": "open" }`。有语义的分组标题默认选择内置图标；不适用时用 `icon_omit_reason` 说明具体原因，不能为通过检查填写空泛豁免。
 
@@ -90,7 +102,13 @@ class Builder(Base):
 
 `Activity ArrowRightLeft Award BadgeCheck BadgeDollarSign BarChart3 Bell BellRing Binoculars Blocks BookOpen Bot Boxes Brain BriefcaseBusiness Building Building2 Calculator CalendarDays ChartNoAxesCombined CircleAlert CircleCheck CircleHelp ClipboardCheck ClipboardList Clock Cloud Cog Coins Compass Cpu Database DatabaseZap Eye Factory FileCheck2 FileClock FileCog FileSignature FileText Filter Fingerprint Flag Folder Gauge GitBranch Globe2 GraduationCap Grid2x2 Hammer Handshake Heart HeartPulse History Hospital Info KeyRound Landmark Layers Layers3 LayoutDashboard Library Lightbulb Link ListChecks Lock Mail Map MapPin Merge MessageCircle MessageSquare Microscope Milestone Monitor Network Package Phone PieChart Pill Presentation Printer Puzzle Receipt RefreshCw Repeat Rocket Route Scale ScanSearch ScrollText Search Send Server Settings Shield ShieldCheck ShoppingCart SlidersHorizontal Smartphone Sparkles Split Star Stethoscope Store Table Target Timer TrendingUp TriangleAlert Truck Unplug UserRound UserRoundCheck Users Wallet Warehouse Workflow Wrench Zap`
 
-需要别的图标时运行 `node <skill>/scripts/add_icons.cjs 名称…`（需要本地 lucide 包，可用 `--lucide` 指定目录；`--list` 列出现有）。`presentation` 仅 `open` 或 `panel`；未指定时由本页 `visual.treatment` 决定（panels→panel，其它→open）；mixed 时每项必须明确选择。
+需要别的图标时运行 `node <shared>/scripts/add_icons.cjs 名称…`，其中 `<shared>` 为 `scene-html-slides` 目录（需要本地 lucide 包，可用 `--lucide` 指定目录；`--list` 列出现有）。`presentation` 仅 `open` 或 `panel`；未指定时由本页 `visual.treatment` 决定（panels→panel，其它→open）；mixed 时每项必须明确选择。
+
+### 配图风格与界面文字
+
+`image.ui_text` 按所选风格取默认值：原风格为 `"none"` 且仅支持 none；海蓝玻璃风格默认为 `"demo"`，沿用已确认示例，只允许软件屏幕中使用 Overview、Analytics、Activity、Demo 四个短示意标签。用户要求纯无字配图时，SaaS 可显式设为 `"none"`，仍保留精细的软件界面结构。页面标题和真实数据始终由 HTML 呈现。该字段不改变整稿风格；不支持的值会在计划检查和导出时失败。`brief.action` 可以描述人物动作或软件处理；不强制每页添加人物。
+
+配图导出器按根 style 选择对应基底，并添加本页比例、版式与 UI 文字策略。海蓝玻璃供图目录还会包含 `style-reference.png`；生图时同时附上它作为材质与尺度参考，业务对象仍遵循本页 brief。已有图片继续标记 provided，无须重生成。
 
 ## 每页设计契约
 
@@ -107,13 +125,13 @@ class Builder(Base):
 }
 ```
 
-`role` 可选 `cover/closing/explanation/capabilities/comparison/process/controls/architecture/entities/formula/table/domains`。`treatment` 可选 `open/panels/mixed/labels/none`。可省略这两个键使用布局默认值，但每页必须有 `rationale` 和 `requirements` 数组；无明确视觉要求时用空数组。依据原始大纲填要求，不能从已生成 HTML 倒推一份恰好通过的契约。
+`role` 可选 `cover/closing/explanation/capabilities/comparison/process/controls/architecture/entities/formula/table/domains/briefing`。`treatment` 可选 `open/panels/mixed/labels/none`。可省略这两个键使用布局默认值，但每页必须有 `rationale` 和 `requirements` 数组；无明确视觉要求时用空数组。依据原始大纲填要求，不能从已生成 HTML 倒推一份恰好通过的契约。
 
-可自动核对的 `feature`：`icons/panels/tags/states/architecture_labels/steps/relations`。每项 `min` 默认 1，可附 `texts` 数组，检查指定短词确实出现在对应组件里；`source` 保留原句或用户确认要求。深浅分组、场景与对象对应、基线等用 `manual + text + source`，并逐页看图核对。计划检查独立于渲染器，运行时继续检查真实可见的元素，缺图标、透明底板或遗漏状态均不能以功能通过代替。
+可自动核对的 `feature`：`icons/panels/tags/states/architecture_labels/steps/relations/visual_blocks/tables/layers`。每项 `min` 默认 1，可附 `texts` 数组，检查指定短词确实出现在对应组件里；`source` 保留原句或用户确认要求。深浅分组、场景与对象对应、基线等用 `manual + text + source`，并逐页看图核对。计划检查独立于渲染器，运行时继续检查真实可见的元素，缺图标、透明底板或遗漏状态均不能以功能通过代替。
 
 `journey` 自动启用上图下文面积检查；自定义相同结构时写 `visual.image_position: "above"`，并把文字行标记为 `data-captions`。阈值只定义在 `design_contract.py` 的 `IMAGE_BALANCE`（当前：图框高 ≥460px、占 main 高度 ≥60%、显示出来的图片元素宽度 ≥图框 72%、下方文字行高 ≤220px），`--check-plan` 报告与审查器读取同一组数字，其他文档不另抄。图片元素宽度不是主体宽度，仍须看图确认本体约占八成且没有被裁掉。
 
-## 十二种版式
+## 版式与容量
 
 ### cover：价值与层级场景
 
@@ -148,13 +166,15 @@ class Builder(Base):
 
 `items` 2–7 项，每项含 `title/text`，可选 `icon/presentation/deliverable`。面板标题可设置 `header_fill: "blue"`，默认浅底。`connected: true` 仅用于真实时间或流程，并列能力默认不连箭头：无框项的箭头骑在顶部细线上并跨过列缝，信息块项的箭头对准头部色带中线。列缝默认 22px，需要更宽时在 `custom_css` 里写 `#p04 .journey-labels{--journey-gap:28px}`，不要另写箭头定位。每项可写 `state: "核查中"` 或 `states: ["…"]`，有状态时整行预留相同高度：无框项的状态标签在细线下方、标题上方；信息块项的状态标签悬在卡片上方，卡片从头部色带开始，没有状态的列不留空带。
 
-上方图片优先，文字通常 1–2 行；6–7 列使用短标题和一句行动。状态不是普通正文，也不要统一挪到页底。下方说明过高时先缩减重复词，把细节放讲稿；不靠缩小图片或字号解决。需要对应场景位置时调整列宽或图像位置，不能图中对象集中在中央、七列却铺满全页。
+上方图片优先，文字通常 1–2 行；6–7 列使用短标题和一句行动。状态不是普通正文，也不要统一挪到页底。下方说明过高时先缩减重复词；演讲型可把讲解细节放讲稿，阅读型的必要细节改用 `reading` 或另起解释页；不靠缩小图片或字号解决。需要对应场景位置时调整列宽或图像位置，不能图中对象集中在中央、七列却铺满全页。
 
 `content_width` 可设 900–1760（默认 1760）；`caption_width` 可设 900 到 content_width，默认相同。主体横向不够展开时适度收窄整个内容区，并把文字列宽对准场景本体，再调整缩放；不能只把文字行做满宽。是否够大仍依据整页截图判断。
 
 ### split / triad：左右说明与三段控制
 
-`split` 使用 `items` 1–3 项；`image_side` 可为 `left/right`，默认左图。`triad` 固定 3 项，默认右图；适合输入、判断、输出，角色为 controls、处理为 mixed 时逐项标明 presentation。根据本页突出对象决定哪组加底板，不按项号强制第二项加框。共用图标标题与 point，不另写裸标题。
+`split` 演讲型使用 `items` 1–3 项，阅读型支持 1–6 项，超过三项自动分成两列说明；`image_side` 可为 `left/right`，默认左图。`triad` 固定 3 项，默认右图；适合输入、判断、输出，角色为 controls、处理为 mixed 时逐项标明 presentation。根据实际分组边界与当前风格选择底板，强调方式遵循当前主题，不按项号强制第二项加框。共用图标标题与 point，不另写裸标题。
+
+使用 `point` 的说明区（`scene / split / triad / domains`，以及 `formula / table / relations` 的说明项）可设布尔值 `emphasis`，默认 `false`。它不改变 `presentation` 或计为面板；当前海蓝玻璃主题对 `presentation: "open"` 的重点项将标题与图标放大约 10%，搭配标题字重、灰青色与短线，保持同级条目的左对齐、正文大小和间距。其他主题是否使用该标记由对应设计系统决定。
 
 ### formula：公式与平台解释
 
@@ -162,7 +182,7 @@ class Builder(Base):
 
 ### table：指标与边界
 
-`columns` 为 2–5 个表头字符串；`rows` 为 1–7 行字符串数组，每行数量等于表头数。某行确需图标时可用 `{"cells":["指标","口径","来源"],"icon":"ChartNoAxesCombined"}`，键名以图标库为准。表格左侧、相关图片右侧；表头浅蓝、行间横线，默认不在每格塞图标。表格内容过密需重排列宽或简化正文，保留口径与来源。
+`columns` 为 2–5 个表头字符串；`rows` 演讲型为 1–7 行、阅读型为 1–10 行字符串数组，每行数量等于表头数。某行确需图标时可用 `{"cells":["指标","口径","来源"],"icon":"ChartNoAxesCombined"}`，键名以图标库为准。表格左侧、相关图片右侧；表头浅蓝、行间横线，默认不在每格塞图标。表格内容过密需重排列宽或简化正文，保留口径与来源。
 
 ### relations：实体、字段与关系
 
@@ -172,7 +192,7 @@ class Builder(Base):
 
 坐标依据 `board`，与浏览器缩放无关；整个画板自动等比适配内容区。图像在板内的矩形可带负偏移以去除空白。标签不继承卡片风格，全部无背景、无边框。
 
-复杂结构先查看 `assets/reference-design/approved-architecture.jpg`。用完整分层模型承载全图，逐个映射模块、层板、数据来源和治理通道，再添加 HTML 文字；不可简化成图片旁边三段介绍。先定实际图像缩放，再定 label 坐标；调整 board.image 后重新核对全部标签。不要在本来无对象的位置加模块名，或拿底板遮住图中的错误层级。
+复杂结构先查看所选风格的参考图：`scene-white` 使用 `scene-html-slides/assets/reference-design/approved-architecture.jpg`；`saas-3d` 使用自身的设计与配图规范以及已确认参考，不继承旧图材质。用完整分层模型承载全图，逐个映射模块、层板、数据来源和治理通道，再添加 HTML 文字；不可简化成图片旁边三段介绍。先定实际图像缩放，再定 label 坐标；调整 board.image 后重新核对全部标签。不要在本来无对象的位置加模块名，或拿底板遮住图中的错误层级。
 
 ```json
 "board": {"width":1760,"height":740,"image":{"x":0,"y":0,"w":1760,"h":740}},
@@ -186,11 +206,41 @@ class Builder(Base):
 
 ### flow：步骤与控制点
 
-`steps` 3–5 项，含 `title`，可选 `text/icon`，序号自动生成。`groups` 2–3 项，含 `title/icon/presentation` 和 `rows`；每组 1–3 行 `{ "label":"规则闸门", "text":"先校验，再执行" }`。顶部步骤短而清楚；底部左侧大图、右侧少量控制分组。
+演讲型 `steps` 3–5 项（阅读型 3–6 项），含 `title`，可选 `text/icon`，序号自动生成。`groups` 演讲型 2–3 项（阅读型 2–4 项），含 `title/icon/presentation` 和 `rows`；每组演讲型 1–3 行（阅读型 1–4 行）`{ "label":"规则闸门", "text":"先校验，再执行" }`。顶部步骤短而清楚；底部左侧大图、右侧少量控制分组。
 
 ### domains：多领域清单
 
 `items` 2–10 项，每项 `title/text`，可选 `icon`。自动均分左右；始终使用无框横线说明，忽略 `presentation`。最多 5 项一侧，正文尽量一行，主图保留足够面积。
+
+### reading：阅读型复合信息页
+
+根 `presentation_mode` 必须为 `reading`。`summary` 必填，用一两句话说明本页结论。`composition` 取 `half_lr / half_tb / half_diagonal / quarter`，比例及内容组合见 [四类图文分区](presentation-modes.md)。它只影响主体版面，保持所选风格和播放器。
+
+`blocks` 为 1–4 个可编辑模块；通常左右、上下用 1–2 个互补模块，对角固定 2 个，四分之一固定 3 个。每块必填 `type/title`，标题配 `icon` 或具体的 `icon_omit_reason`；可选 `note` 记录说明或来源。上下布局可用 `span: 2` 让流程占整行；对角和四分之一每块各占一格，不设置 span: 2。数组上限不是任意文字长度的容纳保证。
+
+| `type` | 数据字段与容量 | 视觉表达 |
+|---|---|---|
+| `process` | `steps` 3–6 个 `{title, text, output?}` | 顺序、动作与产出；窄分区建议 3–4 步 |
+| `matrix` | `columns` 2–5 列；`rows` 2–6 行，各行列数一致 | 对象在共同维度上的差异与对应 |
+| `layers` | `layers` 2–4 个 `{title, items}`；每层 1–5 个短模块 | 层名与模块分组 |
+| `facts` | `rows` 2–5 个 `{label, text}` | 前提、责任、边界与解释 |
+| `chart` | `chart_type/categories/series/unit/source` | ECharts 比较、趋势与构成；见 [图表契约](charts.md) |
+
+至少一个模块表达流程、矩阵、层级或图表关系，避免纯文字分框。`visual.role: briefing`，`treatment: open`；`visual_blocks/tables/layers/steps/charts` 同时核对计划和实际可见内容。
+
+`image` 与 `images` 必选其一。左右和四分之一需要一张图，对角需要两张，上下可用 1–3 张。各图可加短 `caption`，为 21px 可编辑文字。缺图仍需各自的 `brief`；同页不能重复 src。窄而高的左右图片区可选 4:3；上下、对角和四分之一优先用横向场景，主体完整且适合实际图框。若比例不适合，调整构图或选择另一种内容布局，不强行拉伸。
+
+```json
+"composition": "half_diagonal",
+"images": [
+  {"src": "images/overview.png", "alt": "产品工作台与外围模块", "caption": "产品全景"},
+  {"src": "images/workflow.png", "alt": "提交、校验与归档协作场景", "caption": "协作细节"}
+]
+```
+
+上例还需两个 `blocks`。正式构建需要全部配图；草稿逐图记录缺图。浏览器验收核对主体分区比例、位置、图区覆盖、字体、图表标签、文本碰撞以及离线编辑和保存，之后逐页看图。
+
+完整示例见海蓝玻璃 Skill 的 `assets/deck.reading.example.json`。原白色风格同样支持此数据结构及阅读密度，只沿用自身配色。
 
 ### closing：有配图的收束
 
@@ -212,4 +262,4 @@ class Builder(Base):
 
 ## 从最小示例开始
 
-复制 `assets/deck.example.json` 到本次项目的 `deck.json`，根据实际大纲改写；这是三页结构示例，不是内容生成模板。第一次缺图时直接运行提示词导出；不要把示例空路径当成用户应补充的额外资料。
+用途确认后复制当前所选 Skill 的演讲型示例 `assets/deck.example.json`，或参考 `deck.reading.example.json` 建立本次项目的 `deck.json`，根据实际大纲改写；这些是结构示例，不是内容生成模板。第一次缺图时直接运行提示词导出；不要把示例空路径当成用户应补充的额外资料。
