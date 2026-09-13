@@ -1,0 +1,451 @@
+{
+  "version": 1,
+  "style": "real-miniature",
+  "presentation_mode": "reading",
+  "title": "写实微缩阅读型示例",
+  "footer_label": "写实微缩 · 阅读型示例",
+  "slides": [
+    {
+      "id": "p01",
+      "layout": "cover",
+      "chapter": "团队协作与生产力",
+      "title_prefix": "团队工作系统",
+      "title": "让计划走向完成",
+      "subtitle": "四类图文分区 · 流程、矩阵与可编辑图表",
+      "promise": "让读者看懂工作，也能核对依据",
+      "benefits": [
+        "明确计划",
+        "有序协作",
+        "持续复盘"
+      ],
+      "notes": "风格与排版示例；不代表某个产品已经具备这些能力。正式制作按真实资料替换。",
+      "visual": {
+        "role": "cover",
+        "treatment": "none",
+        "rationale": "用完整微缩工作空间引入；标题和价值主张保留在可编辑页面中。",
+        "requirements": []
+      },
+      "image": {
+        "src": "images/01-overview.png",
+        "alt": "计划、执行、跟踪和复盘组成的四区微缩团队空间",
+        "ratio": "16:9",
+        "ui_text": "none",
+        "brief": {
+          "subject": "A miniature team workspace with four functional zones: a planning board, two execution desks, a tracking board and a review meeting table. Seven expressive adult professionals interact in small groups.",
+          "action": "Two people arrange planning cards, two work at computers, one checks a progress board and two discuss the next cycle at a meeting table.",
+          "structure": "Four distinct work areas share one raised rectangular mineral base, linked by modest floor paths in the actual order planning, execution, tracking and review.",
+          "details": "Light oak desks, graphite frames, woven blue and sage chairs, unmarked task cards and detailed human faces. Sparse geometric boards, no raster labels or floating icon.",
+          "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+        }
+      }
+    },
+    {
+      "id": "p02",
+      "layout": "reading",
+      "composition": "half_lr",
+      "chapter": "01 / 左右各半",
+      "title": "看清任务状态，再定位下一步动作",
+      "summary": "左侧建立团队工作全景；右侧把任务状态与处理说明放在一起。示例数据用于说明读图方式，不代表实际团队表现。",
+      "blocks": [
+        {
+          "type": "chart",
+          "title": "任务状态分布",
+          "icon": "ChartNoAxesCombined",
+          "chart_type": "bar",
+          "categories": [
+            "待计划",
+            "执行中",
+            "待复盘",
+            "已完成"
+          ],
+          "series": [
+            {
+              "name": "任务量",
+              "values": [
+                18,
+                42,
+                16,
+                24
+              ]
+            }
+          ],
+          "unit": "项",
+          "source": "示例：100 项任务 · 单位：项 · 非产品实测"
+        },
+        {
+          "type": "facts",
+          "title": "从状态进入具体工作",
+          "icon": "FileCheck2",
+          "rows": [
+            {
+              "label": "执行中",
+              "text": "42 项任务正在执行，继续核对负责人和交付条件。"
+            },
+            {
+              "label": "待复盘",
+              "text": "16 项任务等待复盘，需要记录问题与改进行动。"
+            },
+            {
+              "label": "已完成",
+              "text": "24 项任务已完成，保留交付记录供后续查询。"
+            }
+          ]
+        }
+      ],
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "以微缩场景对应工作关系，正文用流程、矩阵和带来源的图表支持独立阅读。",
+        "requirements": []
+      },
+      "image": {
+        "src": "images/r02-status.png",
+        "alt": "团队在相连的计划、执行和复盘区域处理工作",
+        "ratio": "16:9",
+        "ui_text": "none",
+        "brief": {
+          "subject": "A team productivity diorama with an oak planning station, two compact execution desks and an adjacent review area, showing work at several different stages.",
+          "action": "Professionals inspect an unnumbered status board, complete desk tasks and discuss finished folders at the review table.",
+          "structure": "A shared raised base links the three work areas while distinct desk groups keep the status contexts visible; exact task counts belong only to the editable chart.",
+          "details": "Graphite frames, muted slate fabric chairs, sage storage trays and clear facial expressions; show geometric cards without encoding the adjacent numeric example.",
+          "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+        },
+        "caption": "工作全景｜计划、执行与复盘"
+      }
+    },
+    {
+      "id": "p03",
+      "layout": "reading",
+      "composition": "half_tb",
+      "chapter": "02 / 上下各半",
+      "title": "先看工作场景，再读流程与完成趋势",
+      "summary": "上半区用全景和近景建立工作语境；下半区分别说明一次工作循环和每周完成数量，流程不与趋势混为同一种证据。",
+      "blocks": [
+        {
+          "type": "process",
+          "title": "流程｜四步组织一轮工作",
+          "icon": "Workflow",
+          "steps": [
+            {
+              "title": "计划",
+              "text": "明确范围与责任",
+              "output": "形成：任务清单"
+            },
+            {
+              "title": "执行",
+              "text": "开展并记录工作",
+              "output": "形成：交付材料"
+            },
+            {
+              "title": "跟踪",
+              "text": "核对进展与阻碍",
+              "output": "形成：问题记录"
+            },
+            {
+              "title": "复盘",
+              "text": "约定改进行动",
+              "output": "形成：行动清单"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "title": "趋势｜每周完成任务",
+          "icon": "ChartNoAxesCombined",
+          "chart_type": "line",
+          "categories": [
+            "第1周",
+            "第2周",
+            "第3周",
+            "第4周",
+            "第5周",
+            "第6周"
+          ],
+          "series": [
+            {
+              "name": "任务量",
+              "values": [
+                32,
+                38,
+                36,
+                48,
+                54,
+                60
+              ]
+            }
+          ],
+          "unit": "项",
+          "source": "六周示例数据 · 单位：项 · 非产品实测"
+        }
+      ],
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "以微缩场景对应工作关系，正文用流程、矩阵和带来源的图表支持独立阅读。",
+        "requirements": []
+      },
+      "images": [
+        {
+          "src": "images/r03-workspace.png",
+          "alt": "多个功能区组成的团队工作空间",
+          "ratio": "16:9",
+          "ui_text": "none",
+          "brief": {
+            "subject": "A broad miniature workspace with planning and execution desks in the rear and tracking and review areas in the foreground, on one continuous pale mineral base.",
+            "action": "Small groups prepare tasks, work through them and collect completed documents for a shared review.",
+            "structure": "Four work areas form a visible route across the base, leaving the transitions open so viewers can relate the overall environment to the editable process below.",
+            "details": "Use a rolling board, modest office devices, oak furniture, woven rugs and tactile graphite edges. Facial details and hand interactions remain visible at half-page scale.",
+            "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+          },
+          "caption": "工作场景｜从计划到复盘"
+        },
+        {
+          "src": "images/r03-review.png",
+          "alt": "会议桌与白板旁的三人复盘讨论",
+          "ratio": "16:9",
+          "ui_text": "none",
+          "brief": {
+            "subject": "A close miniature collaboration scene with three adult professionals around an oak table, a single progress board and a low records shelf on a compact base.",
+            "action": "One colleague explains a progress pattern while the other two compare an unmarked folder with the agreed deliverable.",
+            "structure": "The discussion triangle centres on the table and folder; the board provides supporting visual context, representing the review stage of the companion whole-workspace image.",
+            "details": "Warm-grey mineral base, light oak, slate and sage upholstered seating, realistic graphite hardware and expressive faces; no numbers or chart labels.",
+            "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+          },
+          "caption": "协作细节｜进展讨论与材料交接"
+        }
+      ]
+    },
+    {
+      "id": "p04",
+      "layout": "reading",
+      "composition": "half_diagonal",
+      "chapter": "03 / 对角双图",
+      "title": "把团队分工与工作构成放在同一页",
+      "summary": "左上用全景定位工作环节，右下用协作近景说明交接；右上核对责任，左下展示示例任务构成，形成清楚的阅读顺序。",
+      "blocks": [
+        {
+          "type": "matrix",
+          "title": "责任对应｜动作与交付",
+          "icon": "ClipboardCheck",
+          "columns": [
+            "角色",
+            "负责动作",
+            "交付材料"
+          ],
+          "rows": [
+            [
+              "计划负责人",
+              "明确范围与优先级",
+              "任务清单"
+            ],
+            [
+              "执行负责人",
+              "开展并记录工作",
+              "交付材料"
+            ],
+            [
+              "复盘参与者",
+              "核对结论与行动",
+              "行动记录"
+            ]
+          ]
+        },
+        {
+          "type": "chart",
+          "title": "工作构成｜三类任务占比",
+          "icon": "ChartNoAxesCombined",
+          "chart_type": "donut",
+          "categories": [
+            "计划准备",
+            "执行交付",
+            "跟踪复盘"
+          ],
+          "series": [
+            {
+              "name": "任务量",
+              "values": [
+                25,
+                45,
+                30
+              ]
+            }
+          ],
+          "unit": "项",
+          "source": "示例：100 项任务的构成 · 非产品实测"
+        }
+      ],
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "以微缩场景对应工作关系，正文用流程、矩阵和带来源的图表支持独立阅读。",
+        "requirements": []
+      },
+      "images": [
+        {
+          "src": "images/r04-context.png",
+          "alt": "展示计划、执行和复盘角色的微缩工作全景",
+          "ratio": "16:9",
+          "ui_text": "none",
+          "brief": {
+            "subject": "A structured miniature office landscape containing a planning board, shared execution desks and a review table, with clearly different professional roles at each station.",
+            "action": "The planner organizes blank task cards, the contributors handle desktop work and reviewers collect completed folders.",
+            "structure": "Separate furniture groups define responsibilities on a continuous raised base; understated paths join the relevant roles without implying a reporting hierarchy.",
+            "details": "Neutral mineral surfaces, natural oak, graphite metal, muted coloured clothing and detailed expressive adults; keep each role visible with simple geometric devices.",
+            "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+          },
+          "caption": "工作全景｜角色与工作环节"
+        },
+        {
+          "src": "images/r04-handoff.png",
+          "alt": "同事在协作会议上交接文件并核对进展",
+          "ratio": "16:9",
+          "ui_text": "none",
+          "brief": {
+            "subject": "A miniature handoff discussion with a seated pair exchanging a plain folder across an oak table and a standing professional presenting a modest geometric board.",
+            "action": "The receiving colleague takes the completed folder while listening to the discussion of remaining actions.",
+            "structure": "A single visible folder bridges the two seated roles, while the presenter connects the handoff to the review context, forming one coherent collaborative moment.",
+            "details": "Subtle stone texture, blue woven chairs, a quiet sage rug, unlabelled shelves and credible fingers and facial expressions; restrained plants at the perimeter.",
+            "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+          },
+          "caption": "协作近景｜交接与结果确认"
+        }
+      ]
+    },
+    {
+      "id": "p05",
+      "layout": "reading",
+      "composition": "quarter",
+      "chapter": "04 / 四分之一配图",
+      "title": "用一页核对工作量、交付物与使用边界",
+      "summary": "四分之一配图说明团队协作场景；其余三个分区提供数量比较、交付核对与使用边界，让读者能继续判断和行动。",
+      "blocks": [
+        {
+          "type": "chart",
+          "title": "任务分布｜按工作类型比较",
+          "icon": "ChartNoAxesCombined",
+          "chart_type": "bar",
+          "categories": [
+            "例行工作",
+            "项目交付",
+            "改进行动"
+          ],
+          "series": [
+            {
+              "name": "任务量",
+              "values": [
+                36,
+                28,
+                20
+              ]
+            }
+          ],
+          "unit": "项",
+          "source": "示例数据 · 单位：项 · 非产品实测"
+        },
+        {
+          "type": "matrix",
+          "title": "交付核对｜材料与确认依据",
+          "icon": "ClipboardCheck",
+          "columns": [
+            "核对项",
+            "保留材料",
+            "确认依据"
+          ],
+          "rows": [
+            [
+              "计划范围",
+              "任务与优先级清单",
+              "工作约定"
+            ],
+            [
+              "分工责任",
+              "负责人及协作关系",
+              "责任映射"
+            ],
+            [
+              "完成条件",
+              "交付物与验收记录",
+              "完成标准"
+            ],
+            [
+              "复盘行动",
+              "问题与行动记录",
+              "跟踪约定"
+            ]
+          ]
+        },
+        {
+          "type": "facts",
+          "title": "使用边界｜前提与例外",
+          "icon": "FileCheck2",
+          "rows": [
+            {
+              "label": "范围",
+              "text": "说明系统负责的动作与团队线下分工。"
+            },
+            {
+              "label": "来源",
+              "text": "真实数据标明时间、统计口径与来源。"
+            },
+            {
+              "label": "异常",
+              "text": "写明任务受阻或材料待补时如何接续。"
+            },
+            {
+              "label": "待确认",
+              "text": "缺失资料保留待确认，不补造能力或成效。"
+            }
+          ]
+        }
+      ],
+      "visual": {
+        "role": "briefing",
+        "treatment": "open",
+        "rationale": "以微缩场景对应工作关系，正文用流程、矩阵和带来源的图表支持独立阅读。",
+        "requirements": []
+      },
+      "image": {
+        "src": "images/r05-check.png",
+        "alt": "团队通过文件与进度白板核对工作交付",
+        "ratio": "16:9",
+        "ui_text": "none",
+        "brief": {
+          "subject": "A compact team delivery review diorama with three expressive colleagues, a shared oak table, an unmarked delivery folder and a secondary progress board.",
+          "action": "The colleagues compare the delivery folder with the review discussion and agree which follow-up actions should be recorded.",
+          "structure": "The shared folder and meeting table anchor the image; the board and low records shelf provide context without replacing the editable verification matrix beside the scene.",
+          "details": "Give the compact image readable faces, natural hand poses, muted slate upholstery, warm mineral edges and graphite furniture. Keep all paper, shelves and screens text-free.",
+          "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+        },
+        "caption": "协作场景｜交付核对与复盘"
+      }
+    },
+    {
+      "id": "p06",
+      "layout": "closing",
+      "chapter": "从下一步开始",
+      "title": "让协作持续向前",
+      "subtitle": "每次复盘，都落到具体行动",
+      "message": "看清进展与问题\n共同约定下一步",
+      "notes": "收束页示例，不添加未经确认的业绩或联系人。",
+      "visual": {
+        "role": "closing",
+        "treatment": "none",
+        "rationale": "用团队交接场景收束，文字直接表达下一步。",
+        "requirements": []
+      },
+      "image": {
+        "src": "images/03-next-step.png",
+        "alt": "团队在复盘讨论后确认下一步工作",
+        "ratio": "16:9",
+        "ui_text": "none",
+        "brief": {
+          "subject": "A compact miniature review area with three colleagues, a small oak meeting table, a document folder and a quiet geometric whiteboard behind the table.",
+          "action": "The team closes the review discussion by handing the agreed action folder to the next responsible colleague.",
+          "structure": "One shared table and an unobstructed handoff connect the participants; the low shelf and board remain subordinate, without additional workflow zones.",
+          "details": "Matte graphite furniture legs, subtle wood grain, a sage fabric rug, one small laptop and carefully modeled adult expressions; paper and device surfaces remain unlettered.",
+          "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+        }
+      }
+    }
+  ]
+}

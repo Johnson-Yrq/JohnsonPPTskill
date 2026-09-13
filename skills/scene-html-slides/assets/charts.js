@@ -1,7 +1,7 @@
 /* Apache ECharts adapter: local SVG charts with editable, serializable source data. */
 (()=>{'use strict';
  const instances=new Map();
- const palette=()=>{const css=getComputedStyle(document.documentElement),get=(key,fallback)=>css.getPropertyValue(key).trim()||fallback;return [get('--diagram-accent','#477F80'),get('--diagram-strong','#1D3446'),get('--saas-gold','#BC9B59')];};
+ const palette=()=>{const css=getComputedStyle(document.documentElement),get=(key,fallback)=>css.getPropertyValue(key).trim()||fallback;return [get('--diagram-accent','#477F80'),get('--diagram-strong','#1D3446'),get('--chart-tertiary',get('--saas-gold','#BC9B59'))];};
  function option(data){
   const colors=palette(),muted=getComputedStyle(document.documentElement).getPropertyValue('--muted').trim(),font=getComputedStyle(document.body).fontFamily;
   const base={animation:false,backgroundColor:'transparent',color:colors,textStyle:{fontFamily:font,fontSize:21,color:muted},tooltip:{trigger:data.chart_type==='donut'?'item':'axis',renderMode:'richText',textStyle:{fontFamily:font,fontSize:21}},aria:{enabled:true,description:data.title}};
@@ -13,7 +13,8 @@
   const category={type:'category',data:data.categories,inverse:horizontal,axisLabel:{fontSize:21,interval:0,color:muted},axisTick:{show:false},axisLine:{show:false}};
   // Single-series charts print the unit beside each value; multi-series charts keep it as the axis name (below the axis for horizontal bars so it never collides with the last tick).
   const single=data.series.length===1,unit=single?'':data.unit;
-  const value={type:'value',min:0,minInterval:1,splitNumber:3,name:unit,nameLocation:horizontal?'middle':'end',nameGap:horizontal?34:14,nameTextStyle:{fontSize:21,color:muted},axisLabel:{fontSize:21,color:muted},splitLine:{lineStyle:{color:'#DAE3E1',type:'dashed'}}};
+  const gridColor=getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim()||'#DAE3E1';
+  const value={type:'value',min:0,minInterval:1,splitNumber:3,name:unit,nameLocation:horizontal?'middle':'end',nameGap:horizontal?34:14,nameTextStyle:{fontSize:21,color:muted},axisLabel:{fontSize:21,color:muted},splitLine:{lineStyle:{color:gridColor,type:'dashed'}}};
   const legend=!single,top=(horizontal?12:46)+(legend?38:0),bottom=horizontal&&!single?58:32;
   return {...base,grid:{left:horizontal?100:55,right:horizontal?88:48,top,bottom,containLabel:false},legend:{show:legend,top:0,textStyle:{fontSize:21,color:muted,fontFamily:font}},xAxis:horizontal?value:category,yAxis:horizontal?category:value,series:data.series.map((s,i)=>({name:s.name,type:data.chart_type,data:s.values,barMaxWidth:26,symbolSize:9,smooth:false,lineStyle:{width:3},label:{show:single,position:horizontal?'right':'top',distance:horizontal?8:7,fontSize:21,color:colors[i],formatter:({value})=>data.unit?value+' '+data.unit:String(value)},emphasis:{focus:'series'}}))};
  }

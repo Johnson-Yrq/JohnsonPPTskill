@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "style": "real-miniature",
+  "presentation_mode": "speech",
+  "title": "写实微缩演讲型示例",
+  "footer_label": "写实微缩 · 演讲型示例",
+  "slides": [
+    {
+      "id": "p01",
+      "layout": "cover",
+      "chapter": "团队协作与生产力",
+      "title_prefix": "团队工作系统",
+      "title": "让计划走向完成",
+      "subtitle": "连接计划、执行、跟踪与复盘",
+      "promise": "用清楚的分工推动每一步工作",
+      "benefits": [
+        "明确计划",
+        "有序协作",
+        "持续复盘"
+      ],
+      "notes": "风格与排版示例；不代表某个产品已经具备这些能力。正式制作按真实资料替换。",
+      "visual": {
+        "role": "cover",
+        "treatment": "none",
+        "rationale": "用完整微缩工作空间引入；标题和价值主张保留在可编辑页面中。",
+        "requirements": []
+      },
+      "image": {
+        "src": "images/01-overview.png",
+        "alt": "计划、执行、跟踪和复盘组成的四区微缩团队空间",
+        "ratio": "16:9",
+        "ui_text": "none",
+        "brief": {
+          "subject": "A miniature team workspace with four functional zones: a planning board, two execution desks, a tracking board and a review meeting table. Seven expressive adult professionals interact in small groups.",
+          "action": "Two people arrange planning cards, two work at computers, one checks a progress board and two discuss the next cycle at a meeting table.",
+          "structure": "Four distinct work areas share one raised rectangular mineral base, linked by modest floor paths in the actual order planning, execution, tracking and review.",
+          "details": "Light oak desks, graphite frames, woven blue and sage chairs, unmarked task cards and detailed human faces. Sparse geometric boards, no raster labels or floating icon.",
+          "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+        }
+      }
+    },
+    {
+      "id": "p02",
+      "layout": "split",
+      "chapter": "团队协作",
+      "title": "把进展转成清楚的下一步",
+      "subtitle": "围绕同一份交付物核对进展、问题和责任",
+      "image_side": "right",
+      "items": [
+        {
+          "title": "看懂当前进展",
+          "text": "让团队围绕同一份进度记录沟通。",
+          "icon": "ChartNoAxesCombined",
+          "presentation": "open"
+        },
+        {
+          "title": "确认下一步动作",
+          "text": "交接材料，同时说明责任与完成条件。",
+          "icon": "Workflow",
+          "presentation": "open",
+          "emphasis": true
+        },
+        {
+          "title": "保留复盘依据",
+          "text": "把结论与行动项关联，便于下次回看。",
+          "icon": "ClipboardCheck",
+          "presentation": "open"
+        }
+      ],
+      "visual": {
+        "role": "capabilities",
+        "treatment": "open",
+        "rationale": "同层级条目保持无框对齐；交接动作的标题和图标略放大，配图展示真实协作。",
+        "requirements": []
+      },
+      "image": {
+        "src": "images/02-handoff.png",
+        "alt": "三位同事围绕会议桌、文件夹和进度白板进行交接",
+        "ratio": "16:9",
+        "ui_text": "none",
+        "brief": {
+          "subject": "Three expressive miniature professionals in a project handoff meeting around one oak table, with a moderately sized rolling progress board and three upholstered chairs.",
+          "action": "Two seated colleagues pass an unmarked ochre folder while a standing colleague points to a geometric progress chart.",
+          "structure": "The table is the shared handoff point; the board is a secondary context object behind the group, with a clear triangular arrangement and open sightlines.",
+          "details": "Stone-composite base, graphite document shelf, soft blue woven chairs, an unlettered laptop, clean folder surfaces and detailed natural hands and faces.",
+          "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+        }
+      }
+    },
+    {
+      "id": "p03",
+      "layout": "closing",
+      "chapter": "从下一步开始",
+      "title": "让协作持续向前",
+      "subtitle": "每次复盘，都落到具体行动",
+      "message": "看清进展与问题\n共同约定下一步",
+      "notes": "收束页示例，不添加未经确认的业绩或联系人。",
+      "visual": {
+        "role": "closing",
+        "treatment": "none",
+        "rationale": "用团队交接场景收束，文字直接表达下一步。",
+        "requirements": []
+      },
+      "image": {
+        "src": "images/03-next-step.png",
+        "alt": "团队在复盘讨论后确认下一步工作",
+        "ratio": "16:9",
+        "ui_text": "none",
+        "brief": {
+          "subject": "A compact miniature review area with three colleagues, a small oak meeting table, a document folder and a quiet geometric whiteboard behind the table.",
+          "action": "The team closes the review discussion by handing the agreed action folder to the next responsible colleague.",
+          "structure": "One shared table and an unobstructed handoff connect the participants; the low shelf and board remain subordinate, without additional workflow zones.",
+          "details": "Matte graphite furniture legs, subtle wood grain, a sage fabric rug, one small laptop and carefully modeled adult expressions; paper and device surfaces remain unlettered.",
+          "composition": "16:9 landscape, 40-degree elevated near-orthographic view, complete mineral-composite base and contact shadow inside modest margins. Tactile realistic materials and expressive stylized adults; no text anywhere."
+        }
+      }
+    }
+  ]
+}

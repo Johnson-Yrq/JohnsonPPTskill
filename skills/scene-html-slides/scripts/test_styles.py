@@ -19,6 +19,7 @@ import unittest
 HERE = Path(__file__).resolve().parent
 SKILL = HERE.parent
 SAAS = SKILL.parent / 'saas-3d-slides'
+MINIATURE = SKILL.parent / 'real-miniature-slides'
 sys.path.insert(0, str(HERE))
 from build_deck import Builder, check_plan  # noqa: E402
 from common import slide_images, ASSETS, LAYOUTS, load_deck  # noqa: E402
@@ -309,9 +310,10 @@ class StyleRegressionTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertNotIn('Traceback', result.stderr + result.stdout)
 
-    def test_all_shared_layouts_render_in_both_styles(self):
+    def test_all_shared_layouts_render_in_installed_styles(self):
+        from style_packs import discover_styles
         documents = {}
-        for style in ('scene-white', 'saas-3d'):
+        for style in (item['id'] for item in discover_styles()['styles']):
             with self.subTest(style=style):
                 deck = all_layouts_deck(style)
                 self.assertEqual({slide['layout'] for slide in deck['slides']}, LAYOUTS)
@@ -336,6 +338,14 @@ class StyleRegressionTests(unittest.TestCase):
         css = '\n'.join(saas.styles).upper()
         for color in ('#F7F6F2', '#1D3446', '#477F80', '#BC9B59'):
             self.assertIn(color, css)
+        for style, doc in documents.items():
+            self.assertEqual(legacy.scripts, doc.scripts, style)
+            self.assertEqual(legacy.editable, doc.editable, style)
+        if 'real-miniature' in documents:
+            css = '\n'.join(documents['real-miniature'].styles)
+            for color in ('#EEEDE8', '#26313A', '#55748A', '#798469', '#B88A43'):
+                self.assertIn(color, css)
+            self.assertNotIn('--saas-', css, 'new theme must not load the glass theme')
 
     def test_style_does_not_bypass_protected_project_css(self):
         self.provide(self.saas['slides'])
@@ -479,8 +489,75 @@ class StyleRegressionTests(unittest.TestCase):
                 self.assertIn('skills', result.stderr)
 
 
+@unittest.skipUnless((MINIATURE / 'assets/style.json').is_file(), 'optional sibling real-miniature-slides is not installed')
+class MiniatureStyleTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='miniature-style-test-')
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def test_examples_export_distinct_text_free_briefs_and_own_reference(self):
+        for filename, mode in [('deck.example.json', 'speech'), ('deck.reading.example.json', 'reading')]:
+            with self.subTest(mode=mode):
+                deck = json.loads((MINIATURE / 'assets' / filename).read_text(encoding='utf-8'))
+                path = write_deck(self.root, deck)
+                data, root = load_deck(path)
+                plan = check_plan(data, root)
+                self.assertTrue(plan['ok'], plan['errors'])
+                self.assertEqual(plan['presentation_mode'], mode)
+                out = self.root / mode
+                manifest = quiet_prepare(path, out)
+                self.assertEqual(manifest['style'], 'real-miniature')
+                self.assertEqual((out / manifest['style_reference']).read_bytes(),
+                                 (MINIATURE / 'assets/reference-design/approved-workflow.png').read_bytes())
+                for entry in manifest['images']:
+                    self.assertEqual(entry['status'], 'missing')
+                    self.assertEqual(entry['ui_text'], 'none')
+                    self.assertIn('35–45', entry['prompt'])
+                    self.assertIn('PBR', entry['prompt'])
+                    self.assertIn('expressive faces', entry['prompt'])
+                    self.assertIn('no letters or numbers', entry['prompt'])
+                    self.assertNotIn('"Overview"', entry['prompt'])
+                # Omitted UI mode must be exactly equivalent to explicit none.
+                for slide in deck['slides']:
+                    for im in slide_images(slide):
+                        im.pop('ui_text')
+                implicit = quiet_prepare(write_deck(self.root, deck), self.root / (mode + '-implicit'))
+                self.assertEqual(manifest, implicit)
+                if mode == 'reading':
+                    self.assertEqual({s['composition'] for s in deck['slides'] if s['layout'] == 'reading'},
+                                     {'half_lr', 'half_tb', 'half_diagonal', 'quarter'})
+
+    def test_unsupported_raster_labels_fail_before_output(self):
+        deck = json.loads((MINIATURE / 'assets/deck.example.json').read_text(encoding='utf-8'))
+        deck['slides'][0]['image']['ui_text'] = 'demo'
+        with self.assertRaisesRegex(ValueError, 'image.ui_text 可选 none'):
+            quiet_prepare(write_deck(self.root, deck), self.root / 'invalid')
+        self.assertFalse((self.root / 'invalid').exists())
+
+    def test_all_layouts_and_special_image_hints_use_independent_style(self):
+        deck = all_layouts_deck('real-miniature')
+        image = self.root / 'images/existing.png'
+        image.parent.mkdir(parents=True)
+        shutil.copyfile(ASSETS / 'logo.png', image)
+        data, root = load_deck(write_deck(self.root, deck))
+        self.assertTrue(check_plan(data, root)['ok'])
+        document = Document(Builder(data, root, embed_format='keep').render())
+        self.assertEqual(document.body['data-style'], 'real-miniature')
+        self.assertEqual(len(document.pages), len(LAYOUTS))
+        self.assertNotIn('--saas-', '\n'.join(document.styles))
+        example = json.loads((MINIATURE / 'assets/deck.example.json').read_text(encoding='utf-8'))
+        example['slides'] = example['slides'][:1]
+        for layout, expected in [('journey', 'Display above editable captions'),
+                                 ('architecture', 'exact architecture tiers')]:
+            example['slides'][0]['layout'] = layout
+            manifest = quiet_prepare(write_deck(self.root, example), self.root / layout)
+            self.assertIn(expected, manifest['images'][0]['prompt'])
+
+
 def run():
-    suite = unittest.defaultTestLoader.loadTestsFromTestCase(StyleRegressionTests)
+    suite = unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(case)
+                               for case in (StyleRegressionTests, MiniatureStyleTests))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     return 0 if result.wasSuccessful() else 1
 

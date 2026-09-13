@@ -9,7 +9,7 @@
 - **阅读型可视化**：支持四种图文分区，以及流程、矩阵、表格和离线 ECharts。
 - **单文件交付**：CSS、JS、Logo、图标和配图全部内嵌，支持文字编辑、另存、全屏与打印。
 
-当前共享套件版本为 **3.1.0**。构建器输出 `.html`；明确需要 `.pptx` 时，应使用相应的 PowerPoint 制作流程，本套件不提供 HTML 转 PPTX 导出。
+当前共享套件版本为 **3.1.1**。构建器输出 `.html`；明确需要 `.pptx` 时，应使用相应的 PowerPoint 制作流程，本套件不提供 HTML 转 PPTX 导出。
 
 ## 成稿示例
 
@@ -39,6 +39,14 @@
 
 阅读型比例按主体版面分区计算，不含页头、页脚及全宽摘要。具体组织方式见下方「阅读型的四种图文分区」。
 
+### 写实微缩
+
+暖灰与石墨色的整页主题，配合木材、织物、矿物基座和表情细致的人物。配图默认无文字，标题和说明保留为可编辑内容。下面是用两张同风格场景验证的实际页面；图表数字仅为示例。
+
+| 演讲型 · 团队工作系统 | 阅读型 · 对角双图与责任、任务构成 |
+|:---:|:---:|
+| <a href="docs/images/examples/miniature-speech-cover.png"><img src="docs/images/examples/miniature-speech-cover.png" alt="写实微缩演讲型封面：暖灰页面、石墨标题与真实材质的四区团队工作空间" width="440"></a> | <a href="docs/images/examples/miniature-reading-diagonal.png"><img src="docs/images/examples/miniature-reading-diagonal.png" alt="写实微缩阅读型对角布局：全景与协作近景搭配责任矩阵和任务构成环形图" width="440"></a> |
+
 ## 快速开始
 
 ### 使用 npx 安装（推荐）
@@ -57,7 +65,7 @@ npx skills@latest add Johnson-Yrq/JohnsonPPTskill --skill '*' -g -a codex
 npx skills@latest add Johnson-Yrq/JohnsonPPTskill --skill '*' -g -a claude-code
 ```
 
-- `--skill '*'`：安装仓库中的全部 Skill，目前包含 `ppt-workbench`、`scene-html-slides` 和 `saas-3d-slides`，确保统一入口、共享套件和风格包一起安装。保留星号两侧的引号。
+- `--skill '*'`：安装仓库中的全部 Skill，目前包含 `ppt-workbench`、`scene-html-slides`、`saas-3d-slides` 和 `real-miniature-slides`，确保统一入口、共享套件和风格包一起安装。保留星号两侧的引号。
 - `-g`：全局安装，跨项目使用；去掉该参数则安装到当前项目。
 - `-a`：选择目标 Agent。
 
@@ -82,17 +90,17 @@ cd JohnsonPPTskill
 
 ```bash
 mkdir -p ~/.codex/skills
-cp -R skills/ppt-workbench skills/scene-html-slides skills/saas-3d-slides ~/.codex/skills/
+cp -R skills/ppt-workbench skills/scene-html-slides skills/saas-3d-slides skills/real-miniature-slides ~/.codex/skills/
 ```
 
 **Claude Code：**
 
 ```bash
 mkdir -p ~/.claude/skills
-cp -R skills/ppt-workbench skills/scene-html-slides skills/saas-3d-slides ~/.claude/skills/
+cp -R skills/ppt-workbench skills/scene-html-slides skills/saas-3d-slides skills/real-miniature-slides ~/.claude/skills/
 ```
 
-三个目录须同级放置。`scene-html-slides` 同时包含共享制作套件，其他风格依赖它；`ppt-workbench` 负责统一选择。更新已有安装时，先备份相关技能目录，再同步新版本。仅使用素白蓝调时，也可单独安装 `scene-html-slides`。
+四个目录须同级放置。`scene-html-slides` 同时包含共享制作套件，其他风格依赖它；`ppt-workbench` 负责统一选择。更新已有安装时，先备份相关技能目录，再同步新版本。仅使用素白蓝调时，也可单独安装 `scene-html-slides`。
 
 ### 开始制作
 
@@ -110,6 +118,8 @@ cp -R skills/ppt-workbench skills/scene-html-slides skills/saas-3d-slides ~/.cla
 
 > 用 $saas-3d-slides，把这份方案做成海蓝玻璃风格的阅读型演示稿。
 
+> 用 $real-miniature-slides，把这份团队协作方案做成写实微缩风格的阅读型演示稿，配图不要文字。
+
 Agent 只询问缺少的选择；当前任务已经确认的风格和类型直接沿用。用户明确授权由 Agent 选择时，会按目标选择并说明。模板默认值不代表用户选择，续做项目也不会因主题变化自动换风格。
 
 ## 选择视觉风格
@@ -118,8 +128,9 @@ Agent 只询问缺少的选择；当前任务已经确认的风格和类型直�
 |---|---|---|---|
 | **素白蓝调** | `scene-white` | [`scene-html-slides`](skills/scene-html-slides/SKILL.md) | 暖白纸底、明亮主蓝、白色哑光模型场景与微缩人物 |
 | **海蓝玻璃** | `saas-3d` | [`saas-3d-slides`](skills/saas-3d-slides/SKILL.md) | 暖白纸底、海军蓝文字与重点面、灰青及少量香槟金、玻璃与精细微缩展陈 |
+| **写实微缩** | `real-miniature` | [`real-miniature-slides`](skills/real-miniature-slides/SKILL.md) | 暖灰纸底、石墨与灰蓝、鼠尾草绿及少量赭黄；35–45° 微缩场景、写实 PBR 材质、表情细致的人物，配图无字 |
 
-两种风格都支持演讲型与阅读型，可用于不同主题的大纲。配图中的对象、动作与关系由业务内容决定；风格负责视觉表达。同一份演示稿选择一种风格，整稿保持一致。
+三种风格都支持演讲型与阅读型，可用于不同主题的大纲。配图中的对象、动作与关系由业务内容决定；风格负责视觉表达。同一份演示稿选择一种风格，整稿保持一致。
 
 <details>
 <summary>查看包内视觉参考</summary>
@@ -131,6 +142,10 @@ Agent 只询问缺少的选择；当前任务已经确认的风格和类型直�
 **海蓝玻璃 · 配图参考**
 
 ![海蓝玻璃的微缩展陈配图参考](skills/saas-3d-slides/assets/reference-design/approved-product-overview.png)
+
+**写实微缩 · 无文字配图参考**
+
+![写实微缩的团队工作空间参考](skills/real-miniature-slides/assets/reference-design/approved-workflow.png)
 
 参考图用于说明材质、尺度与视觉层级，其中的业务内容不作为新项目事实。
 
@@ -206,7 +221,7 @@ python3 skills/scene-html-slides/scripts/style_packs.py --list
 
 每张缺图都需要本页独有的 `image.brief`，描述对象与数量、动作或系统处理、关系机制、层级细节与构图。导出器会检查缺项和跨页重复的简报。页面标题、真实数据、业务说明和架构标注留在可编辑内容中。
 
-素白蓝调配图默认无字；海蓝玻璃默认为 `ui_text: "demo"`，只允许软件屏幕内的 Overview、Analytics、Activity、Demo 四个示意标签，也可选择 `none`。配图内的示意图表不充当真实业务数据。
+素白蓝调与写实微缩配图默认无字；写实微缩只提供 `ui_text: "none"`，包括白板、屏幕、文件、日历和键帽都不生成文字。海蓝玻璃默认为 `ui_text: "demo"`，只允许软件屏幕内的 Overview、Analytics、Activity、Demo 四个示意标签，也可选择 `none`。配图内的示意图表不充当真实业务数据。
 
 最终交付物为一个独立 `.html` 文件；`deck.json`、提示词、图片清单和 QA 截图用于制作与续改。缺图的 `--draft` 版本仅用于内部预排。
 
@@ -230,6 +245,8 @@ project/
 | [素白蓝调示例](skills/scene-html-slides/assets/deck.example.json) | 封面、场景信息页和尾页 |
 | [海蓝玻璃演讲型示例](skills/saas-3d-slides/assets/deck.example.json) | 低密度产品介绍与轻量强调 |
 | [海蓝玻璃阅读型示例](skills/saas-3d-slides/assets/deck.reading.example.json) | 四类图文分区、流程、矩阵与图表 |
+| [写实微缩演讲型示例](skills/real-miniature-slides/assets/deck.example.json) | 团队工作系统、协作交接与轻量强调 |
+| [写实微缩阅读型示例](skills/real-miniature-slides/assets/deck.reading.example.json) | 四类图文分区、职责流程与示例任务图表 |
 
 示例附带配图简报；正式构建前，需要按清单准备对应图片。项目图片路径相对 `deck.json` 所在目录，完整数据格式见 [内容数据与构建](skills/scene-html-slides/references/deck-format.md)。
 
@@ -295,6 +312,7 @@ skills/
 │   ├── assets/             # 基础组件、播放器、阅读布局与图表
 │   └── references/         # 数据、类型、图表与接入规范
 ├── saas-3d-slides/          # 海蓝玻璃独立风格包
+├── real-miniature-slides/   # 写实微缩独立风格包
 └── new-style-slides/        # 未来新增的同级包
     ├── SKILL.md
     ├── agents/openai.yaml

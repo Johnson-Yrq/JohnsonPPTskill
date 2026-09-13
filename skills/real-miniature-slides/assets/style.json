@@ -1,0 +1,26 @@
+{
+  "schema": "html-slide-style/v1",
+  "status": "ready",
+  "id": "real-miniature",
+  "name": "写实微缩",
+  "description": "暖灰纸底、石墨与灰蓝、鼠尾草绿及少量赭黄；35–45° 等距微缩场景、写实 PBR 材质与表情细致的人物，配图无文字。",
+  "css": "theme.css",
+  "image_prompt": "image-style.txt",
+  "image_reference": "reference-design/approved-workflow.png",
+  "ui_text_modes": ["none"],
+  "default_ui_text": "none",
+  "ui_text_prompts": {
+    "none": "Text-free illustration: absolutely no letters or numbers anywhere, including headings, subtitles, signs, whiteboards, calendars, screens, folders, paper, book spines and keyboard legends. No logos, watermarks, handwriting or pseudo-writing. Show unlabelled geometric cards, sparse bars and circles only when useful. All system names, titles, labels, explanations and real data are added as editable HTML outside the raster. No isolated floating productivity icon unless explicitly required by the page brief."
+  },
+  "layout_hints": {
+    "above": "Display above editable captions: arrange the page-specific work areas in a broad complete diorama, viewed at 35–45 degrees. Use physical handoffs or modest connecting paths only for real workflow relationships. Keep the order aligned with captions and preserve the full base, figures, objects and contact shadow.",
+    "architecture": "Represent the exact architecture tiers, modules and connections from the brief as a structured physical miniature with mineral-composite terraces, graphite frames, tactile service modules and purposeful links. Keep tiers and module edges clear for aligned editable HTML labels. No extra office zones or people unless they explain a real role in this architecture. Maintain 35–45 degree view and no raster text."
+  },
+  "audit": {
+    "max_radius": 8,
+    "page_number_min": 36,
+    "cover_labels_expected": false,
+    "chapter_panel": false,
+    "closing_title_token": "--ink"
+  }
+}

@@ -38,7 +38,7 @@ Python 3.9+，标准库即可。安装了 Pillow 时构建器把配图转成 Web
 
 `version / title / slides` 是主要字段。`slides` 至少一页，顺序即页序。年份默认当前年，品牌默认内置值。可选覆盖：`year`、`company`、项目内 `logo` 路径、`theme`（仅 `paper/blue/ink/muted/line/panel` 六位十六进制颜色）、`custom_css`（项目内 CSS 路径）。只有用户要求换品牌时才使用覆盖。
 
-根字段 `style` 选择整稿视觉规范，值为 `python3 <shared>/scripts/style_packs.py --list` 返回的可用风格 ID。当前提供 `"scene-white"`（素白蓝调）与 `"saas-3d"`（海蓝玻璃）；未来符合 [风格包契约](adding-styles.md) 的同级目录自动加入。需要安装共享套件与所选风格包。未知值、缺资源、重名 ID、draft 状态和逐页设置 style 会报错，不静默回退或混搭。选择命名风格无需 `--allow-restyle`，也不会关闭品牌检查。`--check-plan`、构建结果、配图清单及 HTML 均记录当前风格。旧稿省略 style 仍兼容素白蓝调；新稿须先按用户选择显式写入 style 和 presentation_mode，不能以示例值或兼容默认代替选择。
+根字段 `style` 选择整稿视觉规范，值为 `python3 <shared>/scripts/style_packs.py --list` 返回的可用风格 ID。当前提供 `"scene-white"`（素白蓝调）、`"saas-3d"`（海蓝玻璃）和 `"real-miniature"`（写实微缩）；未来符合 [风格包契约](adding-styles.md) 的同级目录自动加入。需要安装共享套件与所选风格包。未知值、缺资源、重名 ID、draft 状态和逐页设置 style 会报错，不静默回退或混搭。选择命名风格无需 `--allow-restyle`，也不会关闭品牌检查。`--check-plan`、构建结果、配图清单及 HTML 均记录当前风格。旧稿省略 style 仍兼容素白蓝调；新稿须先按用户选择显式写入 style 和 presentation_mode，不能以示例值或兼容默认代替选择。
 
 `custom_css` 只用于内容区布局，不接受 `@import`、`url()`、HTML 或 `!important`；选择器里出现 `header/footer/h1/.subtitle/.chapter/.page-number/.layout-cover/.layout-closing/.cover-*/.ending-*/.brand/.slide/body` 会被拒绝（用户明确要求在所选主题之外自定义这些区域时加 `--allow-restyle`）。按稳定 `id` 微调，例如 `#p03 .hero-scene{width:1180px}`；按页需要调整，不把临时样式写回 Skill。
 
@@ -192,7 +192,7 @@ class Builder(Base):
 
 坐标依据 `board`，与浏览器缩放无关；整个画板自动等比适配内容区。图像在板内的矩形可带负偏移以去除空白。标签不继承卡片风格，全部无背景、无边框。
 
-复杂结构先查看所选风格的参考图：`scene-white` 使用 `scene-html-slides/assets/reference-design/approved-architecture.jpg`；`saas-3d` 使用自身的设计与配图规范以及已确认参考，不继承旧图材质。用完整分层模型承载全图，逐个映射模块、层板、数据来源和治理通道，再添加 HTML 文字；不可简化成图片旁边三段介绍。先定实际图像缩放，再定 label 坐标；调整 board.image 后重新核对全部标签。不要在本来无对象的位置加模块名，或拿底板遮住图中的错误层级。
+复杂结构先查看所选风格的参考图：`scene-white` 使用 `scene-html-slides/assets/reference-design/approved-architecture.jpg`；其他风格使用自身的设计与配图规范以及已确认参考，不继承旧图材质。用完整分层模型承载全图，逐个映射模块、层板、数据来源和治理通道，再添加 HTML 文字；不可简化成图片旁边三段介绍。先定实际图像缩放，再定 label 坐标；调整 board.image 后重新核对全部标签。不要在本来无对象的位置加模块名，或拿底板遮住图中的错误层级。
 
 ```json
 "board": {"width":1760,"height":740,"image":{"x":0,"y":0,"w":1760,"h":740}},
