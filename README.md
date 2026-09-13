@@ -13,6 +13,16 @@
 
 ## 成稿示例
 
+以下按风格展示实际页面，点击图片可查看原图。示例中的业务内容用于说明视觉与排版，不作为新项目事实。
+
+### 素白蓝调
+
+| 业务机制 · 白色模型与语义图标 | 总体架构 · 分层模型与直接标注 |
+|:---:|:---:|
+| <a href="skills/scene-html-slides/assets/reference-design/approved-open-icons.jpg"><img src="skills/scene-html-slides/assets/reference-design/approved-open-icons.jpg" alt="素白蓝调业务机制页：中央白色模型场景，两侧用蓝色语义图标和文字解释制度转规则的过程" width="440"></a> | <a href="skills/scene-html-slides/assets/reference-design/approved-architecture.jpg"><img src="skills/scene-html-slides/assets/reference-design/approved-architecture.jpg" alt="素白蓝调总体架构页：五层白色立体模型，模块直接标注，蓝色通道展示数据流向与治理关系" width="440"></a> |
+
+### 海蓝玻璃
+
 以下为海蓝玻璃风格的实际页面截图，展示演讲型与四种阅读型布局。点击图片可查看 1920 × 1080 原图；图表中的数字均为排版示例数据。
 
 | 演讲型 · 封面 | 演讲型 · 产品能力与轻量强调 |
