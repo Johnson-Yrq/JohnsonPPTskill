@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h1>JohnsonPPTskill</h1>
+<h1>PPT-workbench-skill</h1>
 
 <p><strong>Turn an outline into a polished, editable slide deck.</strong></p>
 <p>Three visual styles. Two ways to present. One HTML file that works offline.</p>

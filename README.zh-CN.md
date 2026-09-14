@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h1>JohnsonPPTskill</h1>
+<h1>PPT-workbench-skill</h1>
 
 <p><strong>把一份大纲，变成风格完整、可继续编辑的演示稿。</strong></p>
 <p>三种视觉风格 · 演讲与阅读双模式 · 单文件 HTML 离线交付</p>
