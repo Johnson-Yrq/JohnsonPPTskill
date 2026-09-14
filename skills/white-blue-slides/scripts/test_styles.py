@@ -22,7 +22,7 @@ SAAS = SKILL.parent / 'navy-glass-slides'
 MINIATURE = SKILL.parent / 'realistic-miniature-slides'
 sys.path.insert(0, str(HERE))
 from build_deck import Builder, check_plan  # noqa: E402
-from common import slide_images, ASSETS, LAYOUTS, load_deck  # noqa: E402
+from common import slide_images, ASSETS, LAYOUTS, load_deck, placeholder_png  # noqa: E402
 from prepare_images import prepare  # noqa: E402
 
 
@@ -119,7 +119,7 @@ class StyleRegressionTests(unittest.TestCase):
             for im in slide_images(slide):
                 path = self.root / im['src']
                 path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(ASSETS / 'logo.png', path)
+                path.write_bytes(placeholder_png())
 
     def render(self, deck, draft=False):
         data, root = load_deck(write_deck(self.root, deck))
@@ -539,7 +539,7 @@ class MiniatureStyleTests(unittest.TestCase):
         deck = all_layouts_deck('real-miniature')
         image = self.root / 'images/existing.png'
         image.parent.mkdir(parents=True)
-        shutil.copyfile(ASSETS / 'logo.png', image)
+        image.write_bytes(placeholder_png())
         data, root = load_deck(write_deck(self.root, deck))
         self.assertTrue(check_plan(data, root)['ok'])
         document = Document(Builder(data, root, embed_format='keep').render())

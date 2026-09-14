@@ -36,7 +36,7 @@ Python 3.9+，标准库即可。安装了 Pillow 时构建器把配图转成 Web
 }
 ```
 
-`version / title / slides` 是主要字段。`slides` 至少一页，顺序即页序。年份默认当前年，品牌默认内置值。可选覆盖：`year`、`company`、项目内 `logo` 路径、`theme`（仅 `paper/blue/ink/muted/line/panel` 六位十六进制颜色）、`custom_css`（项目内 CSS 路径）。只有用户要求换品牌时才使用覆盖。
+`version / title / slides` 是主要字段。`slides` 至少一页，顺序即页序。年份默认当前年；套件不含品牌，页脚默认只有年份与右侧标签。可选字段：`year`、`company`（公司名，留空则不显示）、项目内 `logo` 路径（未给则不显示 Logo）、`theme`（仅 `paper/blue/ink/muted/line/panel` 六位十六进制颜色）、`custom_css`（项目内 CSS 路径）。只有用户提供品牌资料时才填写 `company` 与 `logo`；`theme` 与 `custom_css` 仅在用户要求换风格时使用。
 
 根字段 `style` 选择整稿视觉规范，值为 `python3 <shared>/scripts/style_packs.py --list` 返回的可用风格 ID。当前提供 `"scene-white"`（素白蓝调）、`"saas-3d"`（海蓝玻璃）和 `"real-miniature"`（写实微缩）；未来符合 [风格包契约](adding-styles.md) 的同级目录自动加入。需要安装共享套件与所选风格包。未知值、缺资源、重名 ID、draft 状态和逐页设置 style 会报错，不静默回退或混搭。选择命名风格无需 `--allow-restyle`，也不会关闭品牌检查。`--check-plan`、构建结果、配图清单及 HTML 均记录当前风格。旧稿省略 style 仍兼容素白蓝调；新稿须先按用户选择显式写入 style 和 presentation_mode，不能以示例值或兼容默认代替选择。
 

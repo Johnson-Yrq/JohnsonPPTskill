@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 from build_deck import Builder, check_plan
-from common import ASSETS, load_deck
+from common import ASSETS, load_deck, placeholder_png
 from prepare_images import prepare
 from style_packs import paper_color
 
@@ -54,7 +54,7 @@ class Refinements(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix='slide-refinements-')
         self.root = Path(self.tmp.name)
-        (self.root / 'image.png').write_bytes((ASSETS / 'logo.png').read_bytes())
+        (self.root / 'image.png').write_bytes(placeholder_png())
         self.deck = example()
 
     def tearDown(self):

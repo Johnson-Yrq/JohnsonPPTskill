@@ -438,7 +438,7 @@ python3 skills/white-blue-slides/scripts/selftest.py
 - Lucide 图标：[MIT 许可证](skills/white-blue-slides/assets/lucide-LICENSE.txt)。
 - Apache ECharts：[Apache 2.0 许可证](skills/white-blue-slides/assets/vendor/ECHARTS-LICENSE.txt) 与 [NOTICE](skills/white-blue-slides/assets/vendor/ECHARTS-NOTICE.txt)，同时内嵌于含图表的成稿。
 
-内置 Logo 与默认页脚为普爱智医品牌资源；用于其他品牌项目时，应替换为对应资源。包内参考图用于说明视觉风格，示例业务内容与数字不构成实际产品能力或效果声明。
+套件不包含任何品牌 Logo 或公司名；页脚品牌信息由各项目在 deck 中自行提供。包内参考图用于说明视觉风格，示例业务内容与数字不构成实际产品能力或效果声明。
 
 ---
 

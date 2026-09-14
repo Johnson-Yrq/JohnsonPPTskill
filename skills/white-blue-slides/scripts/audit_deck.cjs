@@ -167,7 +167,7 @@ async function run() {
             if(isClosing&&hcs.color!==token(styleContract.closing_title_token||'--blue'))brandIssues.push({type:'closing-title-color',actual:hcs.color});}
           if(ch&&!isClosing&&styleContract.chapter_panel!==false&&transparent(getComputedStyle(ch).backgroundColor))brandIssues.push({type:'chapter-without-panel'});
           if(!pn||!visible(pn)||parseFloat(getComputedStyle(pn).fontSize)<styleContract.page_number_min)brandIssues.push({type:'page-number-missing-or-small',minimum:styleContract.page_number_min});
-          if(!ft||!visible(ft)||!logo||!visible(logo))brandIssues.push({type:'footer-or-logo-missing'});
+          if(!ft||!visible(ft))brandIssues.push({type:'footer-missing'});if(logo&&!visible(logo))brandIssues.push({type:'logo-hidden'});
           if(isCover){const copy=s.querySelector('.cover-copy'),hero=s.querySelector('.hero-scene');if(!copy||rect(copy).x>120)brandIssues.push({type:'cover-copy-not-left'});if(!hero||rect(hero).x<sr.width*0.45)brandIssues.push({type:'cover-image-not-right'});if(styleContract.cover_labels_expected&&!s.querySelector('.cover-labels>div'))warnings.push({type:'cover-without-labels'});}
         }
         // Reading illustration area uses the WHOLE slide, not main or figure boxes.

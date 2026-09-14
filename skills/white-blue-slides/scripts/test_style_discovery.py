@@ -3,13 +3,12 @@
 import copy
 import json
 from pathlib import Path
-import shutil
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from build_deck import Builder, check_plan
-from common import ASSETS, load_deck
+from common import ASSETS, load_deck, placeholder_png
 from style_packs import discover_styles, resolve_style
 from test_styles import Document, quiet_prepare, write_deck
 
@@ -42,7 +41,7 @@ class StyleDiscoveryTests(unittest.TestCase):
             target.write_text('# Test style fixture\n')
         (assets / 'theme.css').write_text(':root{--third-style-token:#604C70;--ink:#604C70}')
         (assets / 'image-style.txt').write_text('THIRD_STYLE_VISUAL: precise monochrome miniature.')
-        shutil.copyfile(ASSETS / 'logo.png', assets / 'reference.png')
+        (assets / 'reference.png').write_bytes(placeholder_png())
         self.save(root, source)
         return root, source
 
@@ -93,7 +92,7 @@ class StyleDiscoveryTests(unittest.TestCase):
                                  (root / 'assets/reference.png').read_bytes())
                 image = project / deck['slides'][0]['image']['src']
                 image.parent.mkdir(parents=True)
-                shutil.copyfile(ASSETS / 'logo.png', image)
+                image.write_bytes(placeholder_png())
                 doc = Document(Builder(data, work, embed_format='keep').render())
                 self.assertEqual(doc.body['data-style'], 'third-style')
                 self.assertEqual(doc.body['data-presentation-mode'], mode)

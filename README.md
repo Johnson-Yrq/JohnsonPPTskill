@@ -440,7 +440,7 @@ Project code is licensed under [MIT](LICENSE). Third-party components retain the
 - Lucide icons: [MIT license](skills/white-blue-slides/assets/lucide-LICENSE.txt).
 - Apache ECharts: [Apache 2.0 license](skills/white-blue-slides/assets/vendor/ECHARTS-LICENSE.txt) and [NOTICE](skills/white-blue-slides/assets/vendor/ECHARTS-NOTICE.txt), also embedded in decks that contain charts.
 
-The bundled logo and default footer are brand assets of 普爱智医 (PLANCK AI LABS); replace them for other brands. Reference images demonstrate visual styles. Example business content and numbers are not claims about actual product capabilities or results.
+The kit ships no brand logo or company name; each project supplies its own footer branding in the deck. Reference images demonstrate visual styles. Example business content and numbers are not claims about actual product capabilities or results.
 
 ---
 

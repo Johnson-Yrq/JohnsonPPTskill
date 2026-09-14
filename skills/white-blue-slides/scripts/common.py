@@ -126,6 +126,16 @@ def load_deck(filename, layouts=LAYOUTS):
     return data, path.parent
 
 
+def placeholder_png(width=324, height=215, rgb=(247, 246, 242)):
+    """A solid-colour PNG built without any imaging library; tests use it in place of real images."""
+    import zlib
+    raw = b''.join(b'\x00' + bytes(rgb) * width for _ in range(height))
+    def chunk(tag, body):
+        return struct.pack('>I', len(body)) + tag + body + struct.pack('>I', zlib.crc32(tag + body) & 0xFFFFFFFF)
+    return (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0))
+            + chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b''))
+
+
 def read_raster(path):
     if not path.is_file():
         raise FileNotFoundError(f'缺少图片：{path.name}')

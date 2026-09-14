@@ -89,9 +89,12 @@ class Builder:
         self.current_slide = {}
         if self.design['errors'] and not draft:
             raise ValueError('设计预检未通过：\n' + '\n'.join(self.design['errors'][:16]) + '\n使用 --check-plan 查看完整报告；先补齐设计决策，再正式构建')
-        logo_path = local_path(root, deck['logo']) if 'logo' in deck else ASSETS / 'logo.png'
-        mime, data = read_raster(logo_path)
-        self.logo = {'uri': self.data_uri(logo_path, convert=False), 'size': image_size(mime, data)}
+        # The kit ships no logo: the footer carries one only when the deck names a project-local image.
+        self.logo = None
+        if deck.get('logo'):
+            logo_path = local_path(root, deck['logo'])
+            mime, data = read_raster(logo_path)
+            self.logo = {'uri': self.data_uri(logo_path, convert=False), 'size': image_size(mime, data)}
 
     def data_uri(self, path, convert=True):
         if path not in self.cache:
@@ -460,13 +463,20 @@ class Builder:
         return '<div class="chart-shell"><div class="echart" data-component="chart" role="img" aria-label="' + escape(block['title'], quote=True) + '"></div><script type="application/json" class="chart-config">' + payload + '</script><details class="chart-editor"><summary>编辑图表数据</summary>' + table + '</details></div>' + editable('p', block['source'], 'chart-source', True)
 
     def footer(self):
-        w, h = self.logo['size']
-        logo = f'<svg class="brand-logo" role="img" aria-label="品牌 Logo" viewBox="0 0 {w} {h}"><use href="#brand-logo"></use></svg>'
-        result = '<footer><div class="brand">' + logo + '<i aria-hidden="true"></i>' + editable('span', self.deck.get('company', self.brand['company']))
+        """Logo (only when the deck supplies one), company name (only when non-empty) and year on the left; the deck label on the right."""
+        result = '<footer><div class="brand">'
+        if self.logo:
+            w, h = self.logo['size']
+            result += f'<svg class="brand-logo" role="img" aria-label="品牌 Logo" viewBox="0 0 {w} {h}"><use href="#brand-logo"></use></svg><i aria-hidden="true"></i>'
+        company = str(self.deck.get('company', self.brand.get('company', '')) or '').strip()
+        if company:
+            result += editable('span', company)
         result += editable('span', str(self.deck.get('year', date.today().year))) + '</div>'
         return result + editable('span', self.deck.get('footer_label', self.deck['title']), 'footer-label') + '</footer>'
 
     def logo_defs(self):
+        if not self.logo:
+            return ''
         w, h = self.logo['size']
         return f'<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="brand-logo" viewBox="0 0 {w} {h}"><image href="{self.logo["uri"]}" width="{w}" height="{h}"></image></symbol></svg>'
 

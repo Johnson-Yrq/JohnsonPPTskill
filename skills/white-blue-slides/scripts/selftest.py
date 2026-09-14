@@ -118,7 +118,10 @@ def run():
         data, root = load_deck(deck_path)
         builder = Builder(data, root)
         html = builder.render()
-        check('html has one logo symbol and one use per slide', html.count('id="brand-logo"') == 1 and html.count('<use href="#brand-logo"') == 3)
+        check('no logo and no company name without a deck-level brand', html.count('id="brand-logo"') == 0 and html.count('<use href="#brand-logo"') == 0 and '<div class="brand"><span data-edit>' in html)
+        (work / 'logo.png').write_bytes(solid_png(324, 215, (59, 123, 200)))
+        branded = Builder({**data, 'logo': 'logo.png', 'company': '示例公司'}, root).render()
+        check('deck-level logo gives one symbol, one use per slide and the company name', branded.count('id="brand-logo"') == 1 and branded.count('<use href="#brand-logo"') == 3 and '示例公司' in branded)
         cover_html = html.split('</section>')[0]
         check('cover keeps the chapter tag in the header and centres the block from the title down', '<header><div class="head-copy"><div data-edit class="chapter">' in cover_html and '<div class="cover-copy"><div class="cover-head"><h1>' in cover_html and cover_html.count('<h1>') == 1 and 'class="cover-date"' in cover_html)
         check('no template placeholders left', '{{' not in html.replace('{{SLIDES}}', ''))
