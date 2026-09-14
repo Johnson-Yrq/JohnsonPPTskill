@@ -75,6 +75,11 @@ footer{border-top:1px solid var(--line);padding-top:15px;color:var(--muted);font
 /* Relationships and comparisons */
 .architecture-label{color:var(--mini-deep-blue);text-shadow:0 1px 0 #EEEDE8}
 .architecture-label[data-kind="layer"]{color:var(--ink);font-weight:750}
+.architecture-label[data-kind="module"]{color:var(--ink);font-weight:500}
+.architecture-label[data-kind="governance"]{color:var(--mini-deep-blue);font-weight:650}
+.architecture-label[data-kind="flow"]{color:var(--mini-deep-green)}
+.architecture-label[data-kind="source"]{color:var(--muted)}
+.architecture-label .arch-detail{color:var(--muted);text-shadow:none}
 .split-points .point h3{color:var(--ink)}
 .split-points .point.emphasis:not(.panel) h3{color:var(--mini-deep-blue)}
 .formula-result,.formula-term{color:var(--ink)}

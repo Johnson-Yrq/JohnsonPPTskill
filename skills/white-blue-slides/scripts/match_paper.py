@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Flatten a generated scene image's background onto the paper colour so the frame edge disappears.
 
-Generated renders carry a gentle lighting gradient (corners a few levels apart). On the flat paper
-that gradient shows up as a faint rectangle around every picture. This fits a smooth surface to the
-background, subtracts it and re-centres on the paper colour; the subject shifts by the same few
-levels locally, which is invisible, while shadows keep their depth.
+For small lighting gradients only. Fits a smooth background surface and limits the correction
+over the entire image to 12 RGB levels per channel; larger changes require image-tool editing.
+Transparent assets are reported and left intact. Always inspect the rendered result.
 
-Usage: python3 match_paper.py images/01.png images/02.png [--paper #F7F6F2] [--tolerance 8] [--dry-run]
+Usage: python3 match_paper.py images/01.png --deck deck.json --dry-run
+An explicit --paper '#RRGGBB' overrides --deck; without either, legacy #F7F6F2 is used.
 Originals are copied to images/original/ before the file is rewritten (PNG output).
 """
 import argparse
@@ -50,10 +50,14 @@ def flatten(arr, paper, tolerance):
     yy, xx = (np.arange(h) / h - .5)[:, None], (np.arange(w) / w - .5)[None, :]
     full = np.stack([np.ones((h, w)), np.broadcast_to(xx, (h, w)), np.broadcast_to(yy, (h, w)), np.broadcast_to(xx * xx, (h, w)), np.broadcast_to(yy * yy, (h, w)), xx * yy], axis=2)
     out = arr.astype(np.float64).copy()
+    max_adjustment = 0
     for c in range(3):
         coef, *_ = np.linalg.lstsq(basis, arr[ys, xs, c].astype(np.float64), rcond=None)
         surface = full @ coef
+        max_adjustment = max(max_adjustment, float(np.abs(paper[c] - surface).max()))
         out[..., c] += paper[c] - surface
+    if max_adjustment > 12:
+        return None, f'预计色彩改动 {max_adjustment:.1f} 超过 12 级，交由生图工具修正底色'
     return np.clip(out + .5, 0, 255).astype(np.uint8), f'背景占比 {core.mean():.0%}'
 
 
@@ -61,16 +65,23 @@ def process(path, paper, tolerance, dry_run):
     import numpy as np
     from PIL import Image
     image = Image.open(path)
-    alpha = image.getchannel('A') if image.mode in ('RGBA', 'LA') else None
+    alpha = image.convert('RGBA').getchannel('A') if 'A' in image.getbands() or 'transparency' in image.info else None
+    alpha_min = alpha.getextrema()[0] if alpha is not None else 255
+    report = {'file': path.name, 'paper': list(paper), 'alpha_channel': alpha is not None, 'has_transparency': alpha_min < 255}
+    if alpha_min < 255:
+        return dict(report, skipped='已有实际透明像素；保持原图，在页面和导出稿中检查透明边缘')
+    if min(image.size) < 21:
+        return dict(report, skipped='图片太小，无法可靠拟合背景')
     arr = np.asarray(image.convert('RGB')).astype(np.int16)
     before_median, before_ptp = edge_stats(arr)
+    report['before'] = {'edge_median': [int(v) for v in before_median], 'corner_spread': int(before_ptp),
+                        'paper_delta': int(np.abs(before_median - paper).max())}
     result, note = flatten(arr, paper, tolerance)
     if result is None:
-        return {'file': path.name, 'skipped': note}
+        return dict(report, skipped=note)
     after_median, after_ptp = edge_stats(result.astype(np.int16))
-    report = {'file': path.name, 'note': note,
-              'before': {'edge_median': [int(v) for v in before_median], 'corner_spread': int(before_ptp)},
-              'after': {'edge_median': [int(v) for v in after_median], 'corner_spread': int(after_ptp)}}
+    report.update(note=note, after={'edge_median': [int(v) for v in after_median], 'corner_spread': int(after_ptp),
+                                  'paper_delta': int(np.abs(after_median - paper).max())})
     if not dry_run:
         backup = path.parent / 'original' / path.name
         backup.parent.mkdir(exist_ok=True)
@@ -88,16 +99,24 @@ def process(path, paper, tolerance, dry_run):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('images', nargs='+')
-    p.add_argument('--paper', default='#F7F6F2')
+    p.add_argument('--paper', help='显式纸色；优先于 --deck')
+    p.add_argument('--deck', help='从项目已选风格和 theme.paper 解析纸色')
     p.add_argument('--tolerance', type=int, default=8, help='与边缘中值相差不超过此值的像素视为背景（默认 8）')
     p.add_argument('--dry-run', action='store_true', help='只报告，不写文件')
     args = p.parse_args()
+    if not 1 <= args.tolerance <= 24:
+        p.error('--tolerance 须为 1–24；明显底色差异请使用生图工具修正')
     try:
         import numpy  # noqa: F401
         from PIL import Image  # noqa: F401
     except ImportError:
         p.exit(1, '需要 Pillow 和 numpy；没有时改用 image.edge_fade 轻微淡出边缘，或在生图工具里重生成纯色背景\n')
-    paper = parse_color(args.paper)
+    try:
+        from common import load_deck
+        from style_packs import paper_color
+        paper = parse_color(args.paper or (paper_color(load_deck(args.deck, layouts=None)[0]) if args.deck else '#F7F6F2'))
+    except (ValueError, OSError) as exc:
+        p.exit(1, str(exc) + '\n')
     import json
     for name in args.images:
         path = Path(name)

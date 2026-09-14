@@ -287,14 +287,14 @@ node skills/white-blue-slides/scripts/audit_deck.cjs project/演示稿.html \
   --out project/qa --browser chrome
 ```
 
-自动检查覆盖结构、图文分区、可见组件和播放器功能；逐页视觉检查还需核对配图主体、图文对应和独立阅读时的完整性。
+自动检查覆盖结构、图文分区、可见组件和播放器功能（含 PPTX 导出）；逐页视觉检查还需核对配图主体、图文对应和独立阅读时的完整性。审查器会生成 `visual-review.template.json`，制作方逐页看图后填写复核记录并用 `--visual-review qa/visual-review.json` 回传，报告中的 `readyForDelivery` 需要自动检查与复核记录同时通过；不传记录时退出码与以前相同。
 
 <details>
 <summary><strong>构建选项与 13 种共享版式</strong></summary>
 
 | 可选工具或参数 | 用途 |
 |---|---|
-| `match_paper.py project/images/*.png --paper '#F7F6F2'` | 校准配图底色并备份原图；纸色取自所选主题 |
+| `match_paper.py project/images/*.png --deck project/deck.json --dry-run` | 按当前主题诊断底色与透明通道；允许脚本校准时去掉 dry-run，仅处理轻微偏差并备份 |
 | `--embed-format keep` | 保留原始图片格式；默认优先转 WebP 内嵌 |
 | `--embed-quality 85` | 设置图片压缩质量 |
 | `--builder` | 加载项目新增版式；复用共享组件 |
@@ -310,6 +310,8 @@ node skills/white-blue-slides/scripts/audit_deck.cjs project/演示稿.html \
 | `journey` | 阶段、比较或路径 | `formula` | 公式与因素关系 |
 | `table` | 表格与边界对照 | `relations` | 实体与关联 |
 | `closing` | 有配图的收束尾页 | `reading` | 四类阅读型复合信息页 |
+
+结构化字段（详见 `references/deck-format.md`）：`flow` 控制分组支持 `rows_layout`（自动／同行／标签在上）、行 `kind`（说明／校验／异常）与阅读型 `align_control_rows` 共享行高；`architecture` 标注支持 `prefix`、`detail`、`leader` 引线和流向 `direction`；`journey` 阶段支持 `period` 时间标签与 `fields` 字段组，页底可用 `bottom.type: groups`；配图比例新增 `2:1 / 21:9 / 3:1`，`image.background_mode: white-matte` 可把已确认纯白底的素材映射到当前纸色，HTML、PDF 与 PPTX 一致。
 
 </details>
 

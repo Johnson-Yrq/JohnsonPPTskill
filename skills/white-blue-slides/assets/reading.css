@@ -11,6 +11,13 @@ body[data-presentation-mode="reading"] .flow-bottom{grid-template-columns:1000px
 body[data-presentation-mode="reading"] .control-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:center;gap:22px}
 body[data-presentation-mode="reading"] .control-group dl>div{grid-template-columns:100px minmax(0,1fr);column-gap:12px}
 body[data-presentation-mode="reading"] .control-group dt,body[data-presentation-mode="reading"] .control-group dd{font-size:22px}
+body[data-presentation-mode="reading"] .control-group[data-rows-layout="stacked"] dt,body[data-presentation-mode="reading"] .control-group[data-rows-layout="stacked"] dd{font-size:23px}
+body[data-presentation-mode="reading"] .control-groups[data-align-rows="true"]{row-gap:14px}
+body[data-presentation-mode="reading"] .control-groups[data-align-rows="true"] .control-group{display:grid;grid-template-rows:subgrid;grid-row:span var(--control-tracks);container-type:normal}
+body[data-presentation-mode="reading"] .control-groups[data-align-rows="true"] .control-group h3{margin:0}
+body[data-presentation-mode="reading"] .control-groups[data-align-rows="true"] .control-group dl{display:contents}
+body[data-presentation-mode="reading"] .control-groups[data-align-rows="true"] .control-group[data-rows-layout="auto"] dl>div{display:block}
+body[data-presentation-mode="reading"] .control-groups[data-align-rows="true"] .control-group[data-rows-layout="auto"] dt{margin-bottom:5px}
 /* Ratios refer to the content body, after the header and summary. */
 .reading-layout{display:flex;flex-direction:column;flex:1;min-height:0;gap:20px}
 .reading-summary{font-size:25px;line-height:1.55;color:var(--ink);flex:none}

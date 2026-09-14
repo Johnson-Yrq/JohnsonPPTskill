@@ -10,7 +10,7 @@ from pathlib import Path
 import re
 from common import ASSETS, EMBED_FORMATS, LAYOUTS, convert_image, image_size, load_deck, local_path, number, read_raster, presentation_mode, slide_images, reading_composition
 from design_contract import analyze_deck, presentation_for, visual_for
-from style_packs import resolve_style
+from style_packs import resolve_style, paper_color
 
 
 # Header, footer, cover, closing and player chrome are the brand; custom_css may not touch them.
@@ -127,6 +127,8 @@ class Builder:
         x = number(im.get('offset_x'), 0, -1000, 1000, 'image.offset_x')
         y = number(im.get('offset_y'), 0, -1000, 1000, 'image.offset_y')
         fade = number(im.get('edge_fade'), .04, 0, .12, 'image.edge_fade')
+        background = choice(im.get('background_mode', 'native'), ['native', 'white-matte'], 'image.background_mode')
+        paper_filter = ';filter:url(#deck-paper-tone)' if background == 'white-matte' else ''
         if self.dry_run:
             body = '<div class="missing-image">结构预检：' + txt(im['src']) + '</div>'
         elif not path.is_file():
@@ -135,7 +137,7 @@ class Builder:
             self.missing.append(im['src'])
             body = '<div class="missing-image">待补配图：' + txt(im['src']) + '</div>'
         else:
-            body = f'<img src="{self.data_uri(path)}" alt="{escape(im["alt"], quote=True)}" style="--image-zoom:{zoom};--image-x:{x}px;--image-y:{y}px;--image-fade:{fade * 100}%" decoding="sync">'
+            body = f'<img src="{self.data_uri(path)}" alt="{escape(im["alt"], quote=True)}" style="--image-zoom:{zoom};--image-x:{x}px;--image-y:{y}px;--image-fade:{fade * 100}%{paper_filter}" decoding="sync">'
         return f'<figure class="scene-image {cls}"{extra}>{body}</figure>'
 
     def point(self, obj, allow_panel=True):
@@ -154,10 +156,17 @@ class Builder:
         result = ''
         if b is not None:
             mapping(b, 'bottom')
-            kind = choice(b.get('type', 'text'), ['text', 'tags', 'factors'], 'bottom.type')
+            kind = choice(b.get('type', 'text'), ['text', 'tags', 'factors', 'groups'], 'bottom.type')
             if kind == 'text':
                 pres = choice(b.get('presentation', 'open'), ['open', 'panel'], 'bottom.presentation')
                 result = editable('div', b.get('text', ''), 'takeaway' + (' panel' if pres == 'panel' else ''), True, 'panel' if pres == 'panel' else '')
+            elif kind == 'groups':
+                values = items(b, 'items', 1, 4)
+                parts = []
+                for v in values:
+                    mapping(v, '页底分组')
+                    parts.append('<div>' + editable('dt', v.get('label', ''), required=True) + editable('dd', v.get('text', ''), required=True) + '</div>')
+                result = f'<dl class="bottom-groups" style="--columns:{len(values)}">' + ''.join(parts) + '</dl>'
             else:
                 values = items(b, 'items', 1, 12 if kind == 'tags' else 5)
                 parts = [editable('span', v, required=True, component='tag' if kind == 'tags' else 'panel') for v in values]
@@ -206,17 +215,28 @@ class Builder:
             raise ValueError('connected 须为布尔值')
         for v in values:
             mapping(v, '阶段/比较项')
-        has_states = any(v.get('state') or v.get('states') for v in values)
+        has_states = any(v.get('period') or v.get('state') or v.get('states') for v in values)
         for v in values:
             panel = presentation_for(v, s) == 'panel'
             strong = choice(v.get('header_fill', 'light'), ['light', 'blue'], 'header_fill') == 'blue'
             cls = 'journey-item' + (' panel' if panel else '') + (' strong' if panel and strong else '')
-            body = self.heading(v) + editable('p', v.get('text', ''), required=True)
+            body = self.heading(v)
+            if 'fields' in v:
+                if 'text' in v or 'deliverable' in v:
+                    raise ValueError('journey.fields 与 text/deliverable 不能混用；将需要保留的文字放入 fields')
+                rows = []
+                for field in items(v, 'fields', 1, 3):
+                    mapping(field, '阶段字段')
+                    rows.append('<div>' + editable('dt', field.get('label', ''), required=True) + editable('dd', field.get('text', ''), required=True) + '</div>')
+                body += '<dl class="journey-fields">' + ''.join(rows) + '</dl>'
+            else:
+                body += editable('p', v.get('text', ''), required=True)
             states = items(v, 'states', 0, 3)
             if v.get('state'):
                 states = [v['state']] + states
             if has_states:
-                body = '<div class="state-tags">' + ''.join(editable('span', state, 'state-tag', True, 'state') for state in states) + '</div>' + body
+                period = editable('span', v['period'], 'state-tag period-tag', True, 'tag') if 'period' in v else ''
+                body = '<div class="state-tags">' + period + ''.join(editable('span', state, 'state-tag', True, 'state') for state in states) + '</div>' + body
             if v.get('deliverable'):
                 body += editable('span', v['deliverable'], 'deliverable')
             attrs = (' data-component="panel"' if panel else '') + (' data-step="true"' if connected else '')
@@ -298,14 +318,24 @@ class Builder:
             lh = number(l.get('h'), None, 1, h, 'label.h')
             if None in [x, y, lw, lh] or x + lw > w or y + lh > h:
                 raise ValueError('架构标注需要 x/y/w/h，且整体位于 board 内')
-            size = number(l.get('font_size'), 24, 21, 40, 'label.font_size')
-            align = choice(l.get('align', 'center'), ['left', 'center', 'right'], 'label.align')
             kind = choice(l.get('kind', 'module'), ['layer', 'module', 'source', 'governance', 'flow'], 'label.kind')
+            size = number(l.get('font_size'), 28 if kind == 'layer' else 24, 21, 40, 'label.font_size')
+            align = choice(l.get('align', 'center'), ['left', 'center', 'right'], 'label.align')
+            leader = choice(l.get('leader', 'none'), ['none', 'right', 'down'], 'label.leader')
+            direction = choice(l.get('direction', 'none'), ['none', 'up', 'down', 'left', 'right'], 'label.direction')
+            if direction != 'none' and kind != 'flow':
+                raise ValueError('label.direction 仅用于 kind: flow')
             align_map = {'left': 'flex-start', 'center': 'center', 'right': 'flex-end'}
-            style = f'left:{x}px;top:{y}px;width:{lw}px;height:{lh}px;font-size:{size}px;text-align:{align};justify-content:{align_map[align]}'
+            style = f'left:{x}px;top:{y}px;width:{lw}px;height:{lh}px;font-size:{size}px;text-align:{align};justify-content:{align_map[align]};--label-align:{align_map[align]}'
             if l.get('color'):
                 style += ';color:' + color(l['color'])
-            content += f'<div class="architecture-label" data-component="architecture-label" data-kind="{kind}" style="{style}">' + editable('span', l.get('text', ''), required=True) + '</div>'
+            prefix = editable('span', l['prefix'], 'arch-prefix', True) if 'prefix' in l else ''
+            if direction != 'none':
+                prefix += '<span class="arch-direction" aria-hidden="true">' + {'up': '↑', 'down': '↓', 'left': '←', 'right': '→'}[direction] + '</span>'
+            words = editable('span', l.get('text', ''), 'arch-main', True)
+            if 'detail' in l:
+                words += editable('span', l['detail'], 'arch-detail', True)
+            content += f'<div class="architecture-label" data-component="architecture-label" data-kind="{kind}" data-leader="{leader}" style="{style}">' + prefix + '<div class="arch-words">' + words + '</div></div>'
         return f'<div class="architecture-viewport"><div class="artboard" data-width="{w}" data-height="{h}" style="width:{w}px;height:{h}px">{content}</div></div>' + self.bottom(s)
 
     def flow(self, s):
@@ -316,14 +346,23 @@ class Builder:
             if v.get('text'):
                 content += editable('p', v['text'])
             content += '</div></section>'
-        content += '</div><div class="flow-bottom">' + self.image(s) + '<div class="control-groups">'
-        for v in items(s, 'groups', 2, 4 if self.mode == 'reading' else 3):
+        groups = items(s, 'groups', 2, 4 if self.mode == 'reading' else 3)
+        align_rows = s.get('align_control_rows', False)
+        if not isinstance(align_rows, bool):
+            raise ValueError('align_control_rows 须为布尔值')
+        if align_rows and self.mode != 'reading':
+            raise ValueError('align_control_rows 用于阅读型并排控制分组')
+        tracks = max(len(items(mapping(v, '控制分组'), 'rows', 1, 4 if self.mode == 'reading' else 3)) for v in groups) + 1
+        content += '</div><div class="flow-bottom">' + self.image(s) + f'<div class="control-groups" data-align-rows="{str(align_rows).lower()}" style="--control-tracks:{tracks}">'
+        for v in groups:
             mapping(v, '控制分组')
             panel = presentation_for(v, s) == 'panel'
-            content += '<section class="control-group' + (' panel' if panel else '') + '"' + (' data-component="panel"' if panel else '') + '>' + self.heading(v) + '<dl>'
+            row_layout = choice(v.get('rows_layout', 'auto'), ['auto', 'inline', 'stacked'], 'groups.rows_layout')
+            content += '<section class="control-group' + (' panel' if panel else '') + f'" data-rows-layout="{row_layout}"' + (' data-component="panel"' if panel else '') + '>' + self.heading(v) + '<dl>'
             for row in items(v, 'rows', 1, 4 if self.mode == 'reading' else 3):
                 mapping(row, '控制行')
-                content += '<div>' + editable('dt', row.get('label', ''), required=True) + editable('dd', row.get('text', ''), required=True) + '</div>'
+                kind = choice(row.get('kind', 'detail'), ['detail', 'check', 'exception'], '控制行 kind')
+                content += f'<div data-row-kind="{kind}">' + editable('dt', row.get('label', ''), required=True, component='tag' if kind == 'exception' else '') + editable('dd', row.get('text', ''), required=True) + '</div>'
             content += '</dl></section>'
         return content + '</div></div>' + self.bottom(s)
 
@@ -497,6 +536,10 @@ class Builder:
                   + escape(json.dumps(self.style_pack['audit'], separators=(',', ':')), quote=True) + '"',
                   'LOGO_DEFS': self.logo_defs(), 'SLIDES': '\n'.join(slides),
                   'COUNT': str(len(slides)), 'JS': (ASSETS / 'pptx-export.js').read_text(encoding='utf-8') + '\n' + (ASSETS / 'player.js').read_text(encoding='utf-8')}
+        if any(im.get('background_mode') == 'white-matte' for s in self.deck['slides'] for im in slide_images(s)):
+            paper = paper_color(self.deck, self.style_pack).lstrip('#')
+            r, g, b = [int(paper[i:i+2], 16) / 255 for i in (0, 2, 4)]
+            values['LOGO_DEFS'] += f'<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden"><defs><filter id="deck-paper-tone" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="{r} 0 0 0 0 0 {g} 0 0 0 0 0 {b} 0 0 0 0 0 1 0"/></filter></defs></svg>'
         if any(block.get('type') == 'chart' for slide in self.deck['slides'] for block in slide.get('blocks', []) if isinstance(block, dict)):
             for notice in ('ECHARTS-LICENSE.txt', 'ECHARTS-NOTICE.txt'):
                 values['LICENSE'] += '<!--\n' + (ASSETS / 'vendor' / notice).read_text(encoding='utf-8').replace('--', '—') + '\n-->'

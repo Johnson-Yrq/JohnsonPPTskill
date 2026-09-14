@@ -2,7 +2,7 @@
 name: navy-glass-slides
 description: 在用户选择海蓝玻璃风格或续做该风格项目时，根据任意主题的 PPT 大纲制作可编辑、离线 HTML 演示稿，采用暖白纸底、海军蓝文字与重点面、灰青与少量香槟金、玻璃及精细微缩展陈配图。与其他风格独立，共用制作套件；未选择风格的通用请求先经 ppt-workbench 确认。明确要求 PPTX 时不能用 HTML 替代。
 metadata:
-  version: "1.4.0"
+  version: "1.4.1"
 ---
 
 # 海蓝玻璃演示稿

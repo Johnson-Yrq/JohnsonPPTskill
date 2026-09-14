@@ -10,6 +10,7 @@ LAYOUTS = {'cover', 'scene', 'split', 'triad', 'journey', 'architecture', 'flow'
            'domains', 'formula', 'table', 'relations', 'closing', 'reading'}
 EMBED_FORMATS = ('webp', 'jpeg', 'keep')
 PAPER_RGB = (0xF7, 0xF6, 0xF2)
+IMAGE_RATIOS = {'1:1', '4:3', '3:2', '16:9', '3:4', '2:1', '21:9', '3:1'}
 
 
 def local_path(root, value):
@@ -113,6 +114,8 @@ def load_deck(filename, layouts=LAYOUTS):
                 raise ValueError('reading 版式需要 presentation_mode: reading；制作前先确认阅读型用途')
             reading_composition(s)
         for im in slide_images(s):
+            if 'ratio' in im and (not isinstance(im['ratio'], str) or im['ratio'] not in IMAGE_RATIOS):
+                raise ValueError(f'第 {i} 页图片比例可选：' + ' / '.join(sorted(IMAGE_RATIOS)))
             local_path(path.parent, im.get('src'))
             if not isinstance(im.get('alt'), str) or not im['alt'].strip():
                 raise ValueError(f'第 {i} 页需要有含义的 image.alt')

@@ -271,6 +271,10 @@ def planned_features(slide):
         if item.get('icon'): add('icons', item.get('title', ''))
         if slide.get('layout') not in {'domains', 'reading'} and presentation_for(item, slide) == 'panel':
             add('panels', item.get('title', ''))
+    if slide.get('layout') == 'flow':
+        for group in dicts(slide.get('groups')):
+            for row in dicts(group.get('rows')):
+                if row.get('kind') == 'exception': add('tags', row.get('label', ''))
     if slide.get('layout') == 'reading':
         for block in dicts(slide.get('blocks')):
             add('visual_blocks', block.get('title', ''))
@@ -292,6 +296,7 @@ def planned_features(slide):
     if slide.get('connected'):
         for item in items: add('steps', item.get('title', ''))
     for item in items:
+        if isinstance(item.get('period'), str) and item['period']: add('tags', item['period'])
         for state in strings(item.get('states')): add('states', state)
         if isinstance(item.get('state'), str) and item['state']: add('states', item['state'])
     if slide.get('layout') == 'formula':

@@ -1,0 +1,13 @@
+'use strict';
+const assert = require('assert/strict');
+const {assessReview} = require('./visual_review.cjs');
+const expected = {version:1,html_sha256:'current',pages:[{id:'p01',checks:{background:'pending',pdf:'pending'}}]};
+assert.equal(assessReview(expected).status, 'pending');
+const complete = {version:1,html_sha256:'current',pages:[{id:'p01',checks:{background:'passed',pdf:'passed'},observation:'已核对图与纸色，并查看导出页。'}]};
+assert.equal(assessReview(expected, complete).status,'passed');
+assert.equal(assessReview(expected, {...complete, html_sha256:'stale'}).status,'invalid');
+assert.equal(assessReview(expected, {...complete, pages:[]}).status,'invalid');
+assert.equal(assessReview(expected, {...complete, pages:[complete.pages[0],complete.pages[0]]}).status,'invalid');
+assert.equal(assessReview(expected, {...complete, pages:[{...complete.pages[0],observation:''}]}).status,'invalid');
+assert.equal(assessReview(expected, {...complete, pages:[{...complete.pages[0],checks:{background:'passed',pdf:'pending'}}]}).status,'pending');
+console.log('PASS visual review: pending, completed, stale, missing, duplicate and unreviewed export');

@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const {pathToFileURL} = require('url');
+const {reviewTemplate, assessReview} = require('./visual_review.cjs');
 
 // Compare page structure in slide coordinates, independent of viewport/print zoom.
 function slideFrames() {
@@ -22,15 +23,16 @@ function matchingFrames(expected, actual) {
 
 async function run() {
   const args = process.argv.slice(2), filename = args.shift();
-  let out, channel, pdf = true;
+  let out, channel, reviewFile, pdf = true;
   while (args.length) {
     const flag = args.shift();
     if (flag === '--out') out = args.shift();
     else if (flag === '--browser') channel = args.shift();
     else if (flag === '--no-pdf') pdf = false;
+    else if (flag === '--visual-review') reviewFile = args.shift();
     else throw new Error(`未知参数：${flag}`);
   }
-  if (!filename || !out) throw new Error('用法：node audit_deck.cjs 演示稿.html --out qa [--browser chrome] [--no-pdf]');
+  if (!filename || !out) throw new Error('用法：node audit_deck.cjs 演示稿.html --out qa [--browser chrome] [--no-pdf] [--visual-review review.json]');
   let chromium;
   try { ({chromium} = require('playwright')); }
   catch { throw new Error('找不到 Playwright。请使用当前环境已有的 Node.js + Playwright，或按用户授权准备依赖。'); }
@@ -143,6 +145,14 @@ async function run() {
         }
         // Brand invariants: the default header/footer/cover/closing conventions, read from the theme tokens so a deck-level theme override still passes.
         const brandIssues=[],warnings=[],restyle=document.body.hasAttribute('data-restyle');
+        for(const group of s.querySelectorAll('.control-group')) {
+          for(const row of group.querySelectorAll('dl>div')) {
+            const label=row.querySelector('dt'),cs=label&&getComputedStyle(label);
+            if(label&&getComputedStyle(row).display==='grid'&&label.getBoundingClientRect().height>parseFloat(cs.lineHeight)*(sr.width/1920)*1.6)warnings.push({type:'control-label-wrapped',text:label.textContent,hint:'检查短标签断行；可用 rows_layout: stacked 或重新分配栏宽'});
+          }
+        }
+        const journey=s.querySelector('.journey'),captionItems=[...s.querySelectorAll('.journey-item')];
+        if(readingMode&&journey&&captionItems.some(el=>el.getBoundingClientRect().width/(sr.width/1920)<240))warnings.push({type:'journey-caption-narrow',hint:'阶段栏宽较窄；核对最长内容，优先调整场景构图及图文占幅，再选择短字段或其他版式'});
         const token=n=>{const h=getComputedStyle(document.documentElement).getPropertyValue(n).trim();const m=/^#([0-9a-f]{6})$/i.exec(h);return m?`rgb(${parseInt(m[1].slice(0,2),16)}, ${parseInt(m[1].slice(2,4),16)}, ${parseInt(m[1].slice(4,6),16)})`:h;};
         const isCover=s.classList.contains('layout-cover'),isClosing=s.classList.contains('layout-closing'),main=s.querySelector('main');
         if(!restyle){
@@ -348,11 +358,19 @@ async function run() {
     report.restyle = report.pages.some(p=>p.brand.restyle);
     report.brandOK = report.pages.every(p=>p.brand.ok);
     report.warnings = report.pages.flatMap(p=>p.warnings.map(w=>({page:p.page,...w})));
-    report.visualReview = 'required: actual scene size, semantics, background fusion and label-to-model alignment require inspecting every page';
     report.ok = report.technicalOK && report.designContractOK && report.brandOK;
+    report.automatedOK = report.ok; // Preserve the existing meaning of ok for callers.
+    const template = reviewTemplate(path.resolve(filename), report.pages, pdf);
+    fs.writeFileSync(path.join(out, 'visual-review.template.json'), JSON.stringify(template,null,2)+'\n');
+    let supplied;
+    try {
+      if (reviewFile) supplied = JSON.parse(fs.readFileSync(path.resolve(reviewFile),'utf8'));
+      report.visualReview = assessReview(template, supplied);
+    } catch(e) {report.visualReview = {status:'invalid',issues:[e.message],pending:[]};}
+    report.readyForDelivery = report.automatedOK && report.visualReview.status === 'passed';
     fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-    console.log(JSON.stringify({ok:report.ok,style:report.style,technicalOK:report.technicalOK,designContractOK:report.designContractOK,brandOK:report.brandOK,restyle:report.restyle,pages:count,layoutIssues:report.pages.reduce((sum,p)=>sum+p.issues.length,0),designIssues:report.pages.reduce((sum,p)=>sum+p.design.issues.length,0),brandIssues:report.pages.reduce((sum,p)=>sum+p.brand.issues.length,0),warnings:report.warnings.length,functions:f,report:path.join(out,'report.json')},null,2));
-    if (!report.ok) process.exitCode=1;
+    console.log(JSON.stringify({ok:report.ok,automatedOK:report.automatedOK,visualReview:report.visualReview.status,readyForDelivery:report.readyForDelivery,style:report.style,technicalOK:report.technicalOK,designContractOK:report.designContractOK,brandOK:report.brandOK,restyle:report.restyle,pages:count,layoutIssues:report.pages.reduce((sum,p)=>sum+p.issues.length,0),designIssues:report.pages.reduce((sum,p)=>sum+p.design.issues.length,0),brandIssues:report.pages.reduce((sum,p)=>sum+p.brand.issues.length,0),warnings:report.warnings.length,functions:f,report:path.join(out,'report.json')},null,2));
+    if (!report.ok || (reviewFile && report.visualReview.status !== 'passed')) process.exitCode=1;
   } finally {await browser.close();}
 }
 run().catch(e => {console.error('检查失败：'+e.message);process.exitCode=1;});

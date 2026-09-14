@@ -84,6 +84,25 @@ def _load(path, source, allow_draft=False):
     return pack
 
 
+def paper_color(deck, pack=None):
+    """Resolve paper using the same base → style → deck override order as the builder."""
+    from common import ASSETS
+    pack = pack or resolve_style(deck)
+    result = None
+    for css in [ASSETS / 'theme.css', pack.get('css')]:
+        if css:
+            source = re.sub(r'/\*.*?\*/', '', css.read_text(encoding='utf-8'), flags=re.S)
+            colors = re.findall(r'--paper\s*:\s*(#[0-9a-fA-F]{6})\b', source)
+            if colors: result = colors[-1]
+    theme = deck.get('theme', {})
+    if not isinstance(theme, dict):
+        raise ValueError('theme 须为对象')
+    result = theme.get('paper', result)
+    if not isinstance(result, str) or not re.fullmatch(r'#[0-9a-fA-F]{6}', result):
+        raise ValueError('无法解析当前主题纸色；theme.paper 须为 #RRGGBB')
+    return result.upper()
+
+
 def discover_styles(include_drafts=False):
     found, errors = _scan()
     styles = []

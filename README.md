@@ -289,14 +289,14 @@ node skills/white-blue-slides/scripts/audit_deck.cjs project/presentation.html \
   --out project/qa --browser chrome
 ```
 
-Automated checks cover structure, image/content regions, visible components, and player behavior. Visual review must also verify complete image subjects, accurate image/text relationships, and sufficient context for independent readers.
+Automated checks cover structure, image/content regions, visible components, and player behavior (including the PPTX export). Visual review must also verify complete image subjects, accurate image/text relationships, and sufficient context for independent readers. The auditor writes `visual-review.template.json`; after inspecting every page, fill in the review record and pass it back with `--visual-review qa/visual-review.json`. `readyForDelivery` in the report requires both the automated checks and the review record to pass; without a record the exit code is unchanged.
 
 <details>
 <summary><strong>Build options and all 13 shared layouts</strong></summary>
 
 | Tool or option | Purpose |
 |---|---|
-| `match_paper.py project/images/*.png --paper '#F7F6F2'` | Match image backgrounds to the chosen theme's paper color, keeping backups. |
+| `match_paper.py project/images/*.png --deck project/deck.json --dry-run` | Diagnose background color and alpha against the active theme; permitted local correction handles mild differences and keeps backups. |
 | `--embed-format keep` | Keep the original image format instead of the default WebP preference. |
 | `--embed-quality 85` | Set image compression quality. |
 | `--builder` | Load project-specific layouts that reuse shared components. |
@@ -312,6 +312,8 @@ Selecting a supplied style does not require `--allow-restyle`.
 | `journey` | Stages, comparisons, or paths | `formula` | Formulas and relationships between factors |
 | `table` | Tables and boundary comparisons | `relations` | Entities and connections |
 | `closing` | An illustrated closing slide | `reading` | The four composite reading layouts |
+
+Structured fields (see `references/deck-format.md`): `flow` control groups accept `rows_layout` (auto / inline / stacked), a row `kind` (detail / check / exception) and, in reading mode, `align_control_rows` for shared row heights; `architecture` labels accept `prefix`, `detail`, a `leader` line and a flow `direction`; `journey` stages accept a `period` tag and a `fields` group, and the bottom band accepts `bottom.type: groups`; image ratios add `2:1 / 21:9 / 3:1`, and `image.background_mode: white-matte` maps confirmed pure-white assets onto the current paper color consistently in HTML, PDF and PPTX.
 
 </details>
 

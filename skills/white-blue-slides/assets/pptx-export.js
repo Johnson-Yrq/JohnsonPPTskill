@@ -191,14 +191,17 @@
   async pictureFromImg(el,st,paper){
    const src=el.currentSrc||el.src||'',fade=num(st.getPropertyValue('--image-fade'));
    const masked=fade>0&&((st.maskImage||st.webkitMaskImage||'none')!=='none');
-   const key=src+'|'+(masked?fade:0);
+   const filter=st.filter&&st.filter!=='none'?st.filter:'';
+   const key=src+'|'+(masked?fade:0)+'|'+filter+'|'+paper;
    if(this.media.has(key))return this.media.get(key);
    const m=DATA_URL.exec(src);
-   if(m&&!masked&&(m[1]==='image/png'||m[1]==='image/jpeg'))return this.addMedia(key,m[1],b64(m[2]));
+   if(m&&!masked&&!filter&&(m[1]==='image/png'||m[1]==='image/jpeg'))return this.addMedia(key,m[1],b64(m[2]));
    const nw=el.naturalWidth,nh=el.naturalHeight;if(!nw||!nh)return null;
    const k=Math.min(1,2048/Math.max(nw,nh)),w=Math.max(1,Math.round(nw*k)),h=Math.max(1,Math.round(nh*k));
    const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');
+   if(filter)ctx.filter=filter;
    ctx.drawImage(el,0,0,w,h);
+   ctx.filter='none';
    if(masked){
     ctx.globalCompositeOperation='destination-in';
     for(const vertical of [false,true]){

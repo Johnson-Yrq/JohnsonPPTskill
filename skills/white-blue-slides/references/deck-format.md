@@ -94,7 +94,9 @@ class Builder(Base):
 }
 ```
 
-`src / alt` 必填。缺图时 `brief.subject/action/structure/details` 必填且每页各自成文（见 image-workflow 的字段表），用于输出完整提示词；模板句、跨页复制、subject 与 structure 相同都会被导出脚本拒绝。`ratio` 普通页默认 `4:3`，reading、journey 或显式 image_position: above 默认 `16:9`；可选 `1:1 / 4:3 / 3:2 / 16:9 / 3:4`。`zoom` 0.5–2.5，偏移单位为画布像素；先查看配图再调整，裁去空白时保留主要对象。`edge_fade` 默认 0.04，可在 0–0.12 内微调，仅用于轻微边缘融合；不能用大幅淡出掩盖底色错误，不全局使用 multiply。
+`src / alt` 必填。缺图时 `brief.subject/action/structure/details` 必填且每页各自成文（见 image-workflow 的字段表），用于输出完整提示词；模板句、跨页复制、subject 与 structure 相同都会被导出脚本拒绝。`ratio` 普通页默认 `4:3`，reading、journey 或显式 image_position: above 默认 `16:9`；可选 `1:1 / 4:3 / 3:2 / 16:9 / 3:4 / 2:1 / 21:9 / 3:1`。横向多阶段可选择全景比例；先看最长标题和必要说明的占幅，再确定图框与生图构图，默认 16:9 不是每页的推荐值。比例指导供图，不会拉伸已有图片。`zoom` 0.5–2.5，偏移单位为画布像素；先查看配图再调整，裁去空白时保留主要对象。`edge_fade` 默认 0.04，可在 0–0.12 内微调，仅用于轻微边缘融合；不能用大幅淡出掩盖底色错误，不全局使用 multiply。
+
+`image.background_mode` 默认 `native`，保留素材。仅复用已有、已查看并确认均匀纯白底的素材时，可选 `white-matte`：构建器按当前主题纸色内嵌 sRGB 映射，保留原素材和透明通道，HTML、PDF 与 PPTX 图片导出使用相同映射。新生成／重绘图片直接使用当前纸色，不为使用此选项而先生成白底；换入同纸色新图后，将 background_mode 恢复为 native，避免二次映射。它会轻微调整主体颜色，须核对材质与阴影；不能用它消除灰色渐变或伪透明棋盘格。`prepare_images.py` 清单记录当前 `paper`；`match_paper.py 图片 --deck deck.json --dry-run` 可诊断轻微背景偏差和实际透明通道。
 
 说明项常用 `{ "title": "…", "text": "…", "icon": "ShieldCheck", "presentation": "open" }`。有语义的分组标题默认选择内置图标；不适用时用 `icon_omit_reason` 说明具体原因，不能为通过检查填写空泛豁免。
 
@@ -129,7 +131,7 @@ class Builder(Base):
 
 可自动核对的 `feature`：`icons/panels/tags/states/architecture_labels/steps/relations/visual_blocks/tables/layers`。每项 `min` 默认 1，可附 `texts` 数组，检查指定短词确实出现在对应组件里；`source` 保留原句或用户确认要求。深浅分组、场景与对象对应、基线等用 `manual + text + source`，并逐页看图核对。计划检查独立于渲染器，运行时继续检查真实可见的元素，缺图标、透明底板或遗漏状态均不能以功能通过代替。
 
-`journey` 自动启用上图下文面积检查；自定义相同结构时写 `visual.image_position: "above"`，并把文字行标记为 `data-captions`。阈值只定义在 `design_contract.py` 的 `IMAGE_BALANCE`（当前：图框高 ≥460px、占 main 高度 ≥60%、配图贴满图框的宽或高 ≥95%、下方文字行高 ≤220px），`--check-plan` 报告与审查器读取同一组数字，其他文档不另抄。图框约 2.7:1，16:9 的图按高度贴满后两侧留白是正常的；主体是否横向占到图框八成无法自动判断，仍须看图确认，不用裁掉主体换取铺满。
+`journey` 自动启用上图下文面积检查；自定义相同结构时写 `visual.image_position: "above"`，并把文字行标记为 `data-captions`。阈值只定义在 `design_contract.py` 的 `IMAGE_BALANCE`（当前：图框高 ≥460px、占 main 高度 ≥60%、配图贴满图框的宽或高 ≥95%、下方文字行高 ≤220px），`--check-plan` 报告与审查器读取同一组数字，其他文档不另抄。图框宽高比随文字区变化；填满高度只说明图片元素足够大，不说明场景主体和整页占幅合理。阶段栏窄时审查器提供提示，仍须看整页确认场景、文字与留白的关系，不用裁掉主体换取铺满。
 
 ## 版式与容量
 
@@ -168,7 +170,18 @@ class Builder(Base):
 
 上方图片优先，文字通常 1–2 行；6–7 列使用短标题和一句行动。状态不是普通正文，也不要统一挪到页底。下方说明过高时先缩减重复词；演讲型可把讲解细节放讲稿，阅读型的必要细节改用 `reading` 或另起解释页；不靠缩小图片或字号解决。需要对应场景位置时调整列宽或图像位置，不能图中对象集中在中央、七列却铺满全页。
 
-`content_width` 可设 900–1760（默认 1760）；`caption_width` 可设 900 到 content_width，默认相同。主体横向不够展开时适度收窄整个内容区，并把文字列宽对准场景本体，再调整缩放；不能只把文字行做满宽。是否够大仍依据整页截图判断。
+`content_width` 可设 900–1760（默认 1760）；`caption_width` 可设 900 到 content_width，默认相同。主体集中而文字拥挤时，优先重构为与列数相配的横向场景，或改用其他版式。只有图文都较少、收窄后仍清晰时才收窄内容区；不能靠一起缩小图文来通过面积检查。按真实对象调整列与场景对位，不强制所有阶段页使用全景或满宽。
+
+阶段可用 `period` 表示时间，采用与状态同排的可编辑标签；原 `state/states` 保留。需要独立阅读时，用 `fields` 替代 `text/deliverable`，两套正文字段不能混用，以免静默丢失内容：
+
+```json
+{"title":"范围确认","icon":"Map","period":"M1—M2","fields":[
+  {"label":"交付","text":"对象与责任清单"},
+  {"label":"准入","text":"负责人确认范围"}
+]}
+```
+
+`fields` 1–3 项；字段标签使用原始语义，准入条件、验收条件和完成条件不可混称。页底并行依赖可用 `bottom: {"type":"groups","items":[{"label":"数据线","text":"主数据映射、接口联调"},{"label":"规则线","text":"说明、回测、批准"}]}`，支持 1–4 组。避免把多条依赖拼成一整行粗体文字。
 
 ### split / triad：左右说明与三段控制
 
@@ -202,11 +215,26 @@ class Builder(Base):
 ]
 ```
 
-`labels` 至少一项，每项必填 `text/x/y/w/h`，整体必须在画板内。可选 `kind` 为 `layer/module/source/governance/flow`，`align` 为 `left/center/right`，`color` 为六位颜色，`font_size` 21–40。此处坐标只是字段示例，不能作为架构图的预设标注位置。
+`labels` 至少一项，每项必填 `text/x/y/w/h`，整体必须在画板内。可选 `kind` 为 `layer/module/source/governance/flow`，`align` 为 `left/center/right`，`color` 为六位颜色，`font_size` 21–40。层级默认 28px，其余默认 24px。可选 `prefix`（如层级编号）、`detail`（次级说明）、`leader: "none/right/down"`（短引线）；流向类另支持 `direction: "none/up/down/left/right"`。这些文字各自可编辑，无需拆字符串或注入 HTML。
+
+层级编号与名称形成第一层，模块名称为第二层，治理与方向说明形成独立语义层。强调使用字阶、字重、有限配色与细引线，保留无底板；按最终图片位置预留标注空间，引线不穿过无关模块。新增 prefix/detail 后重新分配标注框，不能保持原来的单行高度。此处坐标只是字段示例，不能作为架构图的预设标注位置。
 
 ### flow：步骤与控制点
 
 演讲型 `steps` 3–5 项（阅读型 3–6 项），含 `title`，可选 `text/icon`，序号自动生成。`groups` 演讲型 2–3 项（阅读型 2–4 项），含 `title/icon/presentation` 和 `rows`；每组演讲型 1–3 行（阅读型 1–4 行）`{ "label":"规则闸门", "text":"先校验，再执行" }`。顶部步骤短而清楚；底部左侧大图、右侧少量控制分组。
+
+并排分组中各行语义对应时，可在页面设 `align_control_rows: true`，按同排最长内容共享行高，此时 auto 使用标签在上的排列；需要同行可显式选 inline。不要给各行写死像素高度。
+
+每组可选 `rows_layout: "auto/inline/stacked"`；默认 auto 在窄栏内将标签置于说明上方，宽栏保持同行，inline 保留原同行形式。长标签、较长条件或不同长度的说明优先 stacked。每行可选 `kind: "detail/check/exception"`：check 用分隔线归组，exception 用轻标签强调异常名称。先呈现校验要求，再呈现异常处置；同级内容对齐，避免固定行高造成空洞。
+
+```json
+{"title":"分析前控制","icon":"Filter","rows_layout":"stacked","rows":[
+  {"kind":"check","label":"校验要求","text":"接入：来源与时间\n匹配：唯一标识\n分析：固定规则版本"},
+  {"kind":"exception","label":"缺数据","text":"补证后重新校验。"}
+]}
+```
+
+短标签被拆行、说明挤成多行时，先改行内结构或分配栏宽；必要事实继续留在页面。以上字段是可选表达能力，不要求所有控制页采用相同分组数量。
 
 ### domains：多领域清单
 

@@ -14,7 +14,7 @@
 - 卡片承担真实分组；标签标识字段、因子或阶段；普通说明有蓝色标题和横向细线。
 - 圆角约 8px 以内，没有左侧彩色竖条；图标、页头页脚一致。
 - 对照原始大纲逐条检查图标、等宽信息块、状态、关系与深浅分组；状态位于相应步骤上方，不可被普通正文替代。
-- 图片边缘与纸色融合，无整体变暗或变亮的矩形底（图片应先经 `match_paper.py` 贴平背景）；模型、文字与图标不因全局混合样式失真。
+- 图片边缘与纸色融合，无整体变暗或变亮的矩形底（先用 `match_paper.py --deck deck.json --dry-run` 诊断；明显偏差用生图工具修正）；模型、文字与图标不因全局混合样式失真。
 - 封面、尾页、页头、页脚与默认形态一致（见 design-system「固定不变的部分」）；配图是有密度的建筑模型场景，不是空平台加几个大人偶。
 
 逐页记录实际观察，例如“第 3 页五个不同图标与五块浅底均可见，图中五个场景对应五列；第 5 页模块与三层结构逐项对应，无文字底板；第 21 页七步完整，四状态处于对应列上方”。记录页码、设计要求、观察结果和已修正问题，不用逐页复制“无溢出、通过”代替判断。自动检查之外的 `manualReview` 每项都要实际看图后处理。
@@ -36,10 +36,26 @@
 
 先运行 `build_deck.py --check-plan`：检查每页设计理由、图标选择、明确视觉要求和架构标注，并对每页做一次不落盘的结构干跑（项数范围、字段类型、坐标是否在画板内、Logo 是否存在），报告里以“结构：”开头；表格页另按列宽与折行估算高度，明显放不下即报错，阅读页按 composition 核对模块数量。它不需要图片，不根据 HTML 倒推预期。
 
-`audit_deck.cjs` 使用独立本地无头浏览器，不读取用户浏览器会话；`brandOK` 按主题变量逐页核对纸底、标题层级、章节标签底、页码、页脚 Logo 与封面左文右图，`warnings` 里的 `image-area-small` 与 `cover-without-labels` 不阻断但要处理或说明；没有 Playwright 自带的 Chromium 时加 `--browser chrome` 用本机 Chrome，`--no-pdf` 跳过打印验证（但要用其它方式确认打印）。输出逐页截图、可选联系表、报告和内部打印 PDF。`technicalOK` 检查文字越界/重叠、缺图、外部依赖与功能；`designContractOK` 独立核对计划与实际可见的 SVG、底板、标签、状态、架构标注、步骤与关系，并以 `image-area-too-small` 检查上图下文的图框高度、占比、配图填充与说明行高。隐藏图标、透明底板、缺失契约或遗漏明确文本均返回非零。`ok` 仅表示这两类自动检查通过；仍需实际视觉审阅，不能声称审美与图文对位已由程序验证。 阅读型页面另核对 `reading-composition-mismatch`（分区比例与位置）、`reading-image-underfilled`（配图相对图区过小）、`reading-block-overflow`（模块内容超出分区高度）、`reading-heading-not-top`（模块标题贴分区上沿）与 `reading-region-not-centered`（标题下内容、配图与说明在分区内上下留白相等），以及 `chart-label-clipped`（图表标签出界）。
+`audit_deck.cjs` 使用独立本地无头浏览器，不读取用户浏览器会话；`brandOK` 按主题变量逐页核对纸底、标题层级、章节标签底、页码、页脚 Logo 与封面左文右图，`warnings` 里的 `image-area-small` 与 `cover-without-labels` 不阻断但要处理或说明；没有 Playwright 自带的 Chromium 时加 `--browser chrome` 用本机 Chrome，`--no-pdf` 跳过打印验证（但要用其它方式确认打印）。输出逐页截图、可选联系表、报告和内部打印 PDF。`technicalOK` 检查文字越界/重叠、缺图、外部依赖与功能；`designContractOK` 独立核对计划与实际可见的 SVG、底板、标签、状态、架构标注、步骤与关系，并以 `image-area-too-small` 检查上图下文的图框高度、占比、配图填充与说明行高。隐藏图标、透明底板、缺失契约或遗漏明确文本均返回非零。`ok` 保持原兼容含义，等同于 `automatedOK`，仅表示自动检查通过；仍需实际视觉审阅，不能声称审美与图文对位已由程序验证。 阅读型页面另核对 `reading-composition-mismatch`（分区比例与位置）、`reading-image-underfilled`（配图相对图区过小）、`reading-block-overflow`（模块内容超出分区高度）、`reading-heading-not-top`（模块标题贴分区上沿）与 `reading-region-not-centered`（标题下内容、配图与说明在分区内上下留白相等），以及 `chart-label-clipped`（图表标签出界）。
 
 架构图文叠放正常，检查器不把所有图文相交都判错。图中对象遮挡、语义和对位必须实际看图。首次失败先辨别依赖、权限或真实布局错误，不反复跑同一失败命令；改用当前环境允许的等价验证。部分检查就如实说范围，不称全部通过。
 
 修改过 Skill 自身的脚本或资源后，先跑 `python3 <skill>/scripts/selftest.py`（不需要浏览器），再用一份真实项目跑一遍审查器。播放器修改还须比较总览、全屏、全屏编辑与打印后的结构；审查器以 `overviewLayout / fullscreenFit / fullscreenEditFit / printLayout / printSize / printReturnLayout` 记录结果。PDF 检查与独立导出共用 `export_pdf.cjs`（需要 pdf-lib），逐页核对尺寸和页数，并设置单页适配观看偏好。
 
 最终链接成稿 HTML；可附预览。中间图片、JSON 和报告不是用户必须携带的依赖。
+
+## 复核记录
+
+审查器输出 `visual-review.template.json`。逐页查看截图，以及已要求导出的实际 PDF 页面后，复制为 `visual-review.json` 并填写每页 `checks`：背景 `background`、信息层次 `hierarchy`、整体占幅 `composition`、图文对应 `alignment`；生成 PDF 时还包含 `pdf`。值为 `passed / needs_changes / pending`，`observation` 写该页具体观察或修正，不能批量把未看过的页面标为通过。模板不代表复核结果。
+
+```sh
+node <shared>/scripts/audit_deck.cjs <project>/演示稿.html --out <project>/qa --browser chrome --visual-review <project>/qa/visual-review.json
+```
+
+`automatedOK` 表示程序检查，`visualReview.status` 表示记录状态，`readyForDelivery` 需要两者通过。无复核记录时保持 pending，普通自动检查命令仍返回原有退出码；显式传入未完成、失效或缺页的复核记录则返回非零。记录绑定当前 HTML 的 SHA-256，改稿后需重新审阅受影响页面、核对其他页面未受影响，再更新指纹及观察。记录只能证明制作方填写了观察，不证明程序理解了美感。
+
+对控制区核对长标签断行、校验与异常的层次；对架构核对编号／模块／治理／流向的差异和真实位置；对阶段页核对场景本体与整页占幅。`control-label-wrapped`、`journey-caption-narrow` 是需要处理或解释的提示，不是固定审美阈值。
+
+维护版式时至少复用这三类代表案例，并补一个不同阶段数的阶段页；测试字号、可编辑内容、错误输入和导出，不把特定页码、四阶段或固定行高固化为通用规则。
+
+新增组件可用 `node <shared>/scripts/test_visual_review.cjs` 验证复核状态；用 `node <shared>/scripts/test_browser_refinements.cjs 验证稿.html` 检查真实浏览器中的共享行高、窄／宽栏切换、可编辑字段和 PPTX 使用的纸色映射。验证稿包含启用 align_control_rows 的并排 flow、含 prefix/detail 的 architecture，以及含 period/fields 的 journey；旧白底兼容路径测试使用已确认纯白底的现有素材。

@@ -275,6 +275,8 @@ def run():
     check('automatic style discovery', run_discovery_tests() == 0)
     from test_styles import run as run_style_tests
     check('independent style regressions', run_style_tests() == 0)
+    from test_refinements import run as run_refinement_tests
+    check('reading layout refinements', run_refinement_tests() == 0)
     print(f'\n{"FAILED" if FAILURES else "OK"}: {len(FAILURES)} failure(s)')
     return 1 if FAILURES else 0
 

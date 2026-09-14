@@ -2,7 +2,7 @@
 name: white-blue-slides
 description: 在用户选择素白蓝调风格或续做该风格项目时，根据PPT大纲制作可编辑、可离线单文件HTML演示稿，采用暖白纸底、明亮主蓝与白色哑光模型配图。与其他风格共用制作、排版与检查套件；未选择风格的通用请求先经 ppt-workbench 确认。明确要求PPTX时不能以HTML替代。
 metadata:
-  version: "3.2.0"
+  version: "3.3.0"
 ---
 
 # 场景化 HTML 演示稿

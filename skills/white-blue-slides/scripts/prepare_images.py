@@ -4,10 +4,10 @@ import argparse
 import json
 import shutil
 from pathlib import Path
-from common import load_deck, local_path, read_raster, presentation_mode, slide_images
-from style_packs import resolve_style, ui_text_prompt
+from common import load_deck, local_path, read_raster, presentation_mode, slide_images, IMAGE_RATIOS
+from style_packs import resolve_style, ui_text_prompt, paper_color
 
-RATIOS = {'1:1', '4:3', '3:2', '16:9', '3:4'}
+RATIOS = IMAGE_RATIOS
 FIELDS = [('subject', 'Scene inventory 场景对象与数量'), ('action', 'Action 用户操作或系统处理'),
           ('structure', 'Mechanism 表达关系的物理机制'), ('details', 'Details 层级、房间、设备与文件细节'),
           ('composition', 'Composition 构图与视角')]
@@ -44,6 +44,7 @@ def build_prompt(style, ratio, slide, visual, brief, upper, pack=None, mode='spe
     hint = ''
     if upper:
         hint = pack['layout_hints'].get('above', '')
+        hint += '\nUse the requested aspect ratio and distribute the actual subject across the composition, aligned with the caption columns. If a panoramic frame is requested, compose a shallow wide scene; do not stretch the objects or simulate width with empty side margins.'
     elif slide['layout'] == 'architecture' or visual.get('role') == 'architecture':
         hint = pack['layout_hints'].get('architecture', '')
     if mode == 'reading' and slide['layout'] == 'reading':
@@ -59,7 +60,8 @@ def prepare(filename, out):
     reference = pack.get('image_reference')
     reference_name = 'style-reference' + reference.suffix if reference else None
     mode = presentation_mode(deck)
-    manifest = {'version': 1, 'title': deck['title'], 'presentation_mode': mode, 'style': pack['id'], 'style_reference': reference_name, 'images': []}
+    paper = paper_color(deck, pack)
+    manifest = {'version': 1, 'title': deck['title'], 'presentation_mode': mode, 'style': pack['id'], 'paper': paper, 'style_reference': reference_name, 'images': []}
     text_note = ('屏幕内文字按每页 ui_text 策略生成，页面标题与业务说明在 HTML 中制作。' if pack['ui_text_modes'] != ['none']
                  else '配图不含文字，页面文字将在 HTML 中制作。')
     blocks = [f'# {deck["title"]} · 逐页配图提示词',
@@ -85,8 +87,10 @@ def prepare(filename, out):
             prompt = None
             if isinstance(brief, dict) and isinstance(brief.get('subject'), str) and brief['subject'].strip():
                 prompt = build_prompt(style, ratio, dict(slide, image=im), visual, brief, upper, pack, mode)
+                rgb = tuple(int(paper[j:j+2], 16) for j in (1, 3, 5))
+                prompt += f'\nRequired background for BOTH new generation and image edits: {paper}, RGB {rgb}. Generate directly on this exact flat page colour across all exposed margins and gaps between objects. Preserve local contact shadows; do not add a contrasting rectangular studio backdrop or vignette. Do not substitute a white intermediate matte, another neutral grey, or a painted transparency checkerboard. This target overrides any different background in the reference or source image. Inspect the actual output against the page before accepting it.'
             entry = {'page': i, 'image_index': image_index, 'slide_id': slide['id'], 'title': slide['title'], 'file': im['src'],
-                     'ratio': ratio, 'ui_text': im.get('ui_text', pack['default_ui_text']), 'alt': im['alt'], 'status': 'provided' if exists else 'missing', 'prompt': prompt}
+                     'ratio': ratio, 'paper': paper, 'ui_text': im.get('ui_text', pack['default_ui_text']), 'alt': im['alt'], 'status': 'provided' if exists else 'missing', 'prompt': prompt}
             manifest['images'].append(entry)
             blocks.append(f'## 第 {i:02d} 页 · 配图 {image_index} · {slide["title"]}\n\n文件名：`{im["src"]}`\n\n比例：{ratio}；状态：' + ('已提供' if exists else '待生成'))
             blocks.append('```text\n' + prompt + '\n```' if prompt else '使用已提供的配图。')
