@@ -27,7 +27,7 @@
 - 修改文字后另存，再打开新文件，文字与图片都在。
 - 全屏在 16:9 屏幕上占满可用画面；其他比例完整等比居中。进入编辑后工具栏不遮挡页面。
 - 总览与打印中，非当前页的页头、主体、页脚布局与逐页观看一致，不能因缺少 active 状态而挤成横向排布。
-- 打印一页一张 16:9，PDF 每页为 960 × 540 pt，无额外空白页；导出后文字可提取、图表和底色完整。
+- 用户要 PDF 时才导出并检查：一页一张 16:9，每页 960 × 540 pt，无额外空白页；导出后文字可提取、图表和底色完整。制作过程中不预先验证 PDF。
 - 区分 HTML 播放器与 Chrome PDF 阅读器的全屏。PDF 打开偏好不能保证阅读器隐藏相邻页；若使用 `pdf_to_slides.py` 演示副本，逐页核对 SVG 转换的字体轮廓、图片、透明度及页数，并在实际全屏和不同屏幕比例下检查无相邻页露出、内容不裁切、翻页和退出正常。
 - 导出 PPTX 得到可打开的文件（审查器 `pptxExport`）；交付 PPTX 时在 PowerPoint 中逐页对照 HTML：文本框不多折行、面板与横线位置一致、图片裁切正确、图表类别顺序与数值一致、备注含讲稿。
 - 没有缺图占位、草稿标识、空联系人、假二维码或未完成文本。
@@ -36,17 +36,17 @@
 
 先运行 `build_deck.py --check-plan`：检查每页设计理由、图标选择、明确视觉要求和架构标注，并对每页做一次不落盘的结构干跑（项数范围、字段类型、坐标是否在画板内、Logo 是否存在），报告里以“结构：”开头；表格页另按列宽与折行估算高度，明显放不下即报错，阅读页按 composition 核对模块数量。它不需要图片，不根据 HTML 倒推预期。
 
-`audit_deck.cjs` 使用独立本地无头浏览器，不读取用户浏览器会话；`brandOK` 按主题变量逐页核对纸底、标题层级、章节标签底、页码、页脚 Logo 与封面左文右图，`warnings` 里的 `image-area-small` 与 `cover-without-labels` 不阻断但要处理或说明；没有 Playwright 自带的 Chromium 时加 `--browser chrome` 用本机 Chrome，`--no-pdf` 跳过打印验证（但要用其它方式确认打印）。输出逐页截图、可选联系表、报告和内部打印 PDF。`technicalOK` 检查文字越界/重叠、缺图、外部依赖与功能；`designContractOK` 独立核对计划与实际可见的 SVG、底板、标签、状态、架构标注、步骤与关系，并以 `image-area-too-small` 检查上图下文的图框高度、占比、配图填充与说明行高。隐藏图标、透明底板、缺失契约或遗漏明确文本均返回非零。`ok` 保持原兼容含义，等同于 `automatedOK`，仅表示自动检查通过；仍需实际视觉审阅，不能声称审美与图文对位已由程序验证。 阅读型页面另核对 `reading-composition-mismatch`（分区比例与位置）、`reading-image-underfilled`（配图相对图区过小）、`reading-block-overflow`（模块内容超出分区高度）、`reading-heading-not-top`（模块标题贴分区上沿）与 `reading-region-not-centered`（标题下内容、配图与说明在分区内上下留白相等），以及 `chart-label-clipped`（图表标签出界）。
+`audit_deck.cjs` 使用独立本地无头浏览器，不读取用户浏览器会话；`brandOK` 按主题变量逐页核对纸底、标题层级、章节标签底、页码、页脚 Logo 与封面左文右图，`warnings` 里的 `image-area-small` 与 `cover-without-labels` 不阻断但要处理或说明；没有 Playwright 自带的 Chromium 时加 `--browser chrome` 用本机 Chrome，默认不做打印验证；PDF 的页数与纸张尺寸在真正导出时由 `export_pdf.cjs` 核对，需要在审查阶段一并检查打印结构时加 `--pdf`。输出逐页截图、可选联系表和报告。`technicalOK` 检查文字越界/重叠、缺图、外部依赖与功能；`designContractOK` 独立核对计划与实际可见的 SVG、底板、标签、状态、架构标注、步骤与关系，并以 `image-area-too-small` 检查上图下文的图框高度、占比、配图填充与说明行高。隐藏图标、透明底板、缺失契约或遗漏明确文本均返回非零。`ok` 保持原兼容含义，等同于 `automatedOK`，仅表示自动检查通过；仍需实际视觉审阅，不能声称审美与图文对位已由程序验证。 阅读型页面另核对 `reading-composition-mismatch`（分区比例与位置）、`reading-image-underfilled`（配图相对图区过小）、`reading-block-overflow`（模块内容超出分区高度）、`reading-heading-not-top`（模块标题贴分区上沿）与 `reading-region-not-centered`（标题下内容、配图与说明在分区内上下留白相等），以及 `chart-label-clipped`（图表标签出界）。
 
 架构图文叠放正常，检查器不把所有图文相交都判错。图中对象遮挡、语义和对位必须实际看图。首次失败先辨别依赖、权限或真实布局错误，不反复跑同一失败命令；改用当前环境允许的等价验证。部分检查就如实说范围，不称全部通过。
 
-修改过 Skill 自身的脚本或资源后，先跑 `python3 <skill>/scripts/selftest.py`（不需要浏览器），再用一份真实项目跑一遍审查器。播放器修改还须比较总览、全屏、全屏编辑与打印后的结构；审查器以 `overviewLayout / fullscreenFit / fullscreenEditFit / printLayout / printSize / printReturnLayout` 记录结果。PDF 检查与独立导出共用 `export_pdf.cjs`（需要 pdf-lib），逐页核对尺寸和页数，并设置单页适配观看偏好。
+修改过 Skill 自身的脚本或资源后，先跑 `python3 <skill>/scripts/selftest.py`（不需要浏览器），再用一份真实项目跑一遍审查器。播放器修改还须比较总览、全屏、全屏编辑与打印后的结构；审查器以 `overviewLayout / fullscreenFit / fullscreenEditFit` 记录结果，加 `--pdf` 时另记录 `printLayout / printSize / printReturnLayout`。PDF 页数、尺寸与单页适配观看偏好由 `export_pdf.cjs`（需要 pdf-lib）在导出时核对。
 
 最终链接成稿 HTML；可附预览。中间图片、JSON 和报告不是用户必须携带的依赖。
 
 ## 复核记录
 
-审查器输出 `visual-review.template.json`。逐页查看截图，以及已要求导出的实际 PDF 页面后，复制为 `visual-review.json` 并填写每页 `checks`：背景 `background`、信息层次 `hierarchy`、整体占幅 `composition`、图文对应 `alignment`；生成 PDF 时还包含 `pdf`。值为 `passed / needs_changes / pending`，`observation` 写该页具体观察或修正，不能批量把未看过的页面标为通过。模板不代表复核结果。
+审查器输出 `visual-review.template.json`。逐页查看截图（导出了 PDF 时再看实际 PDF 页面）后，复制为 `visual-review.json` 并填写每页 `checks`：背景 `background`、信息层次 `hierarchy`、整体占幅 `composition`、图文对应 `alignment`；生成 PDF 时还包含 `pdf`。值为 `passed / needs_changes / pending`，`pdf` 项只在带 `--pdf` 审查时出现，`observation` 写该页具体观察或修正，不能批量把未看过的页面标为通过。模板不代表复核结果。
 
 ```sh
 node <shared>/scripts/audit_deck.cjs <project>/演示稿.html --out <project>/qa --browser chrome --visual-review <project>/qa/visual-review.json

@@ -416,7 +416,7 @@ python3 skills/white-blue-slides/scripts/style_packs.py --list --include-drafts
 | 配图底色校准 | NumPy + Pillow |
 | 自动浏览器审查 | Node.js + Playwright + Chrome/Chromium |
 | 命令行导出可编辑 PPTX | Playwright + Chrome/Chromium（工具栏按钮不需要任何依赖） |
-| PDF 导出与自动打印验证 | Playwright + pdf-lib + Chrome/Chromium |
+| PDF 导出（导出时核对页数与尺寸） | Playwright + pdf-lib + Chrome/Chromium |
 | 已有 PDF 转离线演示版 | Python + Poppler（`pdfinfo`、`pdftocairo`） |
 | 可选总览拼图 | Sharp |
 

@@ -418,7 +418,7 @@ See [adding an independent style package](skills/white-blue-slides/references/ad
 | Match illustration backgrounds | NumPy + Pillow |
 | Automated browser inspection | Node.js + Playwright + Chrome/Chromium |
 | Editable PPTX export from the command line | Playwright + Chrome/Chromium (the toolbar button needs nothing) |
-| PDF export and automated print validation | Playwright + pdf-lib + Chrome/Chromium |
+| PDF export (page count and size verified at export time) | Playwright + pdf-lib + Chrome/Chromium |
 | Offline presentation from an existing PDF | Python + Poppler (`pdfinfo`, `pdftocairo`) |
 | Optional overview contact sheet | Sharp |
 

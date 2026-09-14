@@ -23,16 +23,17 @@ function matchingFrames(expected, actual) {
 
 async function run() {
   const args = process.argv.slice(2), filename = args.shift();
-  let out, channel, reviewFile, pdf = true;
+  let out, channel, reviewFile, pdf = false; // PDF geometry is verified by export_pdf.cjs when a PDF is actually exported
   while (args.length) {
     const flag = args.shift();
     if (flag === '--out') out = args.shift();
     else if (flag === '--browser') channel = args.shift();
-    else if (flag === '--no-pdf') pdf = false;
+    else if (flag === '--pdf') pdf = true;
+    else if (flag === '--no-pdf') pdf = false; // kept for older commands; already the default
     else if (flag === '--visual-review') reviewFile = args.shift();
     else throw new Error(`未知参数：${flag}`);
   }
-  if (!filename || !out) throw new Error('用法：node audit_deck.cjs 演示稿.html --out qa [--browser chrome] [--no-pdf] [--visual-review review.json]');
+  if (!filename || !out) throw new Error('用法：node audit_deck.cjs 演示稿.html --out qa [--browser chrome] [--pdf] [--visual-review review.json]');
   let chromium;
   try { ({chromium} = require('playwright')); }
   catch { throw new Error('找不到 Playwright。请使用当前环境已有的 Node.js + Playwright，或按用户授权准备依赖。'); }

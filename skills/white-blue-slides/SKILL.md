@@ -90,7 +90,7 @@ python3 <skill>/scripts/pdf_to_slides.py <project>/演示稿.pdf --out <project>
 python3 <skill>/scripts/selftest.py
 ```
 
-构建器只依赖 Python 标准库，Pillow 仅用于可选的图片压缩，底色校准另需 numpy；内嵌 CSS、JS、Logo、图标和图片，不联网。审查器需要本地 Playwright，PDF 导出与打印验证另需 pdf-lib，联系表可选 Sharp；用环境已有的 Python/Node，不假定安装路径。不能运行审查器时用可用浏览器逐页检查并说明范围，不伪称自动验证通过。
+构建器只依赖 Python 标准库，Pillow 仅用于可选的图片压缩，底色校准另需 numpy；内嵌 CSS、JS、Logo、图标和图片，不联网。审查器需要本地 Playwright，PDF 导出（导出时一并核对页数与尺寸）另需 pdf-lib，联系表可选 Sharp；用环境已有的 Python/Node，不假定安装路径。不能运行审查器时用可用浏览器逐页检查并说明范围，不伪称自动验证通过。
 
 画布保持 1920 × 1080。全屏按实际可用区域完整等比适配；编辑模式为工具栏留出空间。PDF 使用 PowerPoint 宽屏纸张 960 × 540 pt（13⅓ × 7.5 英寸），所有页保持与单页观看相同的纵向布局。播放器“导出 PDF / 打印”打开浏览器打印窗口；需要稳定纸张尺寸与单页适配偏好时用 `export_pdf.cjs`。阅读器可能忽略 PDF 观看偏好，此时选择“适合页面”；非 16:9 屏幕保留边带。旧 HTML 内嵌旧播放器，不会随 Skill 更新自动变化；从源项目重建，浏览器编辑过的旧稿须先保留另存副本，避免覆盖修改。
 
@@ -108,4 +108,4 @@ python3 <skill>/scripts/selftest.py
 - 旧项目使用新版构建前，按原大纲补齐每页 visual 与必要组件；自定义标题改用共享 heading。不能为通过新检查随意补卡片、填写空泛豁免或删除大纲要求。
 - "恢复原始样式"仅作用于指定范围。无框区域恢复标题、横向细线与间距；已选信息块与明确保留项不随之消失。
 - 人工供图中途停止时保留清单与缺图状态；收齐后继续，不要求重新描述已有大纲。
-- 输出为单文件 HTML 时，不主动追加 PPTX、PDF、视频或部署任务；打印 PDF 可作内部验证。用户明确要 PPTX 时用导出器生成并在 PowerPoint 中核对，不以 HTML 替代。
+- 输出为单文件 HTML 时，不主动追加 PPTX、PDF、视频或部署任务；制作过程中不预先验证 PDF，用户要 PDF 时导出并核对。用户明确要 PPTX 时用导出器生成并在 PowerPoint 中核对，不以 HTML 替代。
