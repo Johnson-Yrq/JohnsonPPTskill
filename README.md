@@ -16,7 +16,7 @@
   <a href="#build-and-check">Build &amp; check</a>
 </p>
 
-<p><code>Codex / Claude Code</code> &nbsp; <code>Toolkit v3.1.1</code> &nbsp; <a href="LICENSE">MIT License</a></p>
+<p><code>Codex / Claude Code</code> &nbsp; <code>Toolkit v3.1.2</code> &nbsp; <a href="LICENSE">MIT License</a></p>
 
 </div>
 
@@ -317,7 +317,37 @@ Selecting a supplied style does not require `--allow-restyle`.
 
 ## Present, edit, and save
 
-The player includes **Overview · Fullscreen · Speaker notes · Edit text · Save HTML · Print**. Its default canvas is 1920 × 1080 and scales proportionally to the window. Use **Save HTML** after editing; browser changes do not write back to `deck.json`.
+The player includes **Overview · Fullscreen · Speaker notes · Edit text · Save HTML · Export PPTX · Export PDF / Print**. Its default canvas is 1920 × 1080 and scales proportionally to the window. Use **Save HTML** after editing; browser changes do not write back to `deck.json`.
+
+Fullscreen fits the entire 16:9 slide to the available screen without stretching or cropping; editing reserves space for the toolbar. PDF pages use PowerPoint widescreen dimensions: **960 × 540 pt (13⅓ × 7.5 in)**. The toolbar opens the browser print dialog; select Save as PDF and avoid overriding the slide size with A4 or Letter.
+
+For reproducible PDF dimensions and a single-page, fit-to-page opening preference, export with the included script (requires `pdf-lib` in addition to Playwright):
+
+```bash
+# Use the saved HTML as input if you edited the deck in the browser.
+node skills/white-blue-slides/scripts/export_pdf.cjs project/presentation.html \
+  --out project/presentation.pdf --browser chrome
+```
+
+PDF readers may ignore viewing preferences; select **Fit page** if needed. On macOS, Chrome's PDF presentation mode can expose a thin strip of the next page when **Show scroll bars** is set to **Always**. In the reproduced case, changing **System Settings → Appearance → Show scroll bars → When scrolling**, then exiting presentation mode, reloading the PDF, and entering **Present** again removed the strip. This setting affects scroll bars system-wide. Changing PDF paper size does not address that viewer issue. Screens with other aspect ratios retain side or top/bottom bars.
+
+The **HTML player** also provides a **Fullscreen** button. If PDF presentation is requested, verify the actual PDF in the chosen reader; a successful HTML presentation does not validate the PDF viewer.
+
+**Export PPTX** produces an editable PowerPoint file in one universal font (Microsoft YaHei by default, available in Office on Windows and macOS): headings and body text stay text boxes with their size, weight, colour and spacing; panels, tags and rules become shapes; scene images and icons become pictures; ECharts become native PowerPoint charts with an embedded workbook (**Edit Data** works); speaker notes become slide notes. Positions are measured from the rendered page, so the PPTX matches the HTML; fonts are substituted, so Latin text and digits can run slightly wider. The exporter is embedded in every deck and needs no network. The same export is available from the command line, which also handles decks built before the button existed:
+
+```bash
+node skills/white-blue-slides/scripts/export_pptx.cjs project/presentation.html \
+  --out project/presentation.pptx --browser chrome [--font "PingFang SC"]
+```
+
+If only the PDF remains, create an offline HTML presentation with the included converter (Python + Poppler). It displays one page at a time and preserves vector outlines. This presentation copy has no editable or selectable text; keep the PDF and any editable source.
+
+```bash
+python3 skills/white-blue-slides/scripts/pdf_to_slides.py project/presentation.pdf \
+  --out project/presentation-fullscreen.html
+```
+
+Existing HTML files embed their original player; rebuild from the source project to pick up fixes, preserving any browser-edited copies first.
 
 | Key | Action | Key | Action |
 |---|---|---|---|
@@ -385,6 +415,9 @@ See [adding an independent style package](skills/white-blue-slides/references/ad
 | Optional WebP compression | Pillow; original formats are preserved if unavailable |
 | Match illustration backgrounds | NumPy + Pillow |
 | Automated browser inspection | Node.js + Playwright + Chrome/Chromium |
+| Editable PPTX export from the command line | Playwright + Chrome/Chromium (the toolbar button needs nothing) |
+| PDF export and automated print validation | Playwright + pdf-lib + Chrome/Chromium |
+| Offline presentation from an existing PDF | Python + Poppler (`pdfinfo`, `pdftocairo`) |
 | Optional overview contact sheet | Sharp |
 
 ECharts 5.6.0 is bundled; no separate installation or CDN is needed. Image generation depends on the agent environment and is not installed with the skills. If automated inspection is unavailable, inspect each slide in an available browser and state the scope of validation.

@@ -130,6 +130,22 @@ def run():
         kept = Builder(data, root, embed_format='keep').render()
         check('--embed-format keep preserves png', 'data:image/png' in kept and 'data:image/webp' not in kept)
 
+        # 6b. PPTX export: the exporter and its toolbar button ship inside every build; the CLI injects the same file for older decks.
+        template = (ASSETS / 'template.html').read_text(encoding='utf-8')
+        exporter = (ASSETS / 'pptx-export.js').read_text(encoding='utf-8')
+        check('template has the PPTX button', 'id="pptx"' in template and "$('#pptx')" in (ASSETS / 'player.js').read_text(encoding='utf-8'))
+        check('build embeds the PPTX exporter before the player', html.index('window.deckPptx=') < html.index('window.deckAPI=') and '</script' not in exporter.lower())
+        cli = (HERE / 'export_pptx.cjs').read_text(encoding='utf-8')
+        check('export_pptx.cjs injects assets/pptx-export.js when a deck lacks it', "'pptx-export.js'" in cli and 'window.deckPptx' in cli)
+        node = shutil.which('node')
+        if node:
+            import subprocess
+            for script in (ASSETS / 'pptx-export.js', HERE / 'export_pptx.cjs', ASSETS / 'player.js'):
+                result = subprocess.run([node, '--check', str(script)], capture_output=True, text=True)
+                check(f'node --check {script.name}', result.returncode == 0, result.stderr.strip()[:200])
+        else:
+            print('SKIP node --check (node not installed)')
+
         # 7. Brand protection: custom_css may not restyle chrome; --allow-restyle marks the body; builders may not override components.
         from build_deck import custom_css_errors, load_builder
         errs = custom_css_errors('header h1{font-size:30px}.layout-cover{background:#102D51}#p02 .hero-scene{width:1100px}.point p{font-size:22px!important}')

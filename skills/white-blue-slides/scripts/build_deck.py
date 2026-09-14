@@ -496,7 +496,7 @@ class Builder:
                   + ' data-presentation-mode="' + self.mode + '" data-style="' + self.style_pack['id'] + '" data-style-contract="'
                   + escape(json.dumps(self.style_pack['audit'], separators=(',', ':')), quote=True) + '"',
                   'LOGO_DEFS': self.logo_defs(), 'SLIDES': '\n'.join(slides),
-                  'COUNT': str(len(slides)), 'JS': (ASSETS / 'player.js').read_text(encoding='utf-8')}
+                  'COUNT': str(len(slides)), 'JS': (ASSETS / 'pptx-export.js').read_text(encoding='utf-8') + '\n' + (ASSETS / 'player.js').read_text(encoding='utf-8')}
         if any(block.get('type') == 'chart' for slide in self.deck['slides'] for block in slide.get('blocks', []) if isinstance(block, dict)):
             for notice in ('ECHARTS-LICENSE.txt', 'ECHARTS-NOTICE.txt'):
                 values['LICENSE'] += '<!--\n' + (ASSETS / 'vendor' / notice).read_text(encoding='utf-8').replace('--', '—') + '\n-->'

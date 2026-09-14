@@ -2,7 +2,7 @@
 name: white-blue-slides
 description: 在用户选择素白蓝调风格或续做该风格项目时，根据PPT大纲制作可编辑、可离线单文件HTML演示稿，采用暖白纸底、明亮主蓝与白色哑光模型配图。与其他风格共用制作、排版与检查套件；未选择风格的通用请求先经 ppt-workbench 确认。明确要求PPTX时不能以HTML替代。
 metadata:
-  version: "3.1.1"
+  version: "3.2.0"
 ---
 
 # 场景化 HTML 演示稿
@@ -76,11 +76,29 @@ python3 <skill>/scripts/build_deck.py <project>/deck.json --out <project>/演示
 # 有 Node.js、Playwright 和 Chrome/Chromium 时渲染检查
 node <skill>/scripts/audit_deck.cjs <project>/演示稿.html --out <project>/qa --browser chrome
 
+# 用户需要 PDF 时，导出 16:9 宽屏、单页适配的 PDF（另需 pdf-lib）
+# 若在浏览器中编辑过，请把“另存 HTML”得到的文件作为输入
+node <skill>/scripts/export_pdf.cjs <project>/演示稿.html --out <project>/演示稿.pdf --browser chrome
+
+# 用户需要可编辑 PowerPoint 时，导出通用字体的 PPTX（文字、面板、图片、原生图表、讲稿；与播放器“导出 PPTX”按钮相同）
+node <skill>/scripts/export_pptx.cjs <project>/演示稿.html --out <project>/演示稿.pptx --browser chrome
+
+# 只有 PDF 且需要浏览器全屏演示时，生成单页显示的离线副本（需要 Poppler）
+python3 <skill>/scripts/pdf_to_slides.py <project>/演示稿.pdf --out <project>/全屏演示版.html
+
 # 修改本 Skill 的脚本或资源后自测（不需要浏览器）
 python3 <skill>/scripts/selftest.py
 ```
 
-构建器只依赖 Python 标准库，Pillow 仅用于可选的图片压缩，底色校准另需 numpy；内嵌 CSS、JS、Logo、图标和图片，不联网。审查器需要本地 Playwright，联系表可选 Sharp；用环境已有的 Python/Node，不假定安装路径。不能运行审查器时用可用浏览器逐页检查并说明范围，不伪称自动验证通过。
+构建器只依赖 Python 标准库，Pillow 仅用于可选的图片压缩，底色校准另需 numpy；内嵌 CSS、JS、Logo、图标和图片，不联网。审查器需要本地 Playwright，PDF 导出与打印验证另需 pdf-lib，联系表可选 Sharp；用环境已有的 Python/Node，不假定安装路径。不能运行审查器时用可用浏览器逐页检查并说明范围，不伪称自动验证通过。
+
+画布保持 1920 × 1080。全屏按实际可用区域完整等比适配；编辑模式为工具栏留出空间。PDF 使用 PowerPoint 宽屏纸张 960 × 540 pt（13⅓ × 7.5 英寸），所有页保持与单页观看相同的纵向布局。播放器“导出 PDF / 打印”打开浏览器打印窗口；需要稳定纸张尺寸与单页适配偏好时用 `export_pdf.cjs`。阅读器可能忽略 PDF 观看偏好，此时选择“适合页面”；非 16:9 屏幕保留边带。旧 HTML 内嵌旧播放器，不会随 Skill 更新自动变化；从源项目重建，浏览器编辑过的旧稿须先保留另存副本，避免覆盖修改。
+
+**Chrome PDF 全屏出现下一页白条时**，先区分 PDF 页面留白与阅读器露出相邻页。在 macOS 上，检查“系统设置 → 外观 → 显示滚动条”是否为“始终”；已复现案例中，经用户同意改为“滚动时”，退出演示并重新加载 PDF 后再进入演示，白条消失。该项影响系统内其他应用，不静默更改用户偏好。验证必须使用同一份 PDF，并检查翻页后的底部；不能用 HTML 演示通过来声称 PDF 已修复。不要以改变纸张尺寸、裁切内容或补黑边掩盖阅读器问题。
+
+播放器“导出 PPTX”与 `export_pptx.cjs` 生成同一种可编辑 PowerPoint 文件：按实际渲染测量每个元素的位置，文字保留为文本框（字号、粗细、颜色、字距、行距不变），信息块、标签与横线转为形状，场景图与图标转为图片，ECharts 转为原生图表并内嵌数据表，讲稿写入备注。全稿统一使用一种通用字体（默认微软雅黑，`--font` 可改），因此英文与数字略宽，单行文字不折行、多行文字留有余量；毛玻璃、阴影等效果按 PowerPoint 能表达的程度近似。导出器随每份 HTML 内嵌、不联网；旧稿没有该按钮时用命令行导出。交付 PPTX 前在 PowerPoint 中逐页查看，不以 HTML 通过代替。
+
+用户接受 HTML 演示副本且只有 PDF 时，可用 `pdf_to_slides.py` 生成单文件副本。它依赖 Poppler 的 `pdfinfo` / `pdftocairo`，将每页转换为内嵌 SVG 图像，一次仅显示当前页，支持全屏、方向键、页码跳转和触控翻页。文字保留矢量轮廓但不可编辑或选择，不替代可编辑源稿或用户明确要求的 PDF；逐页查看转换结果，并检查实际浏览器全屏的四边和翻页。
 
 `--draft` 只供内部预排并明确显示缺图；正式交付禁止该模式。新增或删除页面后必须检查总页数、总览、保存和打印。
 
@@ -90,4 +108,4 @@ python3 <skill>/scripts/selftest.py
 - 旧项目使用新版构建前，按原大纲补齐每页 visual 与必要组件；自定义标题改用共享 heading。不能为通过新检查随意补卡片、填写空泛豁免或删除大纲要求。
 - "恢复原始样式"仅作用于指定范围。无框区域恢复标题、横向细线与间距；已选信息块与明确保留项不随之消失。
 - 人工供图中途停止时保留清单与缺图状态；收齐后继续，不要求重新描述已有大纲。
-- 输出为单文件 HTML 时，不追加 PPTX、PDF、视频或部署任务；打印 PDF 可作内部验证。
+- 输出为单文件 HTML 时，不主动追加 PPTX、PDF、视频或部署任务；打印 PDF 可作内部验证。用户明确要 PPTX 时用导出器生成并在 PowerPoint 中核对，不以 HTML 替代。

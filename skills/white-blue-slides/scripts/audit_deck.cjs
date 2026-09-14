@@ -5,6 +5,21 @@ const fs = require('fs');
 const path = require('path');
 const {pathToFileURL} = require('url');
 
+// Compare page structure in slide coordinates, independent of viewport/print zoom.
+function slideFrames() {
+  return [...document.querySelectorAll('.slide')].filter(s => s.getBoundingClientRect().width).map(s => {
+    const r = s.getBoundingClientRect(), scale = 1920 / r.width;
+    return {id: s.id, regions: ['header', 'main', 'footer'].map(selector => {
+      const b = s.querySelector(selector).getBoundingClientRect();
+      return [(b.x-r.x)*scale, (b.y-r.y)*scale, b.width*scale, b.height*scale];
+    })};
+  });
+}
+function matchingFrames(expected, actual) {
+  return expected.length === actual.length && expected.every((s, i) => s.id === actual[i].id &&
+    s.regions.every((r, j) => r.every((v, k) => Math.abs(v-actual[i].regions[j][k]) < 2.5)));
+}
+
 async function run() {
   const args = process.argv.slice(2), filename = args.shift();
   let out, channel, pdf = true;
@@ -41,6 +56,7 @@ async function run() {
       externalCssUrls: /url\s*\(\s*["']?(?!data:|#)[^\s"')]+/i.test([...document.querySelectorAll('style')].map(s => s.textContent).join('\n')),
       draft: document.body.classList.contains('draft') || !!document.querySelector('.missing-image')
     }));
+    const screenFrames = [];
     for (let i = 0; i < count; i++) {
       await page.evaluate(n => window.deckAPI.show(n), i);
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
@@ -214,6 +230,7 @@ async function run() {
         return {page:Number(document.querySelector('#page-input').value),id:s.id,title:s.querySelector('h1').textContent,issues,brokenImages,design:{ok:!designIssues.length,counts,issues:designIssues,imageBalance,structuredArea,compositionBalance,manualReview:contract?.manual||[],rationale:contract?.rationale||'',omissions:contract?.omissions||[]},brand:{ok:!brandIssues.length,restyle,issues:brandIssues},imageArea,illustrationArea,imageCount:imageRects.length,warnings};
       });
       report.pages.push(checks);
+      screenFrames.push((await page.evaluate(slideFrames))[0]);
       const shot = path.join(out, `p${String(i+1).padStart(2,'0')}.png`);
       await page.locator('.slide.active').screenshot({path: shot}); report.screenshots.push(shot);
     }
@@ -229,6 +246,7 @@ async function run() {
     f.pageCount = Number(await page.locator('#page-input').getAttribute('max'))===count;
     await page.locator('#overview').click();
     f.overview = await page.locator('.slide:visible').count()===count;
+    f.overviewLayout = matchingFrames(screenFrames, await page.evaluate(slideFrames));
     await page.locator('.slide').nth(Math.min(1,count-1)).click();
     f.overviewJump = await page.evaluate(n => window.deckAPI.current === n && !document.body.classList.contains('overview-mode'), Math.min(2,count));
     await page.locator('#notes').click();
@@ -260,21 +278,64 @@ async function run() {
       f.chartSaveReopen=await saved.evaluate(()=>{const shell=document.querySelector('.slide.active .chart-shell'),config=JSON.parse(shell.querySelector('.chart-config').textContent),host=shell.querySelector('.echart'),series=echarts.getInstanceByDom(host).getOption().series[0];return config.series[0].values[0]===97&&(series.data[0]?.value??series.data[0])===97&&!!host.querySelector('svg path');});
     }
     await saved.close();
+    // Editable PPTX export from the toolbar: a real zip comes back and the player returns to its previous page.
+    if (await page.locator('#pptx').count()) {
+      const pptxPromise = page.waitForEvent('download'); await page.locator('#pptx').click();
+      const pptxPath = path.join(out, 'export-test.pptx'); await (await pptxPromise).saveAs(pptxPath);
+      const head = fs.readFileSync(pptxPath);
+      report.pptxBytes = head.length;
+      f.pptxExport = head.length > 1000 && head[0] === 0x50 && head[1] === 0x4B && head.includes('ppt/presentation.xml') && !await page.evaluate(() => document.body.classList.contains('editing'));
+    }
     await page.goto(pathToFileURL(path.resolve(filename)).href);
     await page.setViewportSize({width:390,height:844});
     // Resize handlers run asynchronously; settle the scale before measuring.
     await page.evaluate(() => new Promise(resolve => {window.deckAPI.fit(); requestAnimationFrame(() => requestAnimationFrame(resolve));}));
     f.mobileFit = await page.evaluate(() => {const r=document.querySelector('.slide.active').getBoundingClientRect();return r.width<=innerWidth && r.left>=-1 && r.right<=innerWidth+1 && r.bottom<=innerHeight-60;});
-    await page.setViewportSize({width:1944,height:1172});
+    await page.setViewportSize({width:1920,height:1080});
     await page.locator('#fullscreen').click();
     f.fullscreen = await page.evaluate(() => !!document.fullscreenElement);
-    if (f.fullscreen) await page.evaluate(() => document.exitFullscreen());
+    report.fullscreenSizes = [];
+    for (const size of [{width:1920,height:1080},{width:1440,height:900},{width:2560,height:1080},{width:1024,height:768}]) {
+      await page.setViewportSize(size);
+      const fits = await page.evaluate(() => {
+        window.deckAPI.fit();
+        const r=document.querySelector('.slide.active').getBoundingClientRect(),scale=Math.min(innerWidth/1920,innerHeight/1080);
+        return Math.abs(r.width-1920*scale)<1 && Math.abs(r.height-1080*scale)<1 &&
+          Math.abs(r.x-(innerWidth-r.width)/2)<1 && Math.abs(r.y-(innerHeight-r.height)/2)<1;
+      });
+      report.fullscreenSizes.push({...size, fits});
+    }
+    f.fullscreenFit = report.fullscreenSizes.every(s=>s.fits);
+    await page.setViewportSize({width:1920,height:1080});
+    if (f.fullscreen) {
+      await page.locator('.toolbar').hover();
+      const revealed = await page.locator('.toolbar').evaluate(el=>getComputedStyle(el).opacity==='1');
+      await page.mouse.move(0,0);
+      f.fullscreenToolbar = revealed && await page.locator('.toolbar').evaluate(el=>getComputedStyle(el).opacity==='0');
+      await page.locator('#edit').evaluate(el=>el.click());
+      f.fullscreenEditFit = await page.evaluate(() => {
+        const r=document.querySelector('.slide.active').getBoundingClientRect(),bar=document.querySelector('.toolbar').getBoundingClientRect();
+        return r.bottom<=bar.top && getComputedStyle(document.querySelector('.toolbar')).opacity==='1';
+      });
+      await page.locator('#edit').click();
+      await page.evaluate(() => document.exitFullscreen());
+    }
+    await page.setViewportSize({width:1944,height:1172});
     if (pdf) {
+      // Export from overview with another slide selected: inactive pages must keep
+      // the same header/body/footer geometry as single-slide viewing.
+      await page.evaluate(()=>window.deckAPI.show(window.deckAPI.count-1));
+      await page.locator('#overview').click();
       await page.emulateMedia({media:'print'});
-      await page.evaluate(() => window.deckAPI.fit());
-      const printed = await page.pdf({path:path.join(out,'print-check.pdf'),preferCSSPageSize:true,printBackground:true});
-      report.printPages = (printed.toString('latin1').match(/\/Type\s*\/Page\b/g)||[]).length;
+      await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+      f.printLayout = matchingFrames(screenFrames, await page.evaluate(slideFrames));
+      const {writePresentationPdf} = require('./export_pdf.cjs');
+      const printed = await writePresentationPdf(page, path.join(out,'print-check.pdf'), count);
+      report.printPages = printed.pages;
+      report.printPageSizes = printed.sizes;
       f.printCount = report.printPages===count;
+      f.printSize = printed.sizes.every(s=>Math.abs(s.width-960)<.5 && Math.abs(s.height-540)<.5);
+      f.printReturnLayout = matchingFrames(screenFrames, await page.evaluate(slideFrames));
     }
     try {
       const sharp = require('sharp'), cols=3, thumbWidth=640, thumbHeight=360, gap=20, rows=Math.ceil(count/cols);

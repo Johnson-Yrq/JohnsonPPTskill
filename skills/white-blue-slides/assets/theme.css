@@ -5,16 +5,16 @@
 :root{--paper:#F7F6F2;--blue:#3B7BC8;--ink:#2B3140;--muted:#5A6373;--line:#9DBDE3;--panel:#E7EEF6;--scale:.6;--radius:8px}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;color:var(--ink)}
-body{background:#E8E9EC}
+body{background:#E8E9EC;overflow:hidden}
 button,input{font:inherit}
 button{cursor:pointer}
 button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 
 /* ---- stage & slide frame ---- */
-.viewport{height:calc(100vh - 68px);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.viewport{height:calc(100vh - var(--toolbar-space,68px));height:calc(100dvh - var(--toolbar-space,68px));display:flex;align-items:center;justify-content:center;overflow:hidden}
 .deck{position:relative;width:1920px;height:1080px;flex:none;transform:scale(var(--scale));transform-origin:center}
-.slide{display:none;width:1920px;height:1080px;position:absolute;inset:0;background:var(--paper);padding:48px 80px 104px;overflow:hidden}
-.slide.active{display:flex;flex-direction:column}
+.slide{display:none;flex-direction:column;width:1920px;height:1080px;position:absolute;inset:0;background:var(--paper);padding:48px 80px 104px;overflow:hidden}
+.slide.active{display:flex}
 .slide header{display:flex;justify-content:space-between;gap:34px;align-items:flex-start;position:relative;z-index:3;flex:none}
 .head-copy{max-width:1570px}
 .chapter{display:inline-block;color:var(--blue);font-size:22px;font-weight:700;line-height:29px;letter-spacing:2px;padding:2px 16px;background:var(--panel);border-radius:8px}
@@ -239,10 +239,22 @@ footer{position:absolute;left:80px;right:80px;bottom:30px;border-top:2px solid v
 .overview-mode .slide{display:flex;position:relative;zoom:var(--thumb-scale,.2);cursor:pointer;outline:5px solid transparent}
 .overview-mode .slide.active{outline-color:var(--blue)}
 .overview-mode .slide:hover{outline-color:#7FA7D5}
-body:fullscreen .viewport{height:100vh}
-body:fullscreen .toolbar{opacity:0}
-body:fullscreen .toolbar:hover,body:fullscreen .toolbar:focus-within{opacity:1}
+body:fullscreen:not(.editing) .viewport{height:100vh;height:100dvh}
+body:fullscreen:not(.editing){background:#111}
+body:fullscreen:not(.editing) .toolbar{opacity:0}
+body:fullscreen:not(.editing) .toolbar:hover,body:fullscreen:not(.editing) .toolbar:focus-within{opacity:1}
 
 /* ---- narrow screens & print ---- */
 @media(max-width:750px){.toolbar{max-width:96vw;overflow:auto;gap:2px;left:2vw;transform:none}.toolbar button{padding:7px 9px}.toolbar-divider{display:none}}
-@media print{@page{size:20in 11.25in;margin:0}html,body{height:auto!important;width:1920px!important;background:white}.viewport{display:block!important;height:auto!important;overflow:visible!important;padding:0!important}.deck{display:block!important;transform:none!important;width:1920px!important;height:auto!important}.slide{position:relative!important;display:flex!important;break-after:page;page-break-after:always;zoom:1!important;outline:none!important;margin:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.slide:last-child{break-after:auto;page-break-after:auto}.toolbar,#notes-panel,#status{display:none!important}.editing [data-edit]{outline:none!important}}
+/* PowerPoint widescreen: 13 1/3 × 7.5 in (960 × 540 pt).
+   Zoom the whole 1920 × 1080 canvas, preserving text, charts and page breaks. */
+@media print{
+ @page{size:960pt 540pt;margin:0}
+ html,body{height:auto!important;width:1280px!important;overflow:visible!important;background:white!important}
+ .viewport{display:block!important;width:1280px!important;height:auto!important;overflow:visible!important;padding:0!important}
+ .deck{display:block!important;transform:none!important;width:1280px!important;height:auto!important}
+ .slide{position:relative!important;display:flex!important;flex-direction:column!important;width:1920px!important;height:1080px!important;break-inside:avoid;break-after:page;page-break-after:always;zoom:.6666666667!important;outline:none!important;margin:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .slide:last-child{break-after:auto;page-break-after:auto}
+ .toolbar,#notes-panel,#status{display:none!important}
+ .editing [data-edit]{outline:none!important}
+}

@@ -16,7 +16,7 @@
   <a href="#构建与检查">构建与检查</a>
 </p>
 
-<p><code>Codex / Claude Code</code> &nbsp; <code>共享套件 v3.1.1</code> &nbsp; <a href="LICENSE">MIT 许可证</a></p>
+<p><code>Codex / Claude Code</code> &nbsp; <code>共享套件 v3.1.2</code> &nbsp; <a href="LICENSE">MIT 许可证</a></p>
 
 </div>
 
@@ -315,7 +315,37 @@ node skills/white-blue-slides/scripts/audit_deck.cjs project/演示稿.html \
 
 ## 播放、编辑与保存
 
-工具栏提供：**总览 · 全屏 · 讲稿 · 编辑文字 · 另存 HTML · 打印**。默认画布为 1920 × 1080，并按窗口等比适配。文字编辑后需「另存 HTML」保留修改，浏览器内的修改不会自动回写 `deck.json`。
+工具栏提供：**总览 · 全屏 · 讲稿 · 编辑文字 · 另存 HTML · 导出 PPTX · 导出 PDF / 打印**。默认画布为 1920 × 1080，并按窗口等比适配。文字编辑后需「另存 HTML」保留修改，浏览器内的修改不会自动回写 `deck.json`。
+
+全屏按屏幕可用区域完整等比显示 16:9 页面，编辑时为工具栏留出空间。PDF 使用 PowerPoint 宽屏尺寸：**960 × 540 pt（13⅓ × 7.5 英寸）**。点击“导出 PDF / 打印”后，在浏览器打印窗口选择另存为 PDF，避免用 A4 或 Letter 覆盖幻灯片纸张尺寸。
+
+需要稳定的 PDF 尺寸与单页适配观看偏好时，可使用随附脚本（除 Playwright 外另需 `pdf-lib`）：
+
+```bash
+# 如果在浏览器中编辑过，请使用“另存 HTML”保存后的文件作为输入
+node skills/white-blue-slides/scripts/export_pdf.cjs project/演示稿.html \
+  --out project/演示稿.pdf --browser chrome
+```
+
+部分 PDF 阅读器可能忽略观看偏好，此时选择“适合页面”。macOS 将**显示滚动条**设为**始终**时，Chrome PDF 演示可能露出下一页顶部的细条。在已复现案例中，将**系统设置 → 外观 → 显示滚动条 → 滚动时**，然后退出演示、重新加载 PDF、再次选择**演示**，即可消除白条。该设置会影响系统内其他应用的滚动条显示；改 PDF 纸张尺寸不能解决这类阅读器问题。非 16:9 屏幕会保留边带，以免拉伸或裁切。
+
+**HTML 播放器**也提供**全屏**按钮。用户要求 PDF 演示时，应验证指定阅读器中的实际 PDF，不能把 HTML 演示通过当作 PDF 已修复。
+
+**导出 PPTX** 生成可编辑的 PowerPoint 文件，统一使用一种通用字体（默认微软雅黑，Windows 与 macOS 的 Office 都自带）：标题与正文保留为文本框，字号、粗细、颜色与字距不变；信息块、标签与分隔线转为形状；场景图与图标转为图片；ECharts 转为 PowerPoint 原生图表并内嵌数据表（可用“编辑数据”）；讲稿写入备注。位置按实际渲染测量，与 HTML 一致；字体替换后，英文与数字会略宽。导出器内嵌在每份演示稿中，不联网。命令行也可导出，并兼容加入该按钮之前构建的旧稿：
+
+```bash
+node skills/white-blue-slides/scripts/export_pptx.cjs project/演示稿.html \
+  --out project/演示稿.pptx --browser chrome [--font "PingFang SC"]
+```
+
+只有 PDF 时，可用随附转换器生成离线 HTML 演示版（需要 Python + Poppler）。它一次只显示当前页，保留矢量轮廓的清晰度。该演示副本的文字不可编辑、不可选择；保留原 PDF 和可编辑源稿。
+
+```bash
+python3 skills/white-blue-slides/scripts/pdf_to_slides.py project/演示稿.pdf \
+  --out project/全屏演示版.html
+```
+
+旧 HTML 内嵌旧播放器，需要从源项目重新构建才能应用修复；先保留浏览器编辑后的副本，避免覆盖修改。
 
 | 按键 | 作用 | 按键 | 作用 |
 |---|---|---|---|
@@ -383,6 +413,9 @@ python3 skills/white-blue-slides/scripts/style_packs.py --list --include-drafts
 | 可选 WebP 压缩 | Pillow；缺少时保留原图格式 |
 | 配图底色校准 | NumPy + Pillow |
 | 自动浏览器审查 | Node.js + Playwright + Chrome/Chromium |
+| 命令行导出可编辑 PPTX | Playwright + Chrome/Chromium（工具栏按钮不需要任何依赖） |
+| PDF 导出与自动打印验证 | Playwright + pdf-lib + Chrome/Chromium |
+| 已有 PDF 转离线演示版 | Python + Poppler（`pdfinfo`、`pdftocairo`） |
 | 可选总览拼图 | Sharp |
 
 ECharts 5.6.0 已随套件内置，无需额外安装或访问 CDN。生图能力由当前 Agent 环境提供，安装 Skill 不等于安装生图工具。无法运行自动审查时，使用可用浏览器逐页检查并说明验证范围。
