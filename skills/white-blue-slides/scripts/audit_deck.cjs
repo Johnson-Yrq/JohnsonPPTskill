@@ -23,7 +23,7 @@ function matchingFrames(expected, actual) {
 
 async function run() {
   const args = process.argv.slice(2), filename = args.shift();
-  let out, channel, reviewFile, pdf = false; // PDF geometry is verified by export_pdf.cjs when a PDF is actually exported
+  let out, channel, reviewFile, pdf = false, clean = false, keepArtifacts = false; // PDF geometry is verified by export_pdf.cjs when a PDF is actually exported
   while (args.length) {
     const flag = args.shift();
     if (flag === '--out') out = args.shift();
@@ -31,9 +31,11 @@ async function run() {
     else if (flag === '--pdf') pdf = true;
     else if (flag === '--no-pdf') pdf = false; // kept for older commands; already the default
     else if (flag === '--visual-review') reviewFile = args.shift();
+    else if (flag === '--clean') clean = true;
+    else if (flag === '--keep-artifacts') keepArtifacts = true;
     else throw new Error(`未知参数：${flag}`);
   }
-  if (!filename || !out) throw new Error('用法：node audit_deck.cjs 演示稿.html --out qa [--browser chrome] [--pdf] [--visual-review review.json]');
+  if (!filename || !out) throw new Error('用法：node audit_deck.cjs 演示稿.html --out qa [--browser chrome] [--pdf] [--visual-review review.json] [--clean] [--keep-artifacts]');
   let chromium;
   try { ({chromium} = require('playwright')); }
   catch { throw new Error('找不到 Playwright。请使用当前环境已有的 Node.js + Playwright，或按用户授权准备依赖。'); }
@@ -369,8 +371,16 @@ async function run() {
       report.visualReview = assessReview(template, supplied);
     } catch(e) {report.visualReview = {status:'invalid',issues:[e.message],pending:[]};}
     report.readyForDelivery = report.automatedOK && report.visualReview.status === 'passed';
+    // Function-check downloads have served their purpose once the checks ran; --clean also drops the
+    // screenshots and template after the visual review, leaving report.json (and the review record) behind.
+    const remove = names => names.filter(name => fs.existsSync(path.join(out, name))).map(name => {fs.rmSync(path.join(out, name)); return name;});
+    report.cleaned = keepArtifacts ? [] : remove(['save-test.html', 'export-test.pptx', 'print-check.pdf']);
+    if (clean) {
+      report.cleaned.push(...remove([...report.screenshots.map(file => path.basename(file)), 'overview.png', 'visual-review.template.json']));
+      report.screenshots = []; delete report.overview;
+    }
     fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-    console.log(JSON.stringify({ok:report.ok,automatedOK:report.automatedOK,visualReview:report.visualReview.status,readyForDelivery:report.readyForDelivery,style:report.style,technicalOK:report.technicalOK,designContractOK:report.designContractOK,brandOK:report.brandOK,restyle:report.restyle,pages:count,layoutIssues:report.pages.reduce((sum,p)=>sum+p.issues.length,0),designIssues:report.pages.reduce((sum,p)=>sum+p.design.issues.length,0),brandIssues:report.pages.reduce((sum,p)=>sum+p.brand.issues.length,0),warnings:report.warnings.length,functions:f,report:path.join(out,'report.json')},null,2));
+    console.log(JSON.stringify({ok:report.ok,automatedOK:report.automatedOK,visualReview:report.visualReview.status,readyForDelivery:report.readyForDelivery,style:report.style,technicalOK:report.technicalOK,designContractOK:report.designContractOK,brandOK:report.brandOK,restyle:report.restyle,pages:count,layoutIssues:report.pages.reduce((sum,p)=>sum+p.issues.length,0),designIssues:report.pages.reduce((sum,p)=>sum+p.design.issues.length,0),brandIssues:report.pages.reduce((sum,p)=>sum+p.brand.issues.length,0),warnings:report.warnings.length,functions:f,cleaned:report.cleaned,report:path.join(out,'report.json')},null,2));
     if (!report.ok || (reviewFile && report.visualReview.status !== 'passed')) process.exitCode=1;
   } finally {await browser.close();}
 }

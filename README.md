@@ -300,6 +300,7 @@ Automated checks cover structure, image/content regions, visible components, and
 | `--embed-format keep` | Keep the original image format instead of the default WebP preference. |
 | `--embed-quality 85` | Set image compression quality. |
 | `--builder` | Load project-specific layouts that reuse shared components. |
+| `audit_deck.cjs … --clean` | On the final audit, delete screenshots, the contact sheet and the review template, keeping only the report and the review record; temporary downloads from the function checks are always removed. |
 | `--allow-restyle` | Allow cover, header, or footer customization beyond the chosen theme when explicitly requested by the user. |
 
 Selecting a supplied style does not require `--allow-restyle`.

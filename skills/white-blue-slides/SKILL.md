@@ -75,6 +75,8 @@ python3 <skill>/scripts/build_deck.py <project>/deck.json --out <project>/演示
 
 # 有 Node.js、Playwright 和 Chrome/Chromium 时渲染检查
 node <skill>/scripts/audit_deck.cjs <project>/演示稿.html --out <project>/qa --browser chrome
+# 逐页看完并填好复核记录后，最后一次审查加 --clean 删除截图与模板，只保留报告与记录
+node <skill>/scripts/audit_deck.cjs <project>/演示稿.html --out <project>/qa --browser chrome --visual-review <project>/qa/visual-review.json --clean
 
 # 用户需要 PDF 时，导出 16:9 宽屏、单页适配的 PDF（另需 pdf-lib）
 # 若在浏览器中编辑过，请把“另存 HTML”得到的文件作为输入

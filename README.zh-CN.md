@@ -298,6 +298,7 @@ node skills/white-blue-slides/scripts/audit_deck.cjs project/演示稿.html \
 | `--embed-format keep` | 保留原始图片格式；默认优先转 WebP 内嵌 |
 | `--embed-quality 85` | 设置图片压缩质量 |
 | `--builder` | 加载项目新增版式；复用共享组件 |
+| `audit_deck.cjs … --clean` | 最后一次审查时删除截图、联系表与复核模板，只保留报告与复核记录；功能检查的临时下载文件每次都会自动清理 |
 | `--allow-restyle` | 用户明确要求超出所选主题，自定义封面或页头页脚时使用 |
 
 选择现有命名风格无需 `--allow-restyle`。

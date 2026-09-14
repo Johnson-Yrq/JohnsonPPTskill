@@ -137,6 +137,8 @@ def run():
         check('build embeds the PPTX exporter before the player', html.index('window.deckPptx=') < html.index('window.deckAPI=') and '</script' not in exporter.lower())
         cli = (HERE / 'export_pptx.cjs').read_text(encoding='utf-8')
         check('export_pptx.cjs injects assets/pptx-export.js when a deck lacks it', "'pptx-export.js'" in cli and 'window.deckPptx' in cli)
+        audit_src = (HERE / 'audit_deck.cjs').read_text(encoding='utf-8')
+        check('audit removes function-check downloads and documents --clean', all(k in audit_src for k in ('--clean', '--keep-artifacts', 'save-test.html', 'export-test.pptx')) and '--clean' in (HERE.parent / 'references' / 'quality-check.md').read_text(encoding='utf-8'))
         node = shutil.which('node')
         if node:
             import subprocess
