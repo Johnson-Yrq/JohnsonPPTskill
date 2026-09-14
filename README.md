@@ -1,177 +1,182 @@
-# JohnsonPPTskill
+<a id="readme-top"></a>
 
-根据 PPT 大纲制作**可编辑、可离线播放的单文件 HTML 演示稿**。先选择视觉风格和演讲型／阅读型，再按内容安排配图、流程、图表与文字。
+<div align="center">
 
-通过 [`ppt-workbench`](skills/ppt-workbench/SKILL.md) 统一开始制作。不同风格独立维护主题、配图提示词和参考图，共用排版、构建、编辑与检查套件；后续可以持续添加新风格。
+<h1>JohnsonPPTskill</h1>
 
-- **整稿风格一致**：封面、页头、正文组件、配图与尾页遵循所选风格。
-- **信息密度可选**：演讲型服务现场讲解，阅读型保留独立理解所需的解释与依据。
-- **阅读型可视化**：支持四种图文分区，以及流程、矩阵、表格和离线 ECharts。
-- **单文件交付**：CSS、JS、Logo、图标和配图全部内嵌，支持文字编辑、另存、全屏与打印。
+<p><strong>Turn an outline into a polished, editable slide deck.</strong></p>
+<p>Three visual styles. Two ways to present. One HTML file that works offline.</p>
 
-当前共享套件版本为 **3.1.1**。构建器输出 `.html`；明确需要 `.pptx` 时，应使用相应的 PowerPoint 制作流程，本套件不提供 HTML 转 PPTX 导出。
+<p><strong>English</strong> · <a href="README.zh-CN.md">简体中文</a></p>
 
-## 成稿示例
+<p>
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#visual-styles">Visual styles</a> ·
+  <a href="#presentation-modes">Presentation modes</a> ·
+  <a href="#build-and-check">Build &amp; check</a>
+</p>
 
-以下按风格展示实际页面，点击图片可查看原图。示例中的业务内容用于说明视觉与排版，不作为新项目事实。
+<p><code>Codex / Claude Code</code> &nbsp; <code>Toolkit v3.1.1</code> &nbsp; <a href="LICENSE">MIT License</a></p>
 
-### 素白蓝调
+</div>
 
-| 业务机制 · 白色模型与语义图标 | 总体架构 · 分层模型与直接标注 |
+---
+
+Start with [`ppt-workbench`](skills/ppt-workbench/SKILL.md), choose a visual style and a presentation mode, and build a deck from your outline. Each style maintains its own theme, illustration prompts, and references, while sharing the same layout, editing, and validation toolkit.
+
+| Consistent design | Content that fits the audience | A portable result |
+|---|---|---|
+| Matching covers, typography, illustrations, and closing slides. | Concise slides for live talks, or detailed pages for independent reading. | Embedded CSS, JavaScript, images, icons, and charts, with editing and printing built in. |
+
+> **Output format:** the builder produces a self-contained `.html` file. For an explicit `.pptx` request, use a PowerPoint-capable workflow; this toolkit does not export HTML to PPTX.
+
+## Visual styles
+
+Actual slide examples from the three included styles. Click an image to view it at full size. Business content and chart values shown here are illustrative.
+
+| White & Blue | Navy Glass | Realistic Miniature |
+|:---:|:---:|:---:|
+| <a href="skills/white-blue-slides/assets/reference-design/approved-open-icons.jpg"><img src="skills/white-blue-slides/assets/reference-design/approved-open-icons.jpg" alt="White and Blue slide with a matte white model, blue icons, and editable explanations" width="290"></a> | <a href="docs/images/examples/speech-product.png"><img src="docs/images/examples/speech-product.png" alt="Navy Glass product slide with navy headings, teal accents, and a glass display scene" width="290"></a> | <a href="docs/images/examples/miniature-speech-cover.png"><img src="docs/images/examples/miniature-speech-cover.png" alt="Realistic Miniature cover with warm gray paper, graphite typography, and a detailed team workspace" width="290"></a> |
+| Warm white · Bright blue · Matte models | Navy · Glass · Champagne gold | Warm gray · Natural materials · Expressive figures |
+| [`white-blue-slides`](skills/white-blue-slides/SKILL.md) | [`navy-glass-slides`](skills/navy-glass-slides/SKILL.md) | [`realistic-miniature-slides`](skills/realistic-miniature-slides/SKILL.md) |
+
+All three styles support both presentation modes. Choose one style per deck; the subject, actions, and relationships in each illustration come from the content.
+
+<details>
+<summary><strong>Style IDs, visual details, and more examples</strong></summary>
+
+| Style | `style` ID | Visual direction |
+|---|---|---|
+| **White & Blue** · 素白蓝调 | `scene-white` | Warm white paper, vivid blue accents, matte white model scenes, and miniature figures. |
+| **Navy Glass** · 海蓝玻璃 | `saas-3d` | Warm white paper, navy text and emphasis areas, muted teal, a little champagne gold, and detailed glass displays. |
+| **Realistic Miniature** · 写实微缩 | `real-miniature` | Warm gray, graphite, gray blue, sage, and a little ochre; 35–45° miniature scenes with realistic PBR materials and expressive figures. Text-free illustrations. |
+
+| White & Blue · Layered architecture | Navy Glass · Presentation cover |
 |:---:|:---:|
-| <a href="skills/white-blue-slides/assets/reference-design/approved-open-icons.jpg"><img src="skills/white-blue-slides/assets/reference-design/approved-open-icons.jpg" alt="素白蓝调业务机制页：中央白色模型场景，两侧用蓝色语义图标和文字解释制度转规则的过程" width="440"></a> | <a href="skills/white-blue-slides/assets/reference-design/approved-architecture.jpg"><img src="skills/white-blue-slides/assets/reference-design/approved-architecture.jpg" alt="素白蓝调总体架构页：五层白色立体模型，模块直接标注，蓝色通道展示数据流向与治理关系" width="440"></a> |
+| <a href="skills/white-blue-slides/assets/reference-design/approved-architecture.jpg"><img src="skills/white-blue-slides/assets/reference-design/approved-architecture.jpg" alt="Layered white architecture model with labels and blue data paths" width="440"></a> | <a href="docs/images/examples/speech-cover.png"><img src="docs/images/examples/speech-cover.png" alt="Navy Glass cover with a value proposition and a three-dimensional product display" width="440"></a> |
 
-### 海蓝玻璃
-
-以下为海蓝玻璃风格的实际页面截图，展示演讲型与四种阅读型布局。点击图片可查看 1920 × 1080 原图；图表中的数字均为排版示例数据。
-
-| 演讲型 · 封面 | 演讲型 · 产品能力与轻量强调 |
+| Realistic Miniature · Reading layout | White & Blue · Page reference |
 |:---:|:---:|
-| <a href="docs/images/examples/speech-cover.png"><img src="docs/images/examples/speech-cover.png" alt="演讲型封面：左侧价值主张，右侧三维产品展陈" width="440"></a> | <a href="docs/images/examples/speech-product.png"><img src="docs/images/examples/speech-product.png" alt="演讲型产品能力页：三项说明与大幅配图，重点标题和图标轻量放大" width="440"></a> |
+| <a href="docs/images/examples/miniature-reading-diagonal.png"><img src="docs/images/examples/miniature-reading-diagonal.png" alt="Realistic Miniature reading page with diagonal scenes, a responsibility matrix, and a donut chart" width="440"></a> | <a href="skills/white-blue-slides/assets/reference-design/approved-overview.jpg"><img src="skills/white-blue-slides/assets/reference-design/approved-overview.jpg" alt="White and Blue reference page showing scene composition and visual hierarchy" width="440"></a> |
 
-| 阅读型 · 1/2 左右 | 阅读型 · 1/2 上下 |
-|:---:|:---:|
-| <a href="docs/images/examples/reading-half-lr.png"><img src="docs/images/examples/reading-half-lr.png" alt="阅读型左右各半：左侧产品场景，右侧条形图与工作说明" width="440"></a> | <a href="docs/images/examples/reading-half-tb.png"><img src="docs/images/examples/reading-half-tb.png" alt="阅读型上下各半：上方双场景，下方处理流程与趋势折线图" width="440"></a> |
+Illustration references: [Navy Glass product display](skills/navy-glass-slides/assets/reference-design/approved-product-overview.png) · [Realistic Miniature team workspace](skills/realistic-miniature-slides/assets/reference-design/approved-workflow.png).
 
-| 阅读型 · 1/2 对角双图 | 阅读型 · 1/4 配图 |
-|:---:|:---:|
-| <a href="docs/images/examples/reading-half-diagonal.png"><img src="docs/images/examples/reading-half-diagonal.png" alt="阅读型对角双图：左上和右下配图，其余区域展示能力矩阵与环形图" width="440"></a> | <a href="docs/images/examples/reading-quarter.png"><img src="docs/images/examples/reading-quarter.png" alt="阅读型四分之一配图：其余三区展示数量比较、交付核对表和使用边界" width="440"></a> |
+References establish materials, scale, and visual hierarchy. Their business content is not a factual source for a new project.
 
-阅读型比例按主体版面分区计算，不含页头、页脚及全宽摘要。具体组织方式见下方「阅读型的四种图文分区」。
+</details>
 
-### 写实微缩
+## Quick start
 
-暖灰与石墨色的整页主题，配合木材、织物、矿物基座和表情细致的人物。配图默认无文字，标题和说明保留为可编辑内容。下面是用两张同风格场景验证的实际页面；图表数字仅为示例。
+### 1. Install the skills
 
-| 演讲型 · 团队工作系统 | 阅读型 · 对角双图与责任、任务构成 |
-|:---:|:---:|
-| <a href="docs/images/examples/miniature-speech-cover.png"><img src="docs/images/examples/miniature-speech-cover.png" alt="写实微缩演讲型封面：暖灰页面、石墨标题与真实材质的四区团队工作空间" width="440"></a> | <a href="docs/images/examples/miniature-reading-diagonal.png"><img src="docs/images/examples/miniature-reading-diagonal.png" alt="写实微缩阅读型对角布局：全景与协作近景搭配责任矩阵和任务构成环形图" width="440"></a> |
+With Node.js/npm installed, use the [Skills CLI](https://github.com/vercel-labs/skills#options) to install directly from this repository.
 
-## 快速开始
-
-### 使用 npx 安装（推荐）
-
-电脑已安装 Node.js/npm 后，可以通过 [Skills CLI](https://github.com/vercel-labs/skills#options) 直接从本 GitHub 仓库安装，无需手动克隆或单独发布 npm 包。
-
-**安装到 Codex：**
+**Codex**
 
 ```bash
 npx skills@latest add Johnson-Yrq/JohnsonPPTskill --skill '*' -g -a codex
 ```
 
-**安装到 Claude Code：**
+**Claude Code**
 
 ```bash
 npx skills@latest add Johnson-Yrq/JohnsonPPTskill --skill '*' -g -a claude-code
 ```
 
-- `--skill '*'`：安装仓库中的全部 Skill，目前包含 `ppt-workbench`、`white-blue-slides`、`navy-glass-slides` 和 `realistic-miniature-slides`，确保统一入口、共享套件和风格包一起安装。保留星号两侧的引号。
-- `-g`：全局安装，跨项目使用；去掉该参数则安装到当前项目。
-- `-a`：选择目标 Agent。
+`--skill '*'` installs the workbench and all three style packages together; keep the quotes around `*`. `-g` makes the skills available across projects; omit it for a project-local installation. `-a` selects the agent.
 
-只查看仓库提供的 Skill，不执行安装：
+<details>
+<summary><strong>List available skills or install manually</strong></summary>
+
+List the skills without installing:
 
 ```bash
 npx skills@latest add Johnson-Yrq/JohnsonPPTskill --list
 ```
 
-安装完成后，按下方「开始制作」调用 `$ppt-workbench` 即可。
-
-### 手动安装
-
-克隆仓库并进入目录：
+Or clone the repository:
 
 ```bash
 git clone https://github.com/Johnson-Yrq/JohnsonPPTskill.git
 cd JohnsonPPTskill
 ```
 
-**Codex：**
+Copy the four packages into the directory for your agent.
+
+**Codex**
 
 ```bash
 mkdir -p ~/.codex/skills
 cp -R skills/ppt-workbench skills/white-blue-slides skills/navy-glass-slides skills/realistic-miniature-slides ~/.codex/skills/
 ```
 
-**Claude Code：**
+**Claude Code**
 
 ```bash
 mkdir -p ~/.claude/skills
 cp -R skills/ppt-workbench skills/white-blue-slides skills/navy-glass-slides skills/realistic-miniature-slides ~/.claude/skills/
 ```
 
-四个目录须同级放置。`white-blue-slides` 同时包含共享制作套件，其他风格依赖它；`ppt-workbench` 负责统一选择。更新已有安装时，先备份相关技能目录，再同步新版本。仅使用素白蓝调时，也可单独安装 `white-blue-slides`。
-
-### 开始制作
-
-尚未确定风格或类型时：
-
-> 用 $ppt-workbench，根据这份大纲制作演示稿，先让我选择风格和演讲型／阅读型。
-
-已经明确两个选择时：
-
-> 用 $ppt-workbench，选择海蓝玻璃风格，做成阅读型。按内容安排配图、流程、矩阵和图表，完成逐页检查。
-
-也可以直接指定风格入口：
-
-> 用 $white-blue-slides，把这份大纲做成素白蓝调风格的演讲型演示稿。
-
-> 用 $navy-glass-slides，把这份方案做成海蓝玻璃风格的阅读型演示稿。
-
-> 用 $realistic-miniature-slides，把这份团队协作方案做成写实微缩风格的阅读型演示稿，配图不要文字。
-
-Agent 只询问缺少的选择；当前任务已经确认的风格和类型直接沿用。用户明确授权由 Agent 选择时，会按目标选择并说明。模板默认值不代表用户选择，续做项目也不会因主题变化自动换风格。
-
-## 选择视觉风格
-
-| 风格 | `style` | 独立入口 | 视觉特点 |
-|---|---|---|---|
-| **素白蓝调** | `scene-white` | [`white-blue-slides`](skills/white-blue-slides/SKILL.md) | 暖白纸底、明亮主蓝、白色哑光模型场景与微缩人物 |
-| **海蓝玻璃** | `saas-3d` | [`navy-glass-slides`](skills/navy-glass-slides/SKILL.md) | 暖白纸底、海军蓝文字与重点面、灰青及少量香槟金、玻璃与精细微缩展陈 |
-| **写实微缩** | `real-miniature` | [`realistic-miniature-slides`](skills/realistic-miniature-slides/SKILL.md) | 暖灰纸底、石墨与灰蓝、鼠尾草绿及少量赭黄；35–45° 微缩场景、写实 PBR 材质、表情细致的人物，配图无字 |
-
-三种风格都支持演讲型与阅读型，可用于不同主题的大纲。配图中的对象、动作与关系由业务内容决定；风格负责视觉表达。同一份演示稿选择一种风格，整稿保持一致。
-
-<details>
-<summary>查看包内视觉参考</summary>
-
-**素白蓝调 · 页面参考**
-
-![素白蓝调的页面与场景参考](skills/white-blue-slides/assets/reference-design/approved-overview.jpg)
-
-**海蓝玻璃 · 配图参考**
-
-![海蓝玻璃的微缩展陈配图参考](skills/navy-glass-slides/assets/reference-design/approved-product-overview.png)
-
-**写实微缩 · 无文字配图参考**
-
-![写实微缩的团队工作空间参考](skills/realistic-miniature-slides/assets/reference-design/approved-workflow.png)
-
-参考图用于说明材质、尺度与视觉层级，其中的业务内容不作为新项目事实。
+Keep the four directories side by side. `white-blue-slides` includes the shared toolkit used by the other styles; `ppt-workbench` provides the common entry point. Back up existing skill directories before updating. If you only need White & Blue, you can install `white-blue-slides` on its own.
 
 </details>
 
-查看当前可用风格：
+### 2. Give your agent an outline
 
-```bash
-python3 skills/white-blue-slides/scripts/style_packs.py --list
+**If you want to choose the style and mode together:**
+
+```text
+Use $ppt-workbench to turn this outline into a slide deck.
+First, let me choose a visual style and a mode: live presentation or independent reading.
 ```
 
-清单自动发现同级有效的风格包，返回名称、ID、说明和 Skill 入口。新包接入后会出现在清单中，无需手动修改工作台选项。
+**If you already know what you want:**
 
-## 选择演讲型或阅读型
+```text
+Use $ppt-workbench with the Navy Glass style in reading mode.
+Organize this outline into illustrations, processes, matrices, and charts as appropriate.
+Check every slide before delivery.
+```
 
-| 维度 | 演讲型 `speech` | 阅读型 `reading` |
+<details>
+<summary><strong>Call a style directly</strong></summary>
+
+```text
+Use $white-blue-slides to make a White & Blue deck for a live presentation from this outline.
+```
+
+```text
+Use $navy-glass-slides to make a Navy Glass deck for independent reading from this proposal.
+```
+
+```text
+Use $realistic-miniature-slides to make a reading deck from this team collaboration proposal.
+Keep the illustrations free of text.
+```
+
+</details>
+
+The agent asks only for missing choices and reuses decisions already confirmed for the current project. If you explicitly delegate the choice, it selects and explains a suitable direction. Template defaults do not count as your choice, and a change of subject does not automatically change an existing deck's style.
+
+### 3. Open, present, and edit
+
+Open the delivered HTML in a browser. Present offline, edit text and chart data, then use **Save HTML** (`另存 HTML`) to keep your changes. Browser edits do not automatically update the source `deck.json`.
+
+The English README documents the existing toolkit; skill instructions, reference documents, examples, and player controls are currently primarily in Chinese.
+
+## Presentation modes
+
+| | Live presentation · `speech` | Independent reading · `reading` |
 |---|---|---|
-| 使用方式 | 现场讲解、投屏演示 | 发给读者独立阅读 |
-| 信息组织 | 一个结论和少量支撑，细节可放讲稿 | 页面保留机制、依据、条件与边界 |
-| 可视化 | 主场景、关键步骤、少量标注 | 配图配合流程、矩阵、表格、图标和图表 |
-| 配图分工 | 可作为页面的主要视觉 | 先安排主体版面的 1/2 或 1/4 配图分区 |
-| 内容超量时 | 分页逐步讲解 | 拆成关联页面，保持可读字号和配图面积 |
+| **Audience** | A speaker guides the audience. | Readers explore the deck on their own. |
+| **Content** | One conclusion with a few supporting points; details can go in speaker notes. | Mechanisms, evidence, conditions, and boundaries stay on the page. |
+| **Visuals** | A main scene, key steps, and a few annotations. | Illustrations, processes, matrices, tables, icons, and charts. |
+| **Illustration area** | May be the main visual focus. | Reserve half or a quarter of the body area first. |
+| **When content grows** | Split it into a sequence of slides. | Split it into related pages while preserving readable type and image area. |
 
-阅读型的信息密度来自更多有意义的关系和证据，不靠缩小字号或堆满段落。没有可靠数值时，用流程、职责、比较和分层关系表达；不为了丰富页面而编造指标。
+Reading mode adds meaningful relationships and evidence, not smaller type or longer paragraphs. When reliable numbers are unavailable, use processes, responsibilities, comparisons, or layers instead of inventing metrics.
 
-整稿选择记录在 `deck.json` 根对象。以下仅展示两个选择字段，完整项目另需标题与页面内容：
+Record both choices at the root of `deck.json`:
 
 ```json
 {
@@ -180,142 +185,174 @@ python3 skills/white-blue-slides/scripts/style_packs.py --list
 }
 ```
 
-旧稿省略字段时，仍兼容素白蓝调与演讲型。新稿应根据用户选择显式记录两个字段。详细规则见 [用途与信息密度](skills/white-blue-slides/references/presentation-modes.md)。
+This snippet shows only the two selection fields; a complete project also needs its title and slides. Older decks without these fields remain compatible with White & Blue and speech mode. New projects should record explicit choices. See [modes and information density](skills/white-blue-slides/references/presentation-modes.md).
 
-### 阅读型的四种图文分区
+### Four reading layouts
 
-比例按**主体版面分区**计算，不含页头、页脚及全宽摘要。图表、图标和 Logo 属于内容元素，不计为配图。
+The proportions apply to the **slide body**, excluding headers, footers, and full-width summaries. Charts, icons, and logos are content elements, not illustrations.
 
-| 布局 | `composition` | 配图安排 | 其余内容的组织示例 |
+| Layout | `composition` | Illustration placement | Remaining content |
 |---|---|---|---|
-| **1/2 左右** | `half_lr` | 左半区放一张主图 | 右半区放图表＋解释，或流程＋责任矩阵 |
-| **1/2 上下** | `half_tb` | 上半区放 1–3 张图 | 下半区安排两组互补内容，如流程＋趋势 |
-| **1/2 对角** | `half_diagonal` | 左上、右下各一张图 | 右上、左下各一个内容模块，共两图两模块 |
-| **1/4 配图** | `quarter` | 左上四分之一区域放一张图 | 其余三区放图表、表格、图标与文字，共一图三模块 |
+| **Half · Left / right** | `half_lr` | One main image in the left half. | A chart with explanation, or a process with a responsibility matrix. |
+| **Half · Top / bottom** | `half_tb` | 1–3 images in the top half. | Two complementary groups, such as a process and a trend. |
+| **Half · Diagonal** | `half_diagonal` | One image at top left and one at bottom right. | One content block in each of the other two quadrants. |
+| **Quarter · One image** | `quarter` | One image in the top-left quarter. | Three blocks combining charts, tables, icons, and text. |
 
-先确定图区，再组织其余内容。多张配图各自解释不同对象、阶段或视角；主体完整，色彩与材质一致。标题和内容按分区对齐，重点项可用字号、图标与字重轻量强调。具体字段与完整页面见 [阅读型示例](skills/navy-glass-slides/assets/deck.reading.example.json)。
+<details>
+<summary><strong>Preview all four reading layouts</strong></summary>
 
-### ECharts 与可编辑数据
+| Half · Left / right | Half · Top / bottom |
+|:---:|:---:|
+| <a href="docs/images/examples/reading-half-lr.png"><img src="docs/images/examples/reading-half-lr.png" alt="Left-right reading layout with a product scene, bar chart, and explanatory text" width="440"></a> | <a href="docs/images/examples/reading-half-tb.png"><img src="docs/images/examples/reading-half-tb.png" alt="Top-bottom reading layout with two scenes above a process and a line chart" width="440"></a> |
 
-阅读型复合页支持**横向条形图、折线图和环形图**，用于类别比较、时间趋势和整体构成。图表需提供单位与来源，并在相邻文字解释判断和边界；示例数字必须标明示例性质。
+| Half · Diagonal | Quarter · One image |
+|:---:|:---:|
+| <a href="docs/images/examples/reading-half-diagonal.png"><img src="docs/images/examples/reading-half-diagonal.png" alt="Diagonal reading layout with two images, a capability matrix, and a donut chart" width="440"></a> | <a href="docs/images/examples/reading-quarter.png"><img src="docs/images/examples/reading-quarter.png" alt="Quarter-image reading layout with a comparison chart, delivery checklist, and usage boundaries" width="440"></a> |
 
-播放器进入「编辑文字」后，可展开图表右下的「编辑图表数据」，修改类别、系列名和数值。图表同步刷新，「另存 HTML」后重新打开仍可继续编辑；修改数值后需核对文字结论是否仍成立。
+Navy Glass screenshots, each 1920 × 1080. Chart values are sample data.
 
-图表库、数据与 SVG 图表均随 HTML 离线工作，无需 CDN。当前模板支持 2–8 个类别、1–3 组有限非负数；环形图仅一组且合计大于零。详细约束、字段与示例见 [图表使用说明](skills/white-blue-slides/references/charts.md)。
+</details>
 
-## 制作流程与配图
+Reserve the image areas before arranging the other content. Multiple images should explain different subjects, stages, or viewpoints, with complete subjects and consistent colors and materials. Align headings and content to their regions; use modest changes in size, icon scale, or weight for emphasis. See the [complete reading example](skills/navy-glass-slides/assets/deck.reading.example.json).
 
-```text
-确认风格与类型 → 理解大纲 → 选择版式 → 建立 deck.json
-                                            ↓
-                                      检查内容计划
-                                            ↓
-                                      准备对应配图
-                                            ↓
-                              构建 HTML → 逐页检查 → 交付
-```
+### Offline charts and editable data
 
-- **已有图片**：先查看并复用，按页面内容核对图片与文字的对应关系。
-- **有可直接调用的内置生图工具**：按逐页简报生成、查看和调整，再构建成稿。
-- **没有内置生图工具**：先导出逐页完整提示词和供图清单，收到图片后继续制作；可以分批提供。
+Reading pages support **horizontal bar, line, and donut charts** for category comparisons, time trends, and parts of a whole. Include units and sources, explain the conclusion and its limits beside the chart, and clearly label sample data.
 
-每张缺图都需要本页独有的 `image.brief`，描述对象与数量、动作或系统处理、关系机制、层级细节与构图。导出器会检查缺项和跨页重复的简报。页面标题、真实数据、业务说明和架构标注留在可编辑内容中。
+In the player, select **Edit text** (`编辑文字`), then expand **Edit chart data** (`编辑图表数据`) at the chart's bottom right. Change categories, series names, and values; the chart updates immediately. Saving and reopening the HTML preserves editability. Recheck the accompanying conclusions after changing values.
 
-素白蓝调与写实微缩配图默认无字；写实微缩只提供 `ui_text: "none"`，包括白板、屏幕、文件、日历和键帽都不生成文字。海蓝玻璃默认为 `ui_text: "demo"`，只允许软件屏幕内的 Overview、Analytics、Activity、Demo 四个示意标签，也可选择 `none`。配图内的示意图表不充当真实业务数据。
+The library, data, and SVG charts work offline without a CDN. Supported inputs are 2–8 categories and 1–3 series of finite, nonnegative values. Donut charts accept one series with a positive total. See the [chart reference](skills/white-blue-slides/references/charts.md).
 
-最终交付物为一个独立 `.html` 文件；`deck.json`、提示词、图片清单和 QA 截图用于制作与续改。缺图的 `--draft` 版本仅用于内部预排。
+## Workflow and illustrations
 
-## 项目与运行命令
+**Choose style and mode → Read the outline → Plan layouts → Write `deck.json` → Check the plan → Prepare images → Build → Inspect every slide → Deliver**
 
-以下命令在仓库根目录执行，`project/` 表示本次演示稿的工作目录。
+| Available assets | What happens next |
+|---|---|
+| **Existing images** | Inspect and reuse them, checking that each image matches its slide's content. |
+| **A directly callable image-generation tool** | Generate from per-slide briefs, inspect the images, and refine them before building. |
+| **No built-in image-generation tool** | Export complete per-slide prompts and an asset checklist, then continue when images are supplied. Images can arrive in batches. |
+
+Each missing image needs a unique `image.brief` describing subjects and counts, actions or system behavior, relationships, hierarchy, detail, and composition. The exporter checks for missing fields and repeated briefs across slides. Keep titles, real data, business explanations, and architecture labels in editable content.
+
+<details>
+<summary><strong>Text inside illustrations and delivery files</strong></summary>
+
+White & Blue and Realistic Miniature use text-free illustrations by default. Realistic Miniature only supports `ui_text: "none"`, including on whiteboards, screens, documents, calendars, and keycaps. Navy Glass defaults to `ui_text: "demo"`, allowing only **Overview**, **Analytics**, **Activity**, and **Demo** inside software screens; it also supports `none`. Decorative charts in illustrations are not real business data.
+
+The final deliverable is one standalone `.html` file. Keep `deck.json`, prompts, asset checklists, and QA screenshots for production and future edits. A `--draft` build with missing images is only an internal layout preview.
+
+</details>
+
+## Build and check
+
+Run these commands from the repository root. `project/` is the working directory for your deck.
 
 ```text
 project/
-├── 大纲.md
+├── outline.md
 ├── deck.json
-├── images/                  # 本项目配图
-├── 演示稿.html              # 最终交付
-└── qa/                      # 截图与检查报告
+├── images/          # Project illustrations
+├── presentation.html
+└── qa/              # Screenshots and inspection reports
 ```
 
-可从完整示例建立项目并替换为自己的内容：
+### Start from an example
 
-| 示例 | 内容 |
+| Example | Included content |
 |---|---|
-| [素白蓝调示例](skills/white-blue-slides/assets/deck.example.json) | 封面、场景信息页和尾页 |
-| [海蓝玻璃演讲型示例](skills/navy-glass-slides/assets/deck.example.json) | 低密度产品介绍与轻量强调 |
-| [海蓝玻璃阅读型示例](skills/navy-glass-slides/assets/deck.reading.example.json) | 四类图文分区、流程、矩阵与图表 |
-| [写实微缩演讲型示例](skills/realistic-miniature-slides/assets/deck.example.json) | 团队工作系统、协作交接与轻量强调 |
-| [写实微缩阅读型示例](skills/realistic-miniature-slides/assets/deck.reading.example.json) | 四类图文分区、职责流程与示例任务图表 |
+| [White & Blue](skills/white-blue-slides/assets/deck.example.json) | Cover, scene-based information pages, and a closing slide. |
+| [Navy Glass · Speech](skills/navy-glass-slides/assets/deck.example.json) | A concise product introduction with subtle emphasis. |
+| [Navy Glass · Reading](skills/navy-glass-slides/assets/deck.reading.example.json) | All four reading layouts, processes, matrices, and charts. |
+| [Realistic Miniature · Speech](skills/realistic-miniature-slides/assets/deck.example.json) | A team workspace, collaboration handoffs, and subtle emphasis. |
+| [Realistic Miniature · Reading](skills/realistic-miniature-slides/assets/deck.reading.example.json) | All four reading layouts, responsibilities, and sample task charts. |
 
-示例附带配图简报；正式构建前，需要按清单准备对应图片。项目图片路径相对 `deck.json` 所在目录，完整数据格式见 [内容数据与构建](skills/white-blue-slides/references/deck-format.md)。
+Examples include illustration briefs. Prepare the required images before a final build. Image paths are relative to the directory containing `deck.json`. See the [deck format reference](skills/white-blue-slides/references/deck-format.md).
+
+### Validate, prepare, build, and inspect
 
 ```bash
-# 1. 检查设计决策和页面结构，不要求图片已经存在
+# 1. Check design decisions and slide structure; images need not exist yet.
 python3 skills/white-blue-slides/scripts/build_deck.py project/deck.json \
   --check-plan --out project/design-plan.json
 
-# 2. 导出提示词与供图清单，不调用模型或网络
+# 2. Export prompts and an asset checklist; no model or network calls.
 python3 skills/white-blue-slides/scripts/prepare_images.py project/deck.json \
   --out project/image-handoff
 
-# 3. 图片齐全后，构建单文件 HTML
+# 3. Build the self-contained HTML once all images are ready.
 python3 skills/white-blue-slides/scripts/build_deck.py project/deck.json \
-  --out project/演示稿.html
+  --out project/presentation.html
 
-# 4. 渲染审查并保存逐页截图
-node skills/white-blue-slides/scripts/audit_deck.cjs project/演示稿.html \
+# 4. Inspect the rendered deck and save screenshots of every slide.
+node skills/white-blue-slides/scripts/audit_deck.cjs project/presentation.html \
   --out project/qa --browser chrome
 ```
 
-| 可选工具或参数 | 用途 |
+Automated checks cover structure, image/content regions, visible components, and player behavior. Visual review must also verify complete image subjects, accurate image/text relationships, and sufficient context for independent readers.
+
+<details>
+<summary><strong>Build options and all 13 shared layouts</strong></summary>
+
+| Tool or option | Purpose |
 |---|---|
-| `match_paper.py project/images/*.png --paper '#F7F6F2'` | 校准配图底色并备份原图；纸色取自所选主题 |
-| `--embed-format keep` | 保留原始图片格式；默认优先转 WebP 内嵌 |
-| `--embed-quality 85` | 设置图片压缩质量 |
-| `--builder` | 加载项目新增版式；复用共享组件 |
-| `--allow-restyle` | 用户明确要求超出所选主题，自定义封面或页头页脚时使用 |
+| `match_paper.py project/images/*.png --paper '#F7F6F2'` | Match image backgrounds to the chosen theme's paper color, keeping backups. |
+| `--embed-format keep` | Keep the original image format instead of the default WebP preference. |
+| `--embed-quality 85` | Set image compression quality. |
+| `--builder` | Load project-specific layouts that reuse shared components. |
+| `--allow-restyle` | Allow cover, header, or footer customization beyond the chosen theme when explicitly requested by the user. |
 
-选择现有命名风格无需 `--allow-restyle`。自动检查覆盖结构、图文分区、可见组件和播放器功能；逐页视觉检查还需核对配图主体、图文对应和独立阅读时的完整性。
+Selecting a supplied style does not require `--allow-restyle`.
 
-### 13 种共享版式
-
-| 版式 | 用途 | 版式 | 用途 |
+| Layout | Purpose | Layout | Purpose |
 |---|---|---|---|
-| `cover` | 封面 | `architecture` | 分层架构与直接标注 |
-| `scene` | 大场景与两侧说明 | `flow` | 步骤与控制点 |
-| `split` / `triad` | 左右说明／三段控制 | `domains` | 多领域清单 |
-| `journey` | 阶段、比较或路径 | `formula` | 公式与因素关系 |
-| `table` | 表格与边界对照 | `relations` | 实体与关联 |
-| `closing` | 有配图的收束尾页 | `reading` | 四类阅读型复合信息页 |
+| `cover` | Cover | `architecture` | Layered architecture with direct labels |
+| `scene` | A main scene with notes on both sides | `flow` | Steps and control points |
+| `split` / `triad` | Two-sided explanations / three-part controls | `domains` | Multiple domain lists |
+| `journey` | Stages, comparisons, or paths | `formula` | Formulas and relationships between factors |
+| `table` | Tables and boundary comparisons | `relations` | Entities and connections |
+| `closing` | An illustrated closing slide | `reading` | The four composite reading layouts |
 
-## 播放、编辑与保存
+</details>
 
-工具栏提供：**总览 · 全屏 · 讲稿 · 编辑文字 · 另存 HTML · 打印**。默认画布为 1920 × 1080，并按窗口等比适配。文字编辑后需「另存 HTML」保留修改，浏览器内的修改不会自动回写 `deck.json`。
+## Present, edit, and save
 
-| 按键 | 作用 | 按键 | 作用 |
+The player includes **Overview · Fullscreen · Speaker notes · Edit text · Save HTML · Print**. Its default canvas is 1920 × 1080 and scales proportionally to the window. Use **Save HTML** after editing; browser changes do not write back to `deck.json`.
+
+| Key | Action | Key | Action |
 |---|---|---|---|
-| `→` / `PageDown` / `空格` | 下一页 | `O` | 总览 |
-| `←` / `PageUp` | 上一页 | `F` | 全屏 |
-| `Home` / `End` | 首页／末页 | `N` | 讲稿面板 |
-| `Esc` | 退出总览、编辑或讲稿 | URL `#3` | 直接打开第 3 页 |
+| `→` / `PageDown` / `Space` | Next slide | `O` | Overview |
+| `←` / `PageUp` | Previous slide | `F` | Fullscreen |
+| `Home` / `End` | First / last slide | `N` | Speaker notes |
+| `Esc` | Close overview, editing, or notes | URL `#3` | Open slide 3 directly |
 
-## 持续添加新风格
+## Extend the toolkit
 
-每个风格包维护独立的页面主题、配图基底、参考素材和验收规范。共享脚本负责布局与功能，不随风格复制。
+Each style package owns its theme, illustration base prompt, references, and quality rules. Shared scripts handle layouts and functionality without being duplicated per style.
 
-新包按视觉特点使用小写英文与短横线命名，统一以 `-slides` 结尾；目录名与 Skill 名一致，中文显示名称用于工作台选择。
+List the available styles:
+
+```bash
+python3 skills/white-blue-slides/scripts/style_packs.py --list
+```
+
+Discovery returns the name, ID, description, and skill entry point for valid sibling packages. New packages appear automatically without editing the workbench's options.
+
+<details>
+<summary><strong>Package structure and adding a style</strong></summary>
+
+Use a lowercase, hyphenated English package name ending in `-slides`, matching the skill name. The Chinese display name appears in the workbench selection.
 
 ```text
 skills/
-├── ppt-workbench/           # 统一选择入口
-├── white-blue-slides/       # 素白蓝调 + 共享制作套件
-│   ├── scripts/            # 构建、配图清单、自动发现与检查
-│   ├── assets/             # 基础组件、播放器、阅读布局与图表
-│   └── references/         # 数据、类型、图表与接入规范
-├── navy-glass-slides/          # 海蓝玻璃独立风格包
-├── realistic-miniature-slides/   # 写实微缩独立风格包
-└── new-style-slides/        # 未来新增的同级包
+├── ppt-workbench/                 # Common entry point
+├── white-blue-slides/             # White & Blue + shared toolkit
+│   ├── scripts/                  # Build, asset handoff, discovery, and QA
+│   ├── assets/                   # Components, player, layouts, and charts
+│   └── references/               # Data, modes, charts, and extension rules
+├── navy-glass-slides/             # Independent style package
+├── realistic-miniature-slides/    # Independent style package
+└── new-style-slides/              # Future sibling package
     ├── SKILL.md
     ├── agents/openai.yaml
     ├── assets/
@@ -329,40 +366,46 @@ skills/
         └── quality-check.md
 ```
 
-新增包在 `assets/style.json` 声明 `schema: "html-slide-style/v1"`、唯一 ID、风格资源和检查契约。新方向完成样例确认与验证后设为 `ready`，再同级安装；工作台、构建器和配图导出器自动识别。所有新风格继续复用演讲型／阅读型和四种阅读布局。
+Declare `schema: "html-slide-style/v1"`, a unique ID, style resources, and an audit contract in `assets/style.json`. After sample approval and validation, mark the package `ready` and install it alongside the others. The workbench, builder, and image exporter discover it automatically. New styles reuse both presentation modes and all four reading layouts.
 
 ```bash
-# 开发时连同 draft 包一起检查；不会使草稿变成可用风格
+# Include draft packages for development checks; this does not activate them.
 python3 skills/white-blue-slides/scripts/style_packs.py --list --include-drafts
 ```
 
-完整字段、接入步骤和验证要求见 [新增独立风格包](skills/white-blue-slides/references/adding-styles.md)。
+See [adding an independent style package](skills/white-blue-slides/references/adding-styles.md) for fields, integration steps, and validation requirements.
 
-## 依赖与开发检查
+</details>
 
-| 用途 | 依赖 |
+### Dependencies and development checks
+
+| Task | Dependencies |
 |---|---|
-| 构建 HTML、导出提示词、列出风格 | Python 3.9+ 标准库 |
-| 可选 WebP 压缩 | Pillow；缺少时保留原图格式 |
-| 配图底色校准 | NumPy + Pillow |
-| 自动浏览器审查 | Node.js + Playwright + Chrome/Chromium |
-| 可选总览拼图 | Sharp |
+| Build HTML, export prompts, list styles | Python 3.9+ standard library |
+| Optional WebP compression | Pillow; original formats are preserved if unavailable |
+| Match illustration backgrounds | NumPy + Pillow |
+| Automated browser inspection | Node.js + Playwright + Chrome/Chromium |
+| Optional overview contact sheet | Sharp |
 
-ECharts 5.6.0 已随套件内置，无需额外安装或访问 CDN。生图能力由当前 Agent 环境提供，安装 Skill 不等于安装生图工具。无法运行自动审查时，使用可用浏览器逐页检查并说明验证范围。
+ECharts 5.6.0 is bundled; no separate installation or CDN is needed. Image generation depends on the agent environment and is not installed with the skills. If automated inspection is unavailable, inspect each slide in an available browser and state the scope of validation.
 
-修改脚本或资源后运行自测：
+After changing scripts or assets, run:
 
 ```bash
 python3 skills/white-blue-slides/scripts/selftest.py
 ```
 
-自测覆盖共享组件、两种类型、风格独立性、动态新增风格、图表输入与缺图恢复。主题或版式发生变化时，再使用真实配图构建并逐页检查；自测不替代视觉验收。
+The self-test covers shared components, both modes, style isolation, dynamic style discovery, chart inputs, and recovery from missing images. After theme or layout changes, also build with real illustrations and inspect every slide; self-tests do not replace visual review.
 
-## 许可证与素材
+## License and assets
 
-项目代码采用 [MIT](LICENSE)。第三方组件保留各自许可证：
+Project code is licensed under [MIT](LICENSE). Third-party components retain their own licenses:
 
-- Lucide 图标：[MIT 许可证](skills/white-blue-slides/assets/lucide-LICENSE.txt)。
-- Apache ECharts：[Apache 2.0 许可证](skills/white-blue-slides/assets/vendor/ECHARTS-LICENSE.txt) 与 [NOTICE](skills/white-blue-slides/assets/vendor/ECHARTS-NOTICE.txt)，同时内嵌于含图表的成稿。
+- Lucide icons: [MIT license](skills/white-blue-slides/assets/lucide-LICENSE.txt).
+- Apache ECharts: [Apache 2.0 license](skills/white-blue-slides/assets/vendor/ECHARTS-LICENSE.txt) and [NOTICE](skills/white-blue-slides/assets/vendor/ECHARTS-NOTICE.txt), also embedded in decks that contain charts.
 
-内置 Logo 与默认页脚为普爱智医品牌资源；用于其他品牌项目时，应替换为对应资源。包内参考图用于说明视觉风格，示例业务内容与数字不构成实际产品能力或效果声明。
+The bundled logo and default footer are brand assets of 普爱智医 (PLANCK AI LABS); replace them for other brands. Reference images demonstrate visual styles. Example business content and numbers are not claims about actual product capabilities or results.
+
+---
+
+<p align="center"><a href="README.md">English</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="#readme-top">Back to top ↑</a></p>
